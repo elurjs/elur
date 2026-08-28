@@ -1,5 +1,5 @@
 {
-  "name": "elur",
+  "name": "@elurjs/core",
   "version": "3.5.0",
   "description": "A lightweight, fully reactive framework — no virtual DOM, no compiler, just signals and tagged templates.",
   "license": "MIT",
