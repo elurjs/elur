@@ -37,21 +37,21 @@ export interface HydrationProtocolContext {
     render(value: unknown): unknown;
 }
 
-export interface NixRenderProtocol {
+export interface ElurRenderProtocol {
     renderServer?(context: ServerRenderProtocolContext): string | Promise<string>;
     mountDom?(context: DomProtocolContext): (() => void) | void;
     hydrateDom?(context: HydrationProtocolContext): (() => void) | void;
 }
 
-export const NIX_TEMPLATE_DESCRIPTOR = Symbol.for("@deijose/nix-js/template-descriptor");
-export const NIX_RENDER_PROTOCOL = Symbol.for("@deijose/nix-js/render-protocol");
+export const ELUR_TEMPLATE_DESCRIPTOR = Symbol.for("elur/template-descriptor");
+export const ELUR_RENDER_PROTOCOL = Symbol.for("elur/render-protocol");
 
 /**
  * Runtime feature capabilities, for tooling to detect support without
  * inferring it from version strings.
  *
  * NOTE: Partial attribute interpolation is now handled at compile time by
- * @deijose/vite-plugin-nix-js. The core runtime does not support it natively.
+ * @elurjs/vite-plugin-elur. The core runtime does not support it natively.
  * Use the Vite plugin for partial interpolation support.
  */
 export const templateFeatures = {
@@ -59,27 +59,27 @@ export const templateFeatures = {
     partialAttributeInterpolation: false,
 } as const;
 
-export interface NixTemplate {
-    readonly __isNixTemplate: true;
-    readonly [NIX_TEMPLATE_DESCRIPTOR]?: TemplateDescriptor;
-    readonly [NIX_RENDER_PROTOCOL]?: NixRenderProtocol;
+export interface ElurTemplate {
+    readonly __isElurTemplate: true;
+    readonly [ELUR_TEMPLATE_DESCRIPTOR]?: TemplateDescriptor;
+    readonly [ELUR_RENDER_PROTOCOL]?: ElurRenderProtocol;
     /** Mounts the template into a container element (public / root API). */
-    mount(container: Element | string): NixMountHandle;
+    mount(container: Element | string): ElurMountHandle;
     /** @internal Renders before `before` node (or appends to `parent`). Returns cleanup. */
     _render(parent: Node, before: Node | null): () => void;
 }
 
-export interface NixMountHandle {
+export interface ElurMountHandle {
     unmount(): void;
 }
 
 /** Direct reference to a DOM element, assigned on mount and cleared on unmount. */
-export interface NixRef<T extends Element = Element> {
+export interface ElurRef<T extends Element = Element> {
     el: T | null;
 }
 
-/** Creates an empty `NixRef`. Use as `ref` attribute value in templates. */
-export function ref<T extends Element = Element>(): NixRef<T> {
+/** Creates an empty `ElurRef`. Use as `ref` attribute value in templates. */
+export function ref<T extends Element = Element>(): ElurRef<T> {
     return { el: null };
 }
 
@@ -88,7 +88,7 @@ export interface KeyedList<T = unknown> {
     readonly __isKeyedList: true;
     readonly items: T[];
     readonly keyFn: (item: T, index: number) => string | number;
-    readonly renderFn: (item: T, index: number) => NixTemplate | import("../lifecycle.js").NixComponent;
+    readonly renderFn: (item: T, index: number) => ElurTemplate | import("../lifecycle.js").ElurComponent;
 }
 
 export interface KEntry {
@@ -106,34 +106,34 @@ export interface PortalOutlet {
 
 /** Fallback: a static template/component, or a factory receiving the error. */
 export type ErrorFallback =
-    | NixTemplate
-    | import("../lifecycle.js").NixComponent
-    | ((err: unknown) => NixTemplate | import("../lifecycle.js").NixComponent);
+    | ElurTemplate
+    | import("../lifecycle.js").ElurComponent
+    | ((err: unknown) => ElurTemplate | import("../lifecycle.js").ElurComponent);
 
 /** Content that can be wrapped with `transition()`. */
 export type TransitionContent =
-    | NixTemplate
-    | import("../lifecycle.js").NixComponent
-    | (() => NixTemplate | import("../lifecycle.js").NixComponent | null);
+    | ElurTemplate
+    | import("../lifecycle.js").ElurComponent
+    | (() => ElurTemplate | import("../lifecycle.js").ElurComponent | null);
 
 export const COMMENT = {
-    SCOPE: "nix-scope",
-    ERROR_BOUNDARY: "nix-eb",
-    TRANSITION: "nix-t",
-    KEYED_START: "nix-ks",
-    KEYED_END: "nix-ke",
-    KEYED_ZONE: "nix-kz",
+    SCOPE: "elur-scope",
+    ERROR_BOUNDARY: "elur-eb",
+    TRANSITION: "elur-t",
+    KEYED_START: "elur-ks",
+    KEYED_END: "elur-ke",
+    KEYED_ZONE: "elur-kz",
 } as const;
 
 // =============================================================================
 // --- DOM inspection helpers ---
 // =============================================================================
 
-export function isNixTemplate(v: unknown): v is NixTemplate {
+export function isElurTemplate(v: unknown): v is ElurTemplate {
     return (
         v != null &&
         typeof v === "object" &&
-        (v as Record<string, unknown>).__isNixTemplate === true
+        (v as Record<string, unknown>).__isElurTemplate === true
     );
 }
 

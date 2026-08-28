@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { signal, computed } from "/home/deiver/Documents/Projects/javascript/nix-js/nix-js-microframework/src/nix/reactivity.ts";
-import { html } from "/home/deiver/Documents/Projects/javascript/nix-js/nix-js-microframework/src/nix/template/html.ts";
-import { renderToString } from "/home/deiver/Documents/Projects/javascript/nix-js/nix-js-microframework/src/nix/server/index.ts";
-import { hydrate } from "/home/deiver/Documents/Projects/javascript/nix-js/nix-js-microframework/src/nix/hydrate/index.ts";
+import { signal, computed } from "../elur/reactivity.js";
+import { html } from "../elur/template/html.js";
+import { renderToString } from "../elur/server/index.js";
+import { hydrate } from "../elur/hydrate/index.js";
 
 describe("hydrate reactive array + computed", () => {
   it("updates the computed filter after hydration", async () => {

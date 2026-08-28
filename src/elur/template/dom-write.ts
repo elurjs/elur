@@ -19,7 +19,7 @@ export function queueDOMWrite(task: () => void): void {
                     t();
                 } catch (e) {
                     // Evitamos que un error rompa el hilo entero
-                    console.error("[Nix.js] Error in DOM write task:", e);
+                    console.error("[Elur] Error in DOM write task:", e);
                 }
             }
             _domWriteQueue.clear();

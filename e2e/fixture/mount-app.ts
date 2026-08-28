@@ -1,9 +1,9 @@
-import { batch, html, signal } from "/src/nix/index.js";
+import { batch, html, signal } from "/src/elur/index.js";
 
 declare global {
     interface Window {
         __umHandle?: () => void;
-        __nix: {
+        __elur: {
             writes: number;
             writeLog: Array<{ target: Element; name: string; value: string }>;
             initWrites(): void;
@@ -27,25 +27,25 @@ declare global {
 const out = document.getElementById("app")!;
 
 // Instrument setAttribute BEFORE any mount so mount writes can be measured.
-window.__nix = {
+window.__elur = {
     writes: 0,
     writeLog: [] as Array<{ target: Element; name: string; value: string }>,
     initWrites() {
         const orig = Element.prototype.setAttribute;
         Element.prototype.setAttribute = function (name: string, value: string) {
-            (window.__nix.writes as number)++;
-            window.__nix.writeLog.push({ target: this as Element, name, value });
+            (window.__elur.writes as number)++;
+            window.__elur.writeLog.push({ target: this as Element, name, value });
             return orig.call(this, name, value);
         };
     },
     resetWrites() {
-        window.__nix.writes = 0;
-        window.__nix.writeLog = [];
+        window.__elur.writes = 0;
+        window.__elur.writeLog = [];
     },
     writesFor(sel: string): number {
         const el = document.querySelector(sel);
         if (!el) return -1;
-        return window.__nix.writeLog.filter((w) => w.target === el).length;
+        return window.__elur.writeLog.filter((w) => w.target === el).length;
     },
     setSize(v) { size.value = v; },
     setColor(v) { color.value = v; },
@@ -58,7 +58,7 @@ window.__nix = {
         await new Promise((r) => setTimeout(r, 0));
         const el = document.querySelector('[data-r="multiattr"]');
         return {
-            writes: window.__nix.writesFor('[data-r="multiattr"]'),
+            writes: window.__elur.writesFor('[data-r="multiattr"]'),
             cls: el?.className ?? "",
         };
     },
@@ -68,7 +68,7 @@ window.__nix = {
         await new Promise((r) => setTimeout(r, 0));
         const el = document.querySelector('[data-r="multiattr"]');
         return {
-            writes: window.__nix.writesFor('[data-r="multiattr"]'),
+            writes: window.__elur.writesFor('[data-r="multiattr"]'),
             cls: el?.className ?? "",
         };
     },
@@ -104,7 +104,7 @@ window.__nix = {
     },
 };
 
-window.__nix.initWrites();
+window.__elur.initWrites();
 
 // --- Static partial cases ---------------------------------------------------
 
@@ -223,4 +223,4 @@ miscZone.id = "misc";
 out.appendChild(miscZone);
 miscTpl.mount(miscZone);
 
-window.__nix.resetWrites();
+window.__elur.resetWrites();

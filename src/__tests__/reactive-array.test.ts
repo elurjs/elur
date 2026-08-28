@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { signal, computed } from "/home/deiver/Documents/Projects/javascript/nix-js/nix-js-microframework/src/nix/reactivity.ts";
-import { html } from "/home/deiver/Documents/Projects/javascript/nix-js/nix-js-microframework/src/nix/template/html.ts";
+import { signal, computed } from "../elur/reactivity.js";
+import { html } from "../elur/template/html.js";
 
 describe("reactive array rendering", () => {
   it("re-renders the full array when the source changes", () => {

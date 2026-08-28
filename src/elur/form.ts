@@ -70,7 +70,7 @@ export function max(n: number, message?: string): Validator<number> {
 
 // --- Custom validator API ---
 
-/** Creates a typed custom validator compatible with `nixField` and `createForm`. */
+/** Creates a typed custom validator compatible with `elurField` and `createForm`. */
 export function createValidator<T, AllValues = unknown>(
     fn: (value: T, allValues?: AllValues) => string | null | undefined
 ): Validator<T, AllValues> {
@@ -160,10 +160,10 @@ export interface FieldState<T> {
     _dispose(): void;
 }
 
-// --- nixField ---
+// --- elurField ---
 
 /** Creates a standalone reactive form field with optional validators. */
-export function nixField<T, AllValues = unknown>(
+export function elurField<T, AllValues = unknown>(
     initialValue: T,
     fieldValidators: Validator<T, AllValues>[] = [],
     validateOn: ValidateOn = "blur",
@@ -321,13 +321,13 @@ export interface FieldArrayState<T extends Record<string, unknown>> {
  * Creates a reactive array of field groups for dynamic list forms.
  *
  * @example
- * const items = nixFieldArray([{ name: "" }], {
+ * const items = elurFieldArray([{ name: "" }], {
  *     name: [required()],
  * });
  * items.append({ name: "nuevo" });
  * items.remove(0);
  */
-export function nixFieldArray<T extends Record<string, unknown>>(
+export function elurFieldArray<T extends Record<string, unknown>>(
     initialItems: T[],
     fieldValidators: { [K in keyof T]?: Validator<T[K], unknown>[] } = {},
     validateOn: ValidateOn = "blur",
@@ -336,7 +336,7 @@ export function nixFieldArray<T extends Record<string, unknown>>(
         const group = {} as { [K in keyof T]: FieldState<T[K]> };
         for (const key in item) {
             const vs = (fieldValidators[key] ?? []) as Validator<T[typeof key], unknown>[];
-            (group as Record<string, unknown>)[key] = nixField(item[key], vs, validateOn);
+            (group as Record<string, unknown>)[key] = elurField(item[key], vs, validateOn);
         }
         return group;
     }
@@ -636,7 +636,7 @@ export function createForm<T extends Record<string, unknown>>(
 
     for (const [path, initialValue] of flattenValuePaths(initialValues)) {
         const vs = validatorsByPath?.[path] ?? [];
-        fields[path] = nixField<unknown, T>(initialValue, vs, validateOn, snapshotValues);
+        fields[path] = elurField<unknown, T>(initialValue, vs, validateOn, snapshotValues);
     }
 
     const isSubmitting = signal(false);

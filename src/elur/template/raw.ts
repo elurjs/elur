@@ -1,13 +1,13 @@
-import { NIX_RENDER_PROTOCOL, type NixRenderProtocol } from "./types.js";
+import { ELUR_RENDER_PROTOCOL, type ElurRenderProtocol } from "./types.js";
 
 /**
  * Marks a string as trusted raw HTML. Only use with sanitized/trusted content;
  * the markup is emitted verbatim on the server and mounted verbatim on the client
  * without escaping. This is the only explicit trusted path for raw HTML.
  */
-export function raw(htmlString: string): { [NIX_RENDER_PROTOCOL]: NixRenderProtocol } {
+export function raw(htmlString: string): { [ELUR_RENDER_PROTOCOL]: ElurRenderProtocol } {
     return {
-        [NIX_RENDER_PROTOCOL]: {
+        [ELUR_RENDER_PROTOCOL]: {
             renderServer() {
                 return htmlString;
             },

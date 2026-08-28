@@ -39,7 +39,7 @@ function _createReactivityState(): _ReactivityGlobalState {
     };
 }
 
-const _reactivityStateKey = Symbol.for("@deijose/nix-js/reactivity-state");
+const _reactivityStateKey = Symbol.for("elur/reactivity-state");
 const _globalObj = globalThis as Record<PropertyKey, unknown>;
 const _state = (() => {
     const existing = _globalObj[_reactivityStateKey] as _ReactivityGlobalState | undefined;
@@ -245,7 +245,7 @@ export function effect(fn: () => void | (() => void)): () => void {
             restored.deps = null;
             _state.ctxPool.push(restored);
             throw new Error(
-                "[nix-js] Maximum effect re-execution depth exceeded (possible infinite loop)."
+                "[elur] Maximum effect re-execution depth exceeded (possible infinite loop)."
             );
         }
 
@@ -291,7 +291,7 @@ export function effect(fn: () => void | (() => void)): () => void {
 }
 
 /** Derived signal that recalculates when its dependencies change. */
-const _computedSentinel = Symbol("nix-computed-uninitialized");
+const _computedSentinel = Symbol("elur-computed-uninitialized");
 
 export function computed<T>(
     fn: () => T,
@@ -323,7 +323,7 @@ export function computed<T>(
     const signalProto = Object.getPrototypeOf(s) as Signal<T>;
     const valueDescriptor = Object.getOwnPropertyDescriptor(signalProto, "value");
     if (!valueDescriptor?.get || !valueDescriptor?.set) {
-        throw new Error("[nix-js] Internal error: Signal.value descriptor not found.");
+        throw new Error("[elur] Internal error: Signal.value descriptor not found.");
     }
 
     Object.defineProperty(s, "value", {

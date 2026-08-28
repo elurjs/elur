@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { html } from "../nix/template";
-import { createRouter, nixRouter, RouterView, Link, _resetRouter } from "../nix/router";
-import { mount } from "../nix/component";
-import { NixComponent } from "../nix/lifecycle";
-import type { NavigationGuard } from "../nix/router";
+import { html } from "../elur/template";
+import { createRouter, elurRouter, RouterView, Link, _resetRouter } from "../elur/router";
+import { mount } from "../elur/component";
+import { ElurComponent } from "../elur/lifecycle";
+import type { NavigationGuard } from "../elur/router";
 
 // Reset router singleton before each test to avoid warnings
 beforeEach(() => { _resetRouter(); });
@@ -96,10 +96,10 @@ describe("createRouter", () => {
             { name: "search", path: "/search", component: () => html`<p>search</p>` },
         ]);
 
-        r.navigate({ name: "search", query: { q: "nix", page: 1 } });
+        r.navigate({ name: "search", query: { q: "elur", page: 1 } });
 
         expect(r.current.value).toBe("/search");
-        expect(r.query.value).toEqual({ q: "nix", page: "1" });
+        expect(r.query.value).toEqual({ q: "elur", page: "1" });
     });
 
     it("named-route query merges with second argument", () => {
@@ -158,14 +158,14 @@ describe("createRouter", () => {
     });
 });
 
-// ── nixRouter ─────────────────────────────────────────────────────────────────
+// ── elurRouter ─────────────────────────────────────────────────────────────────
 
-describe("nixRouter", () => {
+describe("elurRouter", () => {
     it("returns the active router singleton", () => {
         const r = createRouter([
             { path: "/", component: () => html`<p>home</p>` },
         ]);
-        expect(nixRouter()).toBe(r);
+        expect(elurRouter()).toBe(r);
     });
 
     it("prefers injected router from mount options over singleton", () => {
@@ -176,10 +176,10 @@ describe("nixRouter", () => {
             { path: "/", component: () => html`<p>root</p>` },
         ]);
 
-        class Probe extends NixComponent {
+        class Probe extends ElurComponent {
             seen: unknown;
             onInit() {
-                this.seen = nixRouter();
+                this.seen = elurRouter();
             }
             render() {
                 return html`<p>probe</p>`;
@@ -194,15 +194,15 @@ describe("nixRouter", () => {
         expect(probe.seen).not.toBe(singleton);
     });
 
-    it("supports router DI when root is a NixTemplate", () => {
+    it("supports router DI when root is a ElurTemplate", () => {
         const injected = createRouter([
             { path: "/", component: () => html`<p>root</p>` },
         ]);
 
-        class Probe extends NixComponent {
+        class Probe extends ElurComponent {
             seen: unknown;
             onInit() {
-                this.seen = nixRouter();
+                this.seen = elurRouter();
             }
             render() {
                 return html`<span>inside</span>`;
@@ -227,9 +227,9 @@ describe("nixRouter", () => {
             { path: "/b", component: () => html`<p>b</p>` },
         ]);
 
-        class Shell extends NixComponent {
+        class Shell extends ElurComponent {
             render() {
-                const router = nixRouter();
+                const router = elurRouter();
                 return html`<span class="path">${() => router.current.value}</span>`;
             }
         }
@@ -787,7 +787,7 @@ describe("Base path options", () => {
         r.navigate("/test");
         expect(pushStateSpy).toHaveBeenCalledWith(
             expect.objectContaining({
-                __nix_scroll: expect.objectContaining({ left: 0, top: 0 }),
+                __elur_scroll: expect.objectContaining({ left: 0, top: 0 }),
             }),
             "",
             "/my-app/test",
@@ -914,7 +914,7 @@ describe("scroll restoration", () => {
 
         expect(replaceSpy).toHaveBeenCalledWith(
             expect.objectContaining({
-                __nix_scroll: expect.objectContaining({ left: 25, top: 60 }),
+                __elur_scroll: expect.objectContaining({ left: 25, top: 60 }),
             }),
             "",
         );
@@ -934,7 +934,7 @@ describe("scroll restoration", () => {
 
         window.dispatchEvent(
             new PopStateEvent("popstate", {
-                state: { __nix_scroll: { left: 111, top: 222 } },
+                state: { __elur_scroll: { left: 111, top: 222 } },
             }),
         );
 
@@ -943,12 +943,12 @@ describe("scroll restoration", () => {
     });
 });
 
-// ── nixRouter Errors ──────────────────────────────────────────────────────────
+// ── elurRouter Errors ──────────────────────────────────────────────────────────
 
-describe("nixRouter errors", () => {
+describe("elurRouter errors", () => {
     it("throws if called before createRouter", () => {
         _resetRouter();
-        expect(() => nixRouter()).toThrow(/No active router/);
+        expect(() => elurRouter()).toThrow(/No active router/);
     });
 });
 
@@ -1031,7 +1031,7 @@ describe("Link component", () => {
         const link = new Link("/about", "About");
         const el = document.createElement("div");
 
-        // 1. OBLIGATORIO: Adjuntarlo al body para que la DELEGACIÓN DE EVENTOS de Nix.js funcione
+        // 1. OBLIGATORIO: Adjuntarlo al body para que la DELEGACIÓN DE EVENTOS de Elur funcione
         document.body.appendChild(el);
         link.render().mount(el);
 

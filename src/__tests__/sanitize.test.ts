@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { html } from "../nix/template";
-import { sanitizeUrl, isUrlAttrName, isExecutableAttrName } from "../nix/template/sanitize";
-import { signal, nextTick } from "../nix/reactivity";
+import { html } from "../elur/template";
+import { sanitizeUrl, isUrlAttrName, isExecutableAttrName } from "../elur/template/sanitize";
+import { signal, nextTick } from "../elur/reactivity";
 
 // =============================================================================
 // --- Unit: sanitizeUrl ---

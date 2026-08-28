@@ -1,5 +1,5 @@
-import { signal, computed, effect, batch } from "./nix";
-import { html } from "./nix";
+import { signal, computed, effect, batch } from "./elur";
+import { html } from "./elur";
 
 const testsF1 = document.getElementById("tests")!;
 let passedF1 = 0;
@@ -52,12 +52,12 @@ spy.value = 999;
 assertF1(peekRuns === 1, "Cambiar signal NO re-ejecuta (peek no suscribe)");
 
 groupF1("Effect — auto-tracking");
-const name = signal("Nix");
+const name = signal("Elur");
 let effectRuns = 0;
 let lastSeen = "";
 effect(() => { effectRuns++; lastSeen = name.value; });
 assertF1(effectRuns === 1, "Se ejecuta inmediatamente al crearse");
-assertF1(lastSeen === "Nix", "Lee el valor actual: 'Nix'");
+assertF1(lastSeen === "Elur", "Lee el valor actual: 'Elur'");
 name.value = "JS";
 assertF1(effectRuns === 2, "Se re-ejecuta al cambiar el signal");
 assertF1(lastSeen === "JS", "Ve el nuevo valor: 'JS'");
@@ -173,7 +173,7 @@ summaryF1.innerHTML = `
 
 const demoF1 = document.getElementById("demo")!;
 const clicks = signal(0);
-const username = signal("Nix");
+const username = signal("Elur");
 const doubledClicks = computed(() => clicks.value * 2);
 const message = computed(() => `¡Hola ${username.value}! Llevas ${clicks.value} clicks`);
 
@@ -188,7 +188,7 @@ demoF1.innerHTML = `
   </div>
   <div class="demo-row">
     <label style="color:#a3a3a3">Nombre:</label>
-    <input id="input-name" type="text" value="Nix" />
+    <input id="input-name" type="text" value="Elur" />
   </div>
   <div class="effect-log" id="demo-log"></div>
 `;
@@ -255,10 +255,10 @@ groupF2("html`` — 1. Template estático");
 groupF2("html`` — 2. Texto reactivo");
 {
   const el = sandbox();
-  const n = signal("Nix");
+  const n = signal("Elur");
   html`<p>Hola ${() => n.value}</p>`.mount(el);
   const p = el.querySelector("p")!;
-  assertF2(p.textContent === "Hola Nix", "Texto inicial: 'Hola Nix'");
+  assertF2(p.textContent === "Hola Elur", "Texto inicial: 'Hola Elur'");
   n.value = "Mundo";
   assertF2(p.textContent === "Hola Mundo", "Texto actualizado: 'Hola Mundo'");
   n.value = "JS";
@@ -339,7 +339,7 @@ groupF2("html`` — 7. Condicional entre dos templates");
   assertF2(el.querySelector("#t7-about") !== null, "page=about → #t7-about existe");
 }
 
-groupF2("html`` — 8. Lista (() => NixTemplate[])");
+groupF2("html`` — 8. Lista (() => ElurTemplate[])");
 {
   const el = sandbox();
   const items2 = signal(["A", "B", "C"]);
@@ -363,10 +363,10 @@ groupF2("html`` — 9. Template anidado (componente)");
     return html`<span class="badge">${props.text}</span>`;
   }
   const el = sandbox();
-  html`<div>${Badge({ text: "Nix" })}</div>`.mount(el);
+  html`<div>${Badge({ text: "Elur" })}</div>`.mount(el);
   const div = el.querySelector("div")!;
   assertF2(div.querySelector(".badge") !== null, "<span.badge> existe dentro del <div>");
-  assertF2(div.querySelector(".badge")!.textContent === "Nix", "Texto del badge: 'Nix'");
+  assertF2(div.querySelector(".badge")!.textContent === "Elur", "Texto del badge: 'Elur'");
 }
 
 groupF2("html`` — 10. Computed reactivo en template");
@@ -519,7 +519,7 @@ html`
   </div>
 `.mount(demoF2);
 
-import { mount } from "./nix";
+import { mount } from "./elur";
 
 const testsF3 = document.getElementById("tests3")!;
 let passedF3 = 0;
@@ -554,10 +554,10 @@ groupF3("Componentes — 1. Componente simple (función → html``)");
   }
 
   const el = sandbox3();
-  mount(Greeting({ name: "Nix" }), el);
+  mount(Greeting({ name: "Elur" }), el);
 
   assertF3(el.querySelector("h2") !== null, "<h2> existe en el DOM");
-  assertF3(el.querySelector("h2")!.textContent === "Hola Nix!", "Texto: 'Hola Nix!'");
+  assertF3(el.querySelector("h2")!.textContent === "Hola Elur!", "Texto: 'Hola Elur!'");
 }
 
 groupF3("Componentes — 2. Props estáticos");
@@ -613,7 +613,7 @@ groupF3("Componentes — 4. Composición simple");
   }
 
   function Footer4() {
-    return html`<footer id="t4-footer">Nix.js ❄️</footer>`;
+    return html`<footer id="t4-footer">Elur ❄️</footer>`;
   }
 
   function App4() {
@@ -894,7 +894,7 @@ function DApp() {
 
   return html`
     <div class="demo-app">
-      ${DHeader({ title: "❄️ Nix.js — App de Componentes" })}
+      ${DHeader({ title: "❄️ Elur — App de Componentes" })}
       <div class="demo-grid">
         ${DCounter({ initial: 0, label: "Counter Maestro" })}
         ${html`
@@ -919,7 +919,7 @@ function DApp() {
 
 mount(DApp(), demoF3);
 
-import { NixComponent } from "./nix";
+import { ElurComponent } from "./elur";
 
 let passedF4 = 0;
 let failedF4 = 0;
@@ -948,7 +948,7 @@ function sandbox4(): HTMLDivElement {
 
 groupF4("Lifecycle — 1. onMount se ejecuta tras mount()");
 {
-  class Comp1 extends NixComponent {
+  class Comp1 extends ElurComponent {
     fired = false;
     override onMount() { this.fired = true; }
     render() { return html`<span>Comp1</span>`; }
@@ -961,7 +961,7 @@ groupF4("Lifecycle — 1. onMount se ejecuta tras mount()");
 
 groupF4("Lifecycle — 2. onMount no dispara si la instancia no se monta");
 {
-  class Comp2 extends NixComponent {
+  class Comp2 extends ElurComponent {
     fired = false;
     override onMount() { this.fired = true; }
     render() { return html`<span>Comp2</span>`; }
@@ -972,7 +972,7 @@ groupF4("Lifecycle — 2. onMount no dispara si la instancia no se monta");
 
 groupF4("Lifecycle — 3. Cleanup devuelto por onMount se ejecuta al desmontar");
 {
-  class Comp3 extends NixComponent {
+  class Comp3 extends ElurComponent {
     mounted = false;
     cleaned = false;
     override onMount() {
@@ -990,7 +990,7 @@ groupF4("Lifecycle — 3. Cleanup devuelto por onMount se ejecuta al desmontar")
 
 groupF4("Lifecycle — 4. onUnmount explícito");
 {
-  class Comp4 extends NixComponent {
+  class Comp4 extends ElurComponent {
     log = "";
     override onMount() { this.log += "M"; }
     override onUnmount() { this.log += "U"; }
@@ -1005,7 +1005,7 @@ groupF4("Lifecycle — 4. onUnmount explícito");
 
 groupF4("Lifecycle — 5. onError captura error lanzado en onMount");
 {
-  class Comp5 extends NixComponent {
+  class Comp5 extends ElurComponent {
     errors: string[] = [];
     override onError(e: unknown) { this.errors.push((e as Error).message); }
     override onMount() { throw new Error("fallo en mount"); }
@@ -1018,9 +1018,9 @@ groupF4("Lifecycle — 5. onError captura error lanzado en onMount");
   assertF4(el5.querySelector("#c5-alive")?.textContent === "presente", "Componente sigue en el DOM");
 }
 
-groupF4("Lifecycle — 6. NixComponent como valor estático en html`");
+groupF4("Lifecycle — 6. ElurComponent como valor estático en html`");
 {
-  class Badge6 extends NixComponent {
+  class Badge6 extends ElurComponent {
     private text: string;
     constructor(text: string) { super(); this.text = text; }
     render() { return html`<span class="b6">${this.text}</span>`; }
@@ -1030,9 +1030,9 @@ groupF4("Lifecycle — 6. NixComponent como valor estático en html`");
   assertF4(el6.querySelector(".b6")?.textContent === "Hola", "Renderiza como valor embebido en template");
 }
 
-groupF4("Lifecycle — 7. onMount dispara para NixComponent embebido inline");
+groupF4("Lifecycle — 7. onMount dispara para ElurComponent embebido inline");
 {
-  class WithMount7 extends NixComponent {
+  class WithMount7 extends ElurComponent {
     fired = false;
     override onMount() { this.fired = true; }
     render() { return html`<span>7</span>`; }
@@ -1045,7 +1045,7 @@ groupF4("Lifecycle — 7. onMount dispara para NixComponent embebido inline");
 
 groupF4("Lifecycle — 8. Cleanup ejecutado al desmontar el template padre");
 {
-  class WithCleanup8 extends NixComponent {
+  class WithCleanup8 extends ElurComponent {
     cleaned = false;
     override onMount() { return () => { this.cleaned = true; }; }
     render() { return html`<span>8</span>`; }
@@ -1059,7 +1059,7 @@ groupF4("Lifecycle — 8. Cleanup ejecutado al desmontar el template padre");
 
 groupF4("Lifecycle — 9. Instancias independientes tienen estado propio");
 {
-  class Counter9 extends NixComponent {
+  class Counter9 extends ElurComponent {
     count = signal(0);
     render() {
       return html`<span class="c9">${() => this.count.value}</span>`;
@@ -1078,7 +1078,7 @@ groupF4("Lifecycle — 9. Instancias independientes tienen estado propio");
 groupF4("Lifecycle — 10. onInit antes de render(), sin DOM");
 {
   const order: string[] = [];
-  class Comp10 extends NixComponent {
+  class Comp10 extends ElurComponent {
     derived = 0;
     override onInit() {
       order.push("init");
@@ -1104,7 +1104,7 @@ groupF4("Lifecycle — 10. onInit antes de render(), sin DOM");
 
 groupF4("Lifecycle — 11. onError captura error en onInit");
 {
-  class Comp11 extends NixComponent {
+  class Comp11 extends ElurComponent {
     errors: string[] = [];
     override onError(e: unknown) { this.errors.push((e as Error).message); }
     override onInit() { throw new Error("fallo en init"); }
@@ -1128,7 +1128,7 @@ summaryF4.innerHTML = `
 
 const demoF4 = document.getElementById("demo4")!;
 
-class Stopwatch4 extends NixComponent {
+class Stopwatch4 extends ElurComponent {
   seconds = signal(0);
   running = signal(false);
   private intervalId: ReturnType<typeof setInterval> | null = null;
@@ -1171,7 +1171,7 @@ class Stopwatch4 extends NixComponent {
 const lifecycleLog4 = signal<string[]>([]);
 let instanceId4 = 0;
 
-class LogBox4 extends NixComponent {
+class LogBox4 extends ElurComponent {
   private num: number;
   constructor(num: number) { super(); this.num = num; }
 
@@ -1229,7 +1229,7 @@ mount(
 
 mount(new Stopwatch4(), demoF4);
 
-import { createStore } from "./nix";
+import { createStore } from "./elur";
 
 let passedF5 = 0;
 let failedF5 = 0;
@@ -1254,9 +1254,9 @@ function assertF5(condition: boolean, label: string) {
 
 groupF5("Store — 1. Signals creados por cada propiedad");
 {
-  const s1 = createStore({ count: 0, name: "Nix" });
+  const s1 = createStore({ count: 0, name: "Elur" });
   assertF5(s1.count.value === 0, "count inicial: 0");
-  assertF5(s1.name.value === "Nix", "name inicial: 'Nix'");
+  assertF5(s1.name.value === "Elur", "name inicial: 'Elur'");
   s1.count.value = 5;
   assertF5(s1.count.value === 5, "count tras asignación: 5");
 }
@@ -1320,7 +1320,7 @@ groupF5("Store — 6. Store compartido entre componentes");
 {
   const shared = createStore({ value: 42 });
 
-  class Reader6 extends NixComponent {
+  class Reader6 extends ElurComponent {
     render() {
       return html`<span class="r6">${() => shared.value.value}</span>`;
     }
@@ -1424,7 +1424,7 @@ const discountStore = createStore(
   { code: "", pct: 0 },
   (s) => ({
     apply(code: string) {
-      const codes: Record<string, number> = { NIX10: 10, NIX25: 25, NIX50: 50 };
+      const codes: Record<string, number> = { ELUR10: 10, ELUR25: 25, ELUR50: 50 };
       const pct = codes[code.toUpperCase()] ?? 0;
       s.code.value = pct > 0 ? code.toUpperCase() : "";
       s.pct.value = pct;
@@ -1433,7 +1433,7 @@ const discountStore = createStore(
   })
 );
 
-class CartItem extends NixComponent {
+class CartItem extends ElurComponent {
   private item: { id: number; name: string; qty: number; price: number };
   constructor(item: { id: number; name: string; qty: number; price: number }) {
     super();
@@ -1457,7 +1457,7 @@ class CartItem extends NixComponent {
   }
 }
 
-class CartSummary extends NixComponent {
+class CartSummary extends ElurComponent {
   render() {
     const subtotal = computed(() =>
       cartStore.items.value.reduce((s, i) => s + i.price * i.qty, 0)
@@ -1482,7 +1482,7 @@ class CartSummary extends NixComponent {
           </div>
         </div>
         <div style="display:flex;gap:6px;margin-top:8px">
-          <input id="coupon-input" placeholder="Cupón (NIX10,25,50)"
+          <input id="coupon-input" placeholder="Cupón (ELUR10,25,50)"
             style="flex:1;padding:4px 8px;background:#1e293b;color:#e2e8f0;border:1px solid #334;border-radius:4px"
             @input=${(e: Event) => discountStore.apply((e.target as HTMLInputElement).value)}
           />
@@ -1536,8 +1536,8 @@ mount(
   demoF5
 );
 
-import { createRouter, RouterView, Link, nixRouter } from "./nix";
-import type { NixTemplate } from "./nix";
+import { createRouter, RouterView, Link, elurRouter } from "./elur";
+import type { ElurTemplate } from "./elur";
 
 const testsF6 = document.getElementById("tests6")!;
 const summaryF6 = document.getElementById("summary6")!;
@@ -1747,8 +1747,8 @@ groupF6("Router — 14. Múltiples params (:slug y :cid)");
   const r = createRouter([
     { path: "/posts/:slug/comments/:cid", component: () => html`<span>comment</span>` },
   ]);
-  r.navigate("/posts/nix-js/comments/7");
-  assertF6(r.params.value.slug === "nix-js", "params.slug === 'nix-js'");
+  r.navigate("/posts/elur/comments/7");
+  assertF6(r.params.value.slug === "elur", "params.slug === 'elur'");
   assertF6(r.params.value.cid === "7", "params.cid  === '7'");
   // Literal tiene mayor prioridad que param
   const r2 = createRouter([
@@ -1784,9 +1784,9 @@ groupF6("Router — 16. navigate con query string en el path");
 groupF6("Router — 17. navigate con objeto query (segundo argumento)");
 {
   const r = createRouter([]);
-  r.navigate("/search", { q: "nix", limit: 20 });
+  r.navigate("/search", { q: "elur", limit: 20 });
   assertF6(r.current.value === "/search", "current === '/search'");
-  assertF6(r.query.value.q === "nix", "query.q === 'nix'");
+  assertF6(r.query.value.q === "elur", "query.q === 'elur'");
   assertF6(r.query.value.limit === "20", "query.limit === '20' (number convertido)");
 }
 
@@ -1825,22 +1825,22 @@ const appRouter = createRouter([
 
 appRouter.navigate("/");
 
-class HomePage extends NixComponent {
-  render(): NixTemplate {
+class HomePage extends ElurComponent {
+  render(): ElurTemplate {
     return html`
       <div style="padding:8px 0">
         <h3 style="color:#38bdf8;margin:0 0 8px">🏠 Home</h3>
-        <p style="color:#a3a3a3;margin:0">Bienvenido a la demo del router de Nix.js.</p>
+        <p style="color:#a3a3a3;margin:0">Bienvenido a la demo del router de Elur.</p>
         <p style="color:#a3a3a3;margin:8px 0 0">Navega usando los links de arriba ↑</p>
       </div>
     `;
   }
 }
 
-class CounterPage extends NixComponent {
+class CounterPage extends ElurComponent {
   private count = signal(0);
 
-  render(): NixTemplate {
+  render(): ElurTemplate {
     return html`
       <div style="padding:8px 0">
         <h3 style="color:#38bdf8;margin:0 0 8px">🔢 Counter</h3>
@@ -1855,18 +1855,18 @@ class CounterPage extends NixComponent {
   }
 }
 
-class AboutPage extends NixComponent {
-  render(): NixTemplate {
+class AboutPage extends ElurComponent {
+  render(): ElurTemplate {
     return html`
       <div style="padding:8px 0">
         <h3 style="color:#38bdf8;margin:0 0 8px">ℹ️ About</h3>
         <p style="color:#a3a3a3;margin:0 0 6px">
-          <strong style="color:#e5e5e5">Nix.js</strong> — micro-framework reactivo.
+          <strong style="color:#e5e5e5">Elur</strong> — framework reactivo.
         </p>
         <ul style="color:#a3a3a3;margin:0;padding-left:18px;line-height:1.8">
           <li>⚛️ Reactivity: <code>signal · computed · effect · batch</code></li>
           <li>🧩 Templates: <code>html\`\`</code> tagged templates</li>
-          <li>🏗️ Components: <code>NixComponent</code> con lifecycle</li>
+          <li>🏗️ Components: <code>ElurComponent</code> con lifecycle</li>
           <li>🗄️ Stores: <code>createStore</code> compartido</li>
           <li>🔀 Router: <code>createRouter · RouterView · Link</code></li>
         </ul>
@@ -1875,8 +1875,8 @@ class AboutPage extends NixComponent {
   }
 }
 
-class NotFoundPage extends NixComponent {
-  render(): NixTemplate {
+class NotFoundPage extends ElurComponent {
+  render(): ElurTemplate {
     return html`
       <div style="padding:8px 0">
         <h3 style="color:#f87171;margin:0 0 8px">🚫 404</h3>
@@ -1892,8 +1892,8 @@ const DEMO_USERS = [
   { id: "3", name: "Charlie", role: "Viewer" },
 ];
 
-class UsersPage extends NixComponent {
-  render(): NixTemplate {
+class UsersPage extends ElurComponent {
+  render(): ElurTemplate {
     return html`
       <div style="padding:8px 0">
         <h3 style="color:#38bdf8;margin:0 0 8px">👥 Users</h3>
@@ -1911,13 +1911,13 @@ class UsersPage extends NixComponent {
   }
 }
 
-class UserDetailPage extends NixComponent {
-  render(): NixTemplate {
+class UserDetailPage extends ElurComponent {
+  render(): ElurTemplate {
     return html`
       <div style="padding:8px 0">
         <h3 style="color:#38bdf8;margin:0 0 8px">👤 User detail</h3>
         ${() => {
-        const id = nixRouter().params.value.id;
+        const id = elurRouter().params.value.id;
         const user = DEMO_USERS.find((u) => u.id === id);
         if (!user) return html`<p style="color:#f87171">Usuario #${id} no encontrado.</p>`;
         return html`
@@ -1945,7 +1945,7 @@ mount(
     <div>
       <nav
         style="display:flex;gap:4px;align-items:center;margin-bottom:12px;padding:10px 12px;background:#1a1a1a;border-radius:8px;border:1px solid #2a2a2a">
-        <span style="color:#52525b;font-size:13px;margin-right:8px">Nix Router</span>
+        <span style="color:#52525b;font-size:13px;margin-right:8px">Elur Router</span>
         ${new Link("/", "🏠 Home")}
         ${new Link("/counter", "🔢 Counter")}
         ${new Link("/users", "👥 Users")}
@@ -1963,7 +1963,7 @@ mount(
 );
 
 // ╔══════════════════════════════════════════════════════════════
-import { repeat } from "./nix";
+import { repeat } from "./elur";
 
 const testsF7 = document.getElementById("tests7")!;
 const summaryF7 = document.getElementById("summary7")!;
@@ -2071,9 +2071,9 @@ groupF7("repeat — 4. Preserva nodos DOM existentes al actualizar");
   host.remove();
 }
 
-groupF7("repeat — 7. Funciona con NixComponent");
+groupF7("repeat — 7. Funciona con ElurComponent");
 {
-  class TagComp extends NixComponent {
+  class TagComp extends ElurComponent {
     private _id: number;
     constructor(id: number) { super(); this._id = id; }
     render() { return html`<span id=${"tc" + this._id}>${this._id}</span>`; }
@@ -2160,7 +2160,7 @@ mount(
 );
 
 // ╔══════════════════════════════════════════════════════════════
-import { suspend, lazy } from "./nix";
+import { suspend, lazy } from "./elur";
 
 const testsF8 = document.getElementById("tests8")!;
 const summaryF8 = document.getElementById("summary8")!;
@@ -2252,8 +2252,8 @@ groupF8("suspend — 4. Fallback por defecto (spinner) sin opciones");
   const comp = suspend(() => new Promise<string>(() => { }), d => html`<span>${d}</span>`);
   mount(html`<div>${comp}</div>`, host);
   // Debe haber algún contenido en el DOM (el spinner por defecto)
-  assertF8(host.querySelector(".nix-suspense") !== null, "wrapper .nix-suspense presente");
-  assertF8(host.querySelector(".nix-spinner") !== null, "spinner por defecto presente");
+  assertF8(host.querySelector(".elur-suspense") !== null, "wrapper .elur-suspense presente");
+  assertF8(host.querySelector(".elur-spinner") !== null, "spinner por defecto presente");
   host.remove();
 }
 
@@ -2262,12 +2262,12 @@ groupF8("lazy — 5. Primera llamada carga el chunk (muestra fallback)");
   const host = document.createElement("div");
   document.body.appendChild(host);
 
-  class FakePageComp extends NixComponent {
+  class FakePageComp extends ElurComponent {
     render() { return html`<span id="lazy5page">LazyPage</span>`; }
   }
 
-  let resolveImport!: (mod: { default: new () => NixComponent }) => void;
-  const importFn = () => new Promise<{ default: new () => NixComponent }>(res => {
+  let resolveImport!: (mod: { default: new () => ElurComponent }) => void;
+  const importFn = () => new Promise<{ default: new () => ElurComponent }>(res => {
     resolveImport = res;
   });
 
@@ -2289,7 +2289,7 @@ groupF8("lazy — 5. Primera llamada carga el chunk (muestra fallback)");
 groupF8("lazy — 6. Resultado cacheado: segunda llamada instancia directamente");
 {
   let importCount = 0;
-  class CachedComp extends NixComponent {
+  class CachedComp extends ElurComponent {
     render() { return html`<span id="lazy6">cached</span>`; }
   }
 
@@ -2313,7 +2313,7 @@ groupF8("lazy — 6. Resultado cacheado: segunda llamada instancia directamente"
 
     // Segunda llamada — debe instanciar directamente
     const second = lazyComp();
-    assertF8(second instanceof NixComponent, "segunda llamada devuelve NixComponent directamente");
+    assertF8(second instanceof ElurComponent, "segunda llamada devuelve ElurComponent directamente");
     assertF8(second instanceof CachedComp, "segunda llamada devuelve instancia de CachedComp");
     assertF8(importCount === 1, "importFn NO vuelve a llamarse (cache activo)");
     host1.remove();
@@ -2349,7 +2349,7 @@ function refreshProfile() {
   const delay = demoDelay.value;
   const fail = demoFail.value;
 
-  // mount(NixComponent, container) — va por el camino seguro:
+  // mount(ElurComponent, container) — va por el camino seguro:
   // onInit → render()._render() → postMountHooks → onMount()
   const handle = mount(
     suspend(
@@ -2378,13 +2378,13 @@ function refreshProfile() {
       {
         fallback: html`
           <div style="display:flex;align-items:center;gap:12px;padding:14px;background:#0a0a0a;border-radius:8px;border:1px solid #262626">
-            <div style="min-width:48px;height:48px;border-radius:50%;background:#222;animation:nix-pulse 1.2s ease-in-out infinite"></div>
+            <div style="min-width:48px;height:48px;border-radius:50%;background:#222;animation:elur-pulse 1.2s ease-in-out infinite"></div>
             <div style="flex:1;display:flex;flex-direction:column;gap:8px">
-              <div style="height:14px;background:#222;border-radius:4px;width:55%;animation:nix-pulse 1.2s ease-in-out infinite"></div>
-              <div style="height:12px;background:#222;border-radius:4px;width:38%;animation:nix-pulse 1.2s ease-in-out 0.15s infinite"></div>
+              <div style="height:14px;background:#222;border-radius:4px;width:55%;animation:elur-pulse 1.2s ease-in-out infinite"></div>
+              <div style="height:12px;background:#222;border-radius:4px;width:38%;animation:elur-pulse 1.2s ease-in-out 0.15s infinite"></div>
             </div>
           </div>
-          <style>@keyframes nix-pulse{0%,100%{opacity:.3}50%{opacity:.75}}</style>
+          <style>@keyframes elur-pulse{0%,100%{opacity:.3}50%{opacity:.75}}</style>
         `,
         errorFallback: (err) => html`
           <div
@@ -2430,7 +2430,7 @@ mount(
 refreshProfile();
 
 // ╔══════════════════════════════════════════════════════════════
-import { ref } from "./nix";
+import { ref } from "./elur";
 
 const testsF9 = document.getElementById("tests9")!;
 const summaryF9 = document.getElementById("summary9")!;
@@ -2498,13 +2498,13 @@ groupF9("ref — 4. Múltiples refs en el mismo template apuntan a elementos dis
   document.body.removeChild(host);
 }
 
-groupF9("ref — 5. ref dentro de NixComponent disponible en onMount");
+groupF9("ref — 5. ref dentro de ElurComponent disponible en onMount");
 {
   const host = document.createElement("div");
   document.body.appendChild(host);
   let capturedEl: HTMLInputElement | null = null;
 
-  class SearchBox extends NixComponent {
+  class SearchBox extends ElurComponent {
     inputRef = ref<HTMLInputElement>();
     override onMount() {
       capturedEl = this.inputRef.el;
@@ -2569,7 +2569,7 @@ summaryF9.innerHTML = `<div class="summary ${failF9 === 0 ? 'all-pass' : 'has-fa
 
 const demoF9 = document.getElementById("demo9")!;
 
-class FocusDemo extends NixComponent {
+class FocusDemo extends ElurComponent {
   textRef = ref<HTMLInputElement>();
   colorRef = ref<HTMLInputElement>();
   result = signal("");
@@ -2832,7 +2832,7 @@ const demoF10 = document.getElementById("demo10")!;
 }
 
 // ╔══════════════════════════════════════════════════════════════
-import { watch } from "./nix";
+import { watch } from "./elur";
 
 const testsF11 = document.getElementById("tests11")!;
 const summaryF11 = document.getElementById("summary11")!;
@@ -3010,7 +3010,7 @@ const demoF11 = document.getElementById("demo11")!;
 }
 
 // ╔══════════════════════════════════════════════════════════════
-import { nextTick } from "./nix";
+import { nextTick } from "./elur";
 
 const testsF12 = document.getElementById("tests12")!;
 const summaryF12 = document.getElementById("summary12")!;
@@ -3065,7 +3065,7 @@ function groupF12(label: string) {
     const name = signal("Ana");
     const handle = html`<span id="nt3">${() => name.value}</span>`.mount(host);
 
-    // En Nix.js los efectos son síncronos, así que el DOM ya está actualizado
+    // En Elur los efectos son síncronos, así que el DOM ya está actualizado
     // antes del nextTick, pero nextTick garantiza que cualquier efecto
     // encolado (ej. batch) también haya terminado.
     name.value = "Bea";
@@ -3189,8 +3189,8 @@ function groupF12(label: string) {
 })(); // fin bloque async
 
 // ╔══════════════════════════════════════════════════════════════
-import { provide, inject, createInjectionKey } from "./nix";
-import type { InjectionKey } from "./nix";
+import { provide, inject, createInjectionKey } from "./elur";
+import type { InjectionKey } from "./elur";
 
 const testsF13 = document.getElementById("tests13")!;
 const summaryF13 = document.getElementById("summary13")!;
@@ -3224,12 +3224,12 @@ groupF13("provide/inject — 2. Hijo inyecta valor provisto por el padre");
   const COLOR_KEY: InjectionKey<string> = createInjectionKey("color");
   let received: string | undefined;
 
-  class Child13 extends NixComponent {
+  class Child13 extends ElurComponent {
     color = inject(COLOR_KEY);
     override onInit() { received = this.color; }
     override render() { return html`<span id="t13c2">${this.color ?? "none"}</span>`; }
   }
-  class Parent13 extends NixComponent {
+  class Parent13 extends ElurComponent {
     override onInit() { provide(COLOR_KEY, "crimson"); }
     override render() { return html`<div>${new Child13()}</div>`; }
   }
@@ -3248,15 +3248,15 @@ groupF13("provide/inject — 3. Inyección a través de múltiples niveles");
   const LANG_KEY: InjectionKey<string> = createInjectionKey("lang");
   let deepValue: string | undefined;
 
-  class DeepChild extends NixComponent {
+  class DeepChild extends ElurComponent {
     lang = inject(LANG_KEY);
     override onInit() { deepValue = this.lang; }
     override render() { return html`<em id="t13c3">${this.lang ?? "?"}</em>`; }
   }
-  class Middle extends NixComponent {
+  class Middle extends ElurComponent {
     override render() { return html`<div>${new DeepChild()}</div>`; }
   }
-  class GrandParent extends NixComponent {
+  class GrandParent extends ElurComponent {
     override onInit() { provide(LANG_KEY, "es"); }
     override render() { return html`<div>${new Middle()}</div>`; }
   }
@@ -3274,16 +3274,16 @@ groupF13("provide/inject — 4. Override: hijo provee otro valor, nieto ve el de
   const THEME_KEY2: InjectionKey<string> = createInjectionKey("theme2");
   let grandchildValue: string | undefined;
 
-  class GrandChild4 extends NixComponent {
+  class GrandChild4 extends ElurComponent {
     t = inject(THEME_KEY2);
     override onInit() { grandchildValue = this.t; }
     override render() { return html`<span>${this.t}</span>`; }
   }
-  class Child4 extends NixComponent {
+  class Child4 extends ElurComponent {
     override onInit() { provide(THEME_KEY2, "light"); } // anula "dark" del padre
     override render() { return html`<div>${new GrandChild4()}</div>`; }
   }
-  class Parent4 extends NixComponent {
+  class Parent4 extends ElurComponent {
     override onInit() { provide(THEME_KEY2, "dark"); }
     override render() { return html`<div>${new Child4()}</div>`; }
   }
@@ -3304,11 +3304,11 @@ groupF13("provide/inject — 5. Claves distintas no se confunden");
   let valA: string | undefined;
   let valB: number | undefined;
 
-  class Consumer5 extends NixComponent {
+  class Consumer5 extends ElurComponent {
     override onInit() { valA = inject(KEY_A); valB = inject(KEY_B); }
     override render() { return html`<span></span>`; }
   }
-  class Provider5 extends NixComponent {
+  class Provider5 extends ElurComponent {
     override onInit() { provide(KEY_A, "hello"); provide(KEY_B, 42); }
     override render() { return html`<div>${new Consumer5()}</div>`; }
   }
@@ -3327,12 +3327,12 @@ groupF13("provide/inject — 6. Signal provista: cambios reactivos llegan al con
   const SIG_KEY: InjectionKey<ReturnType<typeof signal<number>>> =
     createInjectionKey("sig");
 
-  class Comp6 extends NixComponent {
+  class Comp6 extends ElurComponent {
     counter = inject(SIG_KEY)!;
     override render() { return html`<span id="t13c6">${() => this.counter.value}</span>`; }
   }
   const sharedCount = signal(0);
-  class Prov6 extends NixComponent {
+  class Prov6 extends ElurComponent {
     override onInit() { provide(SIG_KEY, sharedCount); }
     override render() { return html`<div>${new Comp6()}</div>`; }
   }
@@ -3366,7 +3366,7 @@ const demoF13 = document.getElementById("demo13")!;
   const THEME_KEY: InjectionKey<ReturnType<typeof signal<string>>> =
     createInjectionKey("demo13-theme");
 
-  class ThemedCard extends NixComponent {
+  class ThemedCard extends ElurComponent {
     theme = inject(THEME_KEY)!;
     override render() {
       const style = () => {
@@ -3385,7 +3385,7 @@ const demoF13 = document.getElementById("demo13")!;
     }
   }
 
-  class ThemedBadge extends NixComponent {
+  class ThemedBadge extends ElurComponent {
     theme = inject(THEME_KEY)!;
     override render() {
       const style = () =>
@@ -3400,7 +3400,7 @@ const demoF13 = document.getElementById("demo13")!;
     }
   }
 
-  class ThemeProvider extends NixComponent {
+  class ThemeProvider extends ElurComponent {
     theme = signal("dark");
     override onInit() { provide(THEME_KEY, this.theme); }
 
@@ -3435,10 +3435,10 @@ const demoF13 = document.getElementById("demo13")!;
 }
 
 import {
-  nixField, createForm,
+  elurField, createForm,
   required, minLength, maxLength, email, min, max,
-} from "./nix";
-import type { FieldState } from "./nix";
+} from "./elur";
+import type { FieldState } from "./elur";
 
 {
   const testsEl = document.getElementById("tests15")!;
@@ -3459,42 +3459,42 @@ import type { FieldState } from "./nix";
     field.onInput({ target: el } as unknown as Event);
   }
   function blur(field: FieldState<unknown>) { field.onBlur(); }
-  const f1 = nixField("hello");
-  assert15(f1.value.value === "hello", "nixField — initial value");
-  assert15(!f1.touched.value, "nixField — not touched initially");
-  assert15(!f1.dirty.value, "nixField — not dirty initially");
-  assert15(f1.error.value === null, "nixField — no error before interaction");
+  const f1 = elurField("hello");
+  assert15(f1.value.value === "hello", "elurField — initial value");
+  assert15(!f1.touched.value, "elurField — not touched initially");
+  assert15(!f1.dirty.value, "elurField — not dirty initially");
+  assert15(f1.error.value === null, "elurField — no error before interaction");
 
-  const f2 = nixField("", [required()]);
+  const f2 = elurField("", [required()]);
   blur(f2);
-  assert15(f2.error.value === "Required", "nixField — error shows after blur");
+  assert15(f2.error.value === "Required", "elurField — error shows after blur");
 
   type(f2, "hello");
-  assert15(f2.error.value === null, "nixField — error clears when valid value entered");
-  assert15(f2.dirty.value, "nixField — dirty after input");
+  assert15(f2.error.value === null, "elurField — error clears when valid value entered");
+  assert15(f2.dirty.value, "elurField — dirty after input");
 
   f2.reset();
-  assert15(f2.value.value === "", "nixField — reset restores initial value");
-  assert15(!f2.touched.value, "nixField — reset clears touched");
-  assert15(f2.error.value === null, "nixField — error hidden after reset");
+  assert15(f2.value.value === "", "elurField — reset restores initial value");
+  assert15(!f2.touched.value, "elurField — reset clears touched");
+  assert15(f2.error.value === null, "elurField — error hidden after reset");
 
-  const fMin = nixField("", [minLength(3)]);
+  const fMin = elurField("", [minLength(3)]);
   blur(fMin); type(fMin, "ab");
   assert15(fMin.error.value !== null, "minLength — fails when too short");
   type(fMin, "abc");
   assert15(fMin.error.value === null, "minLength — passes at exact length");
 
-  const fMax = nixField("", [maxLength(3)]);
+  const fMax = elurField("", [maxLength(3)]);
   blur(fMax); type(fMax, "abcd");
   assert15(fMax.error.value !== null, "maxLength — fails when too long");
 
-  const fEmail = nixField("", [email()]);
+  const fEmail = elurField("", [email()]);
   blur(fEmail); type(fEmail, "notanemail");
   assert15(fEmail.error.value !== null, "email — fails for invalid email");
   type(fEmail, "test@example.com");
   assert15(fEmail.error.value === null, "email — passes for valid email");
 
-  const fNum = nixField<number>(0, [min(18), max(120)]);
+  const fNum = elurField<number>(0, [min(18), max(120)]);
   blur(fNum);
   fNum.value.value = 10;
   assert15(fNum.error.value !== null, "min — fails below minimum");
@@ -3504,7 +3504,7 @@ import type { FieldState } from "./nix";
   fNum.value.value = 200;
   assert15(fNum.error.value !== null, "max — fails above maximum");
 
-  const fExt = nixField("ok");
+  const fExt = elurField("ok");
   fExt._setExternalError("Server error");
   assert15(fExt.error.value === "Server error", "_setExternalError — injects external error");
   assert15(fExt.touched.value, "_setExternalError — marks field as touched");
@@ -3651,7 +3651,7 @@ import type { FieldState } from "./nix";
   `, demoEl);
 }
 
-import type { NixChildren } from "./nix";
+import type { ElurChildren } from "./elur";
 
 {
   const testsEl = document.getElementById("tests14")!;
@@ -3666,7 +3666,7 @@ import type { NixChildren } from "./nix";
     if (condition) pass++; else { fail++; console.error("❌ F14:", label); }
   }
 
-  class Box extends NixComponent {
+  class Box extends ElurComponent {
     override render() {
       return html`<div class="box">${this.children}</div>`;
     }
@@ -3676,7 +3676,7 @@ import type { NixChildren } from "./nix";
   new Box().setChildren(html`<span id="child14a">hola</span>`).render().mount(div14a);
   assert14(!!div14a.querySelector("#child14a"), "class component — children default slot se renderiza");
 
-  class TwoSlot extends NixComponent {
+  class TwoSlot extends ElurComponent {
     override render() {
       return html`
         <div>
@@ -3700,7 +3700,7 @@ import type { NixChildren } from "./nix";
   assert14(!!div14b.querySelector("#slot-body"), "children (default slot) se renderiza junto a named slots");
   assert14(!!div14b.querySelector("#slot-footer"), "named slot 'footer' se renderiza");
 
-  function FnCard({ children }: { children?: NixChildren }) {
+  function FnCard({ children }: { children?: ElurChildren }) {
     return html`<article class="fn-card">${children}</article>`;
   }
 
@@ -3708,13 +3708,13 @@ import type { NixChildren } from "./nix";
   FnCard({ children: html`<span id="fn-child">fn children</span>` }).mount(div14c);
   assert14(!!div14c.querySelector("#fn-child"), "function component — children como prop funciona");
 
-  class Inner extends NixComponent {
+  class Inner extends ElurComponent {
     override render() { return html`<b id="inner-comp">inner</b>`; }
   }
 
   const div14d = document.createElement("div");
   new Box().setChildren(new Inner()).render().mount(div14d);
-  assert14(!!div14d.querySelector("#inner-comp"), "children puede ser un NixComponent");
+  assert14(!!div14d.querySelector("#inner-comp"), "children puede ser un ElurComponent");
 
   const div14e = document.createElement("div");
   let threw = false;
@@ -3749,7 +3749,7 @@ import type { NixChildren } from "./nix";
 
   const demoEl = document.getElementById("demo14")!;
 
-  class DemoCard extends NixComponent {
+  class DemoCard extends ElurComponent {
     override render() {
       return html`
         <div style="border:1px solid #334155;border-radius:8px;overflow:hidden;max-width:360px">
@@ -3799,7 +3799,7 @@ import type { NixChildren } from "./nix";
   `, demoEl);
 }
 
-import { showWhen } from "./nix";
+import { showWhen } from "./elur";
 
 {
   let passed16 = 0, failed16 = 0;
@@ -3944,7 +3944,7 @@ import { showWhen } from "./nix";
   }
 }
 
-import { portal } from "./nix";
+import { portal } from "./elur";
 
 {
   let passed17 = 0, failed17 = 0;
@@ -4174,10 +4174,10 @@ import { portal } from "./nix";
 }
 
 //  Option A: createPortalOutlet + portalOutlet
-//  Option B: portal() con NixRef
+//  Option B: portal() con ElurRef
 //  Option C: provideOutlet + injectOutlet
-import { createPortalOutlet, portalOutlet, provideOutlet, injectOutlet } from "./nix";
-import type { PortalOutlet } from "./nix";
+import { createPortalOutlet, portalOutlet, provideOutlet, injectOutlet } from "./elur";
+import type { PortalOutlet } from "./elur";
 
 {
   let passed17b = 0, failed17b = 0;
@@ -4199,7 +4199,7 @@ import type { PortalOutlet } from "./nix";
   const hostA = document.createElement("div");
   document.body.appendChild(hostA);
   portalOutlet(outletA).mount(hostA);
-  assert17b(hostA.querySelector("[data-nix-outlet]") !== null, "A — portalOutlet() crea div[data-nix-outlet] en el host");
+  assert17b(hostA.querySelector("[data-elur-outlet]") !== null, "A — portalOutlet() crea div[data-elur-outlet] en el host");
   assert17b(outletA._container !== null, "A — _container queda asignado tras montar el outlet");
 
   // Test 3: portal(content, outlet) renders into the outlet div
@@ -4249,11 +4249,11 @@ import type { PortalOutlet } from "./nix";
   let injectedOutlet: PortalOutlet | undefined;
   const outletC = createPortalOutlet();
 
-  class ProviderC extends NixComponent {
+  class ProviderC extends ElurComponent {
     onInit() { provideOutlet(outletC); }
     render() { return html`<div>${new ConsumerC()}</div>`; }
   }
-  class ConsumerC extends NixComponent {
+  class ConsumerC extends ElurComponent {
     onInit() { injectedOutlet = injectOutlet(); }
     render() { return html`<span></span>`; }
   }
@@ -4287,9 +4287,9 @@ import type { PortalOutlet } from "./nix";
     // No CSS selectors. No direct DOM references. No prop drilling.
     const mainOutlet = createPortalOutlet();
 
-    class AppLayout extends NixComponent {
-      private inner: NixTemplate;
-      constructor(inner: NixTemplate) { super(); this.inner = inner; }
+    class AppLayout extends ElurComponent {
+      private inner: ElurTemplate;
+      constructor(inner: ElurTemplate) { super(); this.inner = inner; }
       onInit() { provideOutlet(mainOutlet); }
       render() {
         return html`
@@ -4304,7 +4304,7 @@ import type { PortalOutlet } from "./nix";
       }
     }
 
-    class ModalButton extends NixComponent {
+    class ModalButton extends ElurComponent {
       private outlet: PortalOutlet | undefined;
       private open = signal(false);
       onInit() { this.outlet = injectOutlet(); }
@@ -4350,7 +4350,7 @@ import type { PortalOutlet } from "./nix";
   }
 }
 
-import { createErrorBoundary } from "./nix";
+import { createErrorBoundary } from "./elur";
 
 document.getElementById("tests18")!.textContent = "CANARY: Phase 18 code started";
 
@@ -4395,7 +4395,7 @@ document.getElementById("tests18")!.textContent = "CANARY: Phase 18 code started
   assert18((caughtErr.value as Error).message === "typed error", "fallback fn: correct error message");
   host3.remove();
 
-  class BrokenInit extends NixComponent {
+  class BrokenInit extends ElurComponent {
     onInit() { throw new Error("init fail"); }
     render() { return html`<span id="eb-broken-init">never</span>`; }
   }
@@ -4406,7 +4406,7 @@ document.getElementById("tests18")!.textContent = "CANARY: Phase 18 code started
   assert18(host4.querySelector("#eb-fb4") !== null, "onInit throw → fallback shown");
   host4.remove();
 
-  class BrokenRender extends NixComponent {
+  class BrokenRender extends ElurComponent {
     render() { throw new Error("render method fail"); return html``; }
   }
   const host5 = document.createElement("div");
@@ -4487,7 +4487,7 @@ document.getElementById("tests18")!.textContent = "CANARY: Phase 18 code started
     const failMsg = signal("Something went wrong");
     const resetKey = signal(0); // bump to re-mount content
 
-    class DataWidget extends NixComponent {
+    class DataWidget extends ElurComponent {
       private data = signal(["Alice", "Bob", "Carol"]);
       render() {
         return html`
@@ -4549,7 +4549,7 @@ document.getElementById("tests18")!.textContent = "CANARY: Phase 18 code started
   }
 }
 
-import { transition } from "./nix";
+import { transition } from "./elur";
 
 {
   let passed19 = 0, failed19 = 0;
@@ -4798,7 +4798,7 @@ import { transition } from "./nix";
   }
 }
 
-import type { NavigationGuard } from "./nix";
+import type { NavigationGuard } from "./elur";
 
 {
   let passed20 = 0, failed20 = 0;

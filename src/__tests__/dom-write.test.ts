@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { queueDOMWrite } from "../nix/template/dom-write";
+import { queueDOMWrite } from "../elur/template/dom-write";
 
 describe("queueDOMWrite()", () => {
     it("ejecuta la tarea en la siguiente microtarea", async () => {

@@ -9,19 +9,19 @@ test.describe("SSR + hydration — browser real", () => {
         expect(html).toContain('href="/blog/post?q=big"');
         expect(html).toContain('value="pre-big"');
         // Sin markers de hidratación.
-        expect(html).not.toContain("data-nix-a-");
+        expect(html).not.toContain("data-elur-a-");
     });
 
     test("SSR con markers: un marker por atributo lógico", async ({ page }) => {
         const response = await page.goto("/hydrate");
         expect(response?.status()).toBe(200);
         const html = await response!.text();
-        expect(html).toContain('data-nix-a-0="class"');
-        expect(html).toContain('data-nix-a-1="href"');
-        expect(html).toContain('data-nix-a-2="value"');
-        expect(html).toContain('data-nix-a-3="class"');
-        expect(html.match(/data-nix-a-/g)?.length).toBe(4);
-        expect(html).toContain("<!--nix-4-->");
+        expect(html).toContain('data-elur-a-0="class"');
+        expect(html).toContain('data-elur-a-1="href"');
+        expect(html).toContain('data-elur-a-2="value"');
+        expect(html).toContain('data-elur-a-3="class"');
+        expect(html.match(/data-elur-a-/g)?.length).toBe(4);
+        expect(html).toContain("<!--elur-4-->");
     });
 
     test("hidratación: DOM SSR y DOM cliente convergen", async ({ page }) => {
@@ -35,7 +35,7 @@ test.describe("SSR + hydration — browser real", () => {
         await expect(page.locator('[data-h="static"]')).toHaveClass("s-fixed");
         await expect(page.locator('[data-h="plain"]')).toHaveText("red");
         // Sin markers residuales.
-        expect(await page.locator("[data-nix-a-]").count()).toBe(0);
+        expect(await page.locator("[data-elur-a-]").count()).toBe(0);
         expect(await page.locator("comment").count()).toBe(0);
     });
 
@@ -70,7 +70,7 @@ test.describe("SSR + hydration — browser real", () => {
         const html = await response!.text();
         // El streaming emite el atributo compuesto íntegro y los markers.
         expect(html).toContain('class="card-big"');
-        expect(html).toContain('data-nix-a-0="class"');
+        expect(html).toContain('data-elur-a-0="class"');
         expect(html).toContain('href="/blog/post?q=big"');
         // La página stream es hidratable de la misma forma.
         await expect(page.locator('[data-h="card"]')).toHaveClass("card-big");

@@ -1,4 +1,4 @@
-import { html, repeat, signal } from "/src/nix/index.js";
+import { html, repeat, signal } from "/src/elur/index.js";
 
 /** Shared between SSR (e2e/serve.ts) and the browser hydration client. */
 export const hSize = signal("big");

@@ -1,8 +1,8 @@
 import { _pushErrorHandler, _popErrorHandler } from "../reactivity.js";
-import { isNixComponent } from "../lifecycle.js";
-import type { NixComponent } from "../lifecycle.js";
+import { isElurComponent } from "../lifecycle.js";
+import type { ElurComponent } from "../lifecycle.js";
 import { _pushComponentContext, _popComponentContext } from "../context.js";
-import type { NixTemplate, NixMountHandle, ErrorFallback } from "./types.js";
+import type { ElurTemplate, ElurMountHandle, ErrorFallback } from "./types.js";
 import { COMMENT } from "./types.js";
 import { _mountComponentSilent } from "./mount-helpers.js";
 
@@ -15,13 +15,13 @@ import { _mountComponentSilent } from "./mount-helpers.js";
  * throws, the boundary tears down the broken subtree and renders `fallback`.
  */
 export function createErrorBoundary(
-    content: NixTemplate | NixComponent,
+    content: ElurTemplate | ElurComponent,
     fallback: ErrorFallback
-): NixTemplate {
+): ElurTemplate {
     return {
-        __isNixTemplate: true as const,
+        __isElurTemplate: true as const,
 
-        mount(container: Element | string): NixMountHandle {
+        mount(container: Element | string): ElurMountHandle {
             const el =
                 typeof container === "string"
                     ? (document.querySelector(container) ?? document.body)
@@ -47,14 +47,14 @@ export function createErrorBoundary(
                 const liveParent = marker.parentNode;
                 if (!liveParent) return;
 
-                let fb: NixTemplate | NixComponent;
+                let fb: ElurTemplate | ElurComponent;
                 try {
                     fb =
-                        typeof fallback === "function" && !isNixComponent(fallback as object)
-                            ? (fallback as (err: unknown) => NixTemplate | NixComponent)(err)
-                            : (fallback as NixTemplate | NixComponent);
+                        typeof fallback === "function" && !isElurComponent(fallback as object)
+                            ? (fallback as (err: unknown) => ElurTemplate | ElurComponent)(err)
+                            : (fallback as ElurTemplate | ElurComponent);
                 } catch (e) {
-                    console.error("[nix-js] Error boundary fallback threw while producing the fallback UI:", e);
+                    console.error("[elur] Error boundary fallback threw while producing the fallback UI:", e);
                     activeCleanup = renderBrokenFallback(liveParent, before);
                     return;
                 }
@@ -62,13 +62,13 @@ export function createErrorBoundary(
                 // Capture reactive errors from effects created inside the fallback.
                 _pushErrorHandler(fallbackReactiveErrorHandler);
                 try {
-                    if (isNixComponent(fb)) {
+                    if (isElurComponent(fb)) {
                         activeCleanup = _mountComponentSilent(fb, liveParent, before);
                     } else {
                         activeCleanup = fb._render(liveParent, before);
                     }
                 } catch (e) {
-                    console.error("[nix-js] Error boundary fallback threw during render:", e);
+                    console.error("[elur] Error boundary fallback threw during render:", e);
                     activeCleanup?.();
                     activeCleanup = renderBrokenFallback(liveParent, before);
                 } finally {
@@ -77,7 +77,7 @@ export function createErrorBoundary(
             };
 
             const fallbackReactiveErrorHandler = (e: unknown): void => {
-                console.error("[nix-js] Error boundary fallback threw during a reactive update:", e);
+                console.error("[elur] Error boundary fallback threw during a reactive update:", e);
                 activeCleanup?.();
                 activeCleanup = null;
                 const liveParent = marker.parentNode;
@@ -88,8 +88,8 @@ export function createErrorBoundary(
 
             const renderBrokenFallback = (liveParent: Node, before: Node | null): (() => void) => {
                 const el = document.createElement("div");
-                el.setAttribute("data-nix-error-boundary", "fallback-failed");
-                el.textContent = "[nix-js] Error boundary fallback failed to render.";
+                el.setAttribute("data-elur-error-boundary", "fallback-failed");
+                el.textContent = "[elur] Error boundary fallback failed to render.";
                 liveParent.insertBefore(el, before);
                 return () => el.remove();
             };
@@ -110,7 +110,7 @@ export function createErrorBoundary(
 
             _pushErrorHandler(handleReactiveError);
             try {
-                if (isNixComponent(content)) {
+                if (isElurComponent(content)) {
                     _pushComponentContext();
                     try {
                         try { content.onInit?.(); } catch (e) {

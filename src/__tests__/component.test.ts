@@ -1,34 +1,34 @@
 import { describe, it, expect, vi } from "vitest";
-import { html } from "../nix/template";
-import type { NixTemplate } from "../nix/template";
-import { NixComponent, isNixComponent } from "../nix/lifecycle";
-import { mount } from "../nix/component";
+import { html } from "../elur/template";
+import type { ElurTemplate } from "../elur/template";
+import { ElurComponent, isElurComponent } from "../elur/lifecycle";
+import { mount } from "../elur/component";
 
-function failRender(msg: string): NixTemplate {
+function failRender(msg: string): ElurTemplate {
     throw new Error(msg);
 }
 
-// ── NixComponent ──────────────────────────────────────────────────────────────
+// ── ElurComponent ──────────────────────────────────────────────────────────────
 
-describe("NixComponent", () => {
-    it("has __isNixComponent marker", () => {
-        class C extends NixComponent {
+describe("ElurComponent", () => {
+    it("has __isElurComponent marker", () => {
+        class C extends ElurComponent {
             render() { return html`<p>hi</p>`; }
         }
-        expect(new C().__isNixComponent).toBe(true);
+        expect(new C().__isElurComponent).toBe(true);
     });
 
-    it("isNixComponent() returns true for instances", () => {
-        class C extends NixComponent {
+    it("isElurComponent() returns true for instances", () => {
+        class C extends ElurComponent {
             render() { return html`<p>hi</p>`; }
         }
-        expect(isNixComponent(new C())).toBe(true);
-        expect(isNixComponent({})).toBe(false);
-        expect(isNixComponent(null)).toBe(false);
+        expect(isElurComponent(new C())).toBe(true);
+        expect(isElurComponent({})).toBe(false);
+        expect(isElurComponent(null)).toBe(false);
     });
 
     it("render() output is mounted into the DOM", () => {
-        class C extends NixComponent {
+        class C extends ElurComponent {
             render() { return html`<span class="comp">mounted</span>`; }
         }
         const el = document.createElement("div");
@@ -42,7 +42,7 @@ describe("NixComponent", () => {
 describe("lifecycle hooks", () => {
     it("onInit is called before render", () => {
         const order: string[] = [];
-        class C extends NixComponent {
+        class C extends ElurComponent {
             onInit() { order.push("init"); }
             render() { order.push("render"); return html`<p>x</p>`; }
         }
@@ -53,7 +53,7 @@ describe("lifecycle hooks", () => {
 
     it("onMount is called after DOM insertion", () => {
         let mountedEl: HTMLElement | null = null;
-        class C extends NixComponent {
+        class C extends ElurComponent {
             onMount() { mountedEl = document.querySelector(".lc") as HTMLElement; }
             render() { return html`<p class="lc">ok</p>`; }
         }
@@ -66,7 +66,7 @@ describe("lifecycle hooks", () => {
 
     it("onMount cleanup runs on unmount", () => {
         const cleanup = vi.fn();
-        class C extends NixComponent {
+        class C extends ElurComponent {
             onMount() { return cleanup; }
             render() { return html`<p>x</p>`; }
         }
@@ -79,7 +79,7 @@ describe("lifecycle hooks", () => {
 
     it("onUnmount is called on unmount", () => {
         const onUnmount = vi.fn();
-        class C extends NixComponent {
+        class C extends ElurComponent {
             onUnmount() { onUnmount(); }
             render() { return html`<p>x</p>`; }
         }
@@ -91,7 +91,7 @@ describe("lifecycle hooks", () => {
 
     it("onError catches errors from onInit", () => {
         const errors: unknown[] = [];
-        class C extends NixComponent {
+        class C extends ElurComponent {
             onInit() { throw new Error("init-fail"); }
             onError(err: unknown) { errors.push(err); }
             render() { return html`<p>ok</p>`; }
@@ -107,7 +107,7 @@ describe("lifecycle hooks", () => {
 
 describe("slots", () => {
     it("setChildren / children works for default slot", () => {
-        class Card extends NixComponent {
+        class Card extends ElurComponent {
             render() { return html`<div class="card">${this.children}</div>`; }
         }
         const el = document.createElement("div");
@@ -119,7 +119,7 @@ describe("slots", () => {
     });
 
     it("setSlot / slot works for named slots", () => {
-        class Layout extends NixComponent {
+        class Layout extends ElurComponent {
             render() {
                 return html`
           <header>${this.slot("header")}</header>
@@ -142,7 +142,7 @@ describe("slots", () => {
 // ── mount() function ──────────────────────────────────────────────────────────
 
 describe("mount()", () => {
-    it("mounts NixTemplate directly", () => {
+    it("mounts ElurTemplate directly", () => {
         const el = document.createElement("div");
         mount(html`<p>direct</p>`, el);
         expect(el.querySelector("p")!.textContent).toBe("direct");
@@ -162,9 +162,9 @@ describe("mount()", () => {
     });
 });
 
-describe("mount() with NixComponent", () => {
+describe("mount() with ElurComponent", () => {
     it("throws an error if the container selector is not found", () => {
-        class DummyComp extends NixComponent {
+        class DummyComp extends ElurComponent {
             render() { return html`<div></div>`; }
         }
 
@@ -174,7 +174,7 @@ describe("mount() with NixComponent", () => {
     });
 
     it("throws an error if onMount fails and there is no onError handler", () => {
-        class ThrowingComp extends NixComponent {
+        class ThrowingComp extends ElurComponent {
             onMount() {
                 throw new Error("mount crashed");
             }
@@ -191,7 +191,7 @@ describe("mount() with NixComponent", () => {
     it("delegates error to onError if onMount fails", () => {
         const errorSpy = vi.fn();
 
-        class HandledThrowingComp extends NixComponent {
+        class HandledThrowingComp extends ElurComponent {
             onMount() {
                 throw new Error("mount crashed handled");
             }
@@ -215,7 +215,7 @@ describe("mount() with NixComponent", () => {
         const errorSpy = vi.fn();
         const onMountSpy = vi.fn();
 
-        class HandledRenderThrowingComp extends NixComponent {
+        class HandledRenderThrowingComp extends ElurComponent {
             onMount() { onMountSpy(); }
             onError(err: unknown) { errorSpy(err); }
             render() { return failRender("render crashed"); }
@@ -233,7 +233,7 @@ describe("mount() with NixComponent", () => {
     });
 
     it("throws if render fails and there is no onError handler", () => {
-        class UnhandledRenderThrowingComp extends NixComponent {
+        class UnhandledRenderThrowingComp extends ElurComponent {
             render() { return failRender("render unhandled"); }
         }
 

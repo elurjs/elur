@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { transition } from "../nix/template/transitions";
-import { html } from "../nix/template";
-import { nextTick, signal } from "../nix/reactivity";
+import { transition } from "../elur/template/transitions";
+import { html } from "../elur/template";
+import { nextTick, signal } from "../elur/reactivity";
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -39,9 +39,9 @@ describe("transition()", () => {
         expect(hasComment).toBe(true);
     });
 
-    it("retorna NixTemplate válido con mount y _render", () => {
+    it("retorna ElurTemplate válido con mount y _render", () => {
         const tpl = transition(html`<div>X</div>`);
-        expect(tpl.__isNixTemplate).toBe(true);
+        expect(tpl.__isElurTemplate).toBe(true);
         expect(typeof tpl.mount).toBe("function");
         expect(typeof tpl._render).toBe("function");
     });
@@ -458,12 +458,12 @@ describe("transition()", () => {
     });
 
     // =========================================================================
-    // --- NixComponent como contenido
+    // --- ElurComponent como contenido
     // =========================================================================
 
-    it("soporta NixComponent como contenido estático", () => {
+    it("soporta ElurComponent como contenido estático", () => {
         const comp = {
-            __isNixComponent: true as const,
+            __isElurComponent: true as const,
             render: () => html`<div class="comp-box">Comp</div>`,
         };
 

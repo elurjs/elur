@@ -1,49 +1,49 @@
 import { describe, it, expect } from "vitest";
-import { isNixTemplate, isKeyedList, ref, COMMENT } from "../nix/template/types";
-import { html } from "../nix/template";
-import { repeat } from "../nix/template/keyed";
+import { isElurTemplate, isKeyedList, ref, COMMENT } from "../elur/template/types";
+import { html } from "../elur/template";
+import { repeat } from "../elur/template/keyed";
 
 // =============================================================================
-// --- isNixTemplate ---
+// --- isElurTemplate ---
 // =============================================================================
 
-describe("isNixTemplate()", () => {
-    it("retorna true para un NixTemplate real (html``)", () => {
+describe("isElurTemplate()", () => {
+    it("retorna true para un ElurTemplate real (html``)", () => {
         const tpl = html`<div>x</div>`;
-        expect(isNixTemplate(tpl)).toBe(true);
+        expect(isElurTemplate(tpl)).toBe(true);
     });
 
-    it("retorna true para un objeto con __isNixTemplate=true", () => {
-        const fake = { __isNixTemplate: true };
-        expect(isNixTemplate(fake)).toBe(true);
+    it("retorna true para un objeto con __isElurTemplate=true", () => {
+        const fake = { __isElurTemplate: true };
+        expect(isElurTemplate(fake)).toBe(true);
     });
 
     it("retorna false para null", () => {
-        expect(isNixTemplate(null)).toBe(false);
+        expect(isElurTemplate(null)).toBe(false);
     });
 
     it("retorna false para undefined", () => {
-        expect(isNixTemplate(undefined)).toBe(false);
+        expect(isElurTemplate(undefined)).toBe(false);
     });
 
     it("retorna false para un string", () => {
-        expect(isNixTemplate("hello")).toBe(false);
+        expect(isElurTemplate("hello")).toBe(false);
     });
 
     it("retorna false para un número", () => {
-        expect(isNixTemplate(42)).toBe(false);
+        expect(isElurTemplate(42)).toBe(false);
     });
 
     it("retorna false para un objeto sin la propiedad", () => {
-        expect(isNixTemplate({ type: "something" })).toBe(false);
+        expect(isElurTemplate({ type: "something" })).toBe(false);
     });
 
-    it("retorna false para un objeto con __isNixTemplate=false", () => {
-        expect(isNixTemplate({ __isNixTemplate: false })).toBe(false);
+    it("retorna false para un objeto con __isElurTemplate=false", () => {
+        expect(isElurTemplate({ __isElurTemplate: false })).toBe(false);
     });
 
     it("retorna false para un array", () => {
-        expect(isNixTemplate([])).toBe(false);
+        expect(isElurTemplate([])).toBe(false);
     });
 });
 
@@ -70,7 +70,7 @@ describe("isKeyedList()", () => {
         expect(isKeyedList(undefined)).toBe(false);
     });
 
-    it("retorna false para un NixTemplate", () => {
+    it("retorna false para un ElurTemplate", () => {
         const tpl = html`<div>x</div>`;
         expect(isKeyedList(tpl)).toBe(false);
     });

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { html } from "../nix/template/html.js";
-import { hydrate } from "../nix/hydrate/index.js";
-import { renderToString } from "../nix/server/index.js";
+import { html } from "../elur/template/html.js";
+import { hydrate } from "../elur/hydrate/index.js";
+import { renderToString } from "../elur/server/index.js";
 
 // =============================================================================
 // Unified event delegation in hydration

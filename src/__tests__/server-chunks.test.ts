@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { html } from "../nix/template/html.js";
-import { repeat } from "../nix/template/keyed.js";
-import { NixComponent } from "../nix/lifecycle.js";
-import { renderToString, renderToChunks, createServerRenderScope } from "../nix/server/index.js";
-import { createInjectionKey, inject, provide } from "../nix/context.js";
+import { html } from "../elur/template/html.js";
+import { repeat } from "../elur/template/keyed.js";
+import { ElurComponent } from "../elur/lifecycle.js";
+import { renderToString, renderToChunks, createServerRenderScope } from "../elur/server/index.js";
+import { createInjectionKey, inject, provide } from "../elur/context.js";
 
 function concat(chunks: AsyncIterable<{ value: string }>): Promise<string> {
     let out = "";
@@ -55,7 +55,7 @@ describe("renderToChunks", () => {
     it("aborts a slow render through the scope", async () => {
         const scope = createServerRenderScope();
         const slow = {
-            [Symbol.for("@deijose/nix-js/render-protocol")]: {
+            [Symbol.for("elur/render-protocol")]: {
                 async renderServer() {
                     await new Promise((resolve) => setTimeout(resolve, 200));
                     return "late";
@@ -71,12 +71,12 @@ describe("renderToChunks", () => {
 
     it("isolates provide/inject across concurrent scope renders", async () => {
         const key = createInjectionKey<string>("scope-key");
-        class Child extends NixComponent {
+        class Child extends ElurComponent {
             render() {
                 return html`<span>${inject(key)}</span>`;
             }
         }
-        class Parent extends NixComponent {
+        class Parent extends ElurComponent {
             private value: string;
             constructor(value: string) {
                 super();
@@ -99,7 +99,7 @@ describe("renderToChunks", () => {
 describe("server lifecycle and error info", () => {
     it("runs onServerRender after onInit during SSR only", async () => {
         const calls: string[] = [];
-        class ServerOnly extends NixComponent {
+        class ServerOnly extends ElurComponent {
             onInit() { calls.push("init"); }
             onServerRender() { calls.push("server"); }
             onMount() { calls.push("mount"); }
@@ -115,7 +115,7 @@ describe("server lifecycle and error info", () => {
     it("passes RenderErrorInfo to onError", async () => {
         const errors: unknown[] = [];
         const throwing = {
-            [Symbol.for("@deijose/nix-js/render-protocol")]: {
+            [Symbol.for("elur/render-protocol")]: {
                 renderServer() {
                     throw new Error("boom");
                 },

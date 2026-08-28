@@ -4,9 +4,9 @@ import {
     _mountComponentSilent,
     _mountComponentDeferred,
     _mountComponentWithCtx,
-} from "../nix/template/mount-helpers";
-import { html } from "../nix/template";
-import { _captureContextSnapshot } from "../nix/context";
+} from "../elur/template/mount-helpers";
+import { html } from "../elur/template";
+import { _captureContextSnapshot } from "../elur/context";
 
 // =============================================================================
 // --- Helpers ---
@@ -14,7 +14,7 @@ import { _captureContextSnapshot } from "../nix/context";
 
 function makeComp(overrides = {}) {
     return {
-        __isNixComponent: true as const,
+        __isElurComponent: true as const,
         render: () => html`<div class="comp">Comp</div>`,
         ...overrides,
     };

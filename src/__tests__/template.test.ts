@@ -1,13 +1,13 @@
 import { describe, it, expect, vi } from "vitest";
-import { nextTick, signal } from "../nix/reactivity";
-import { html, ref, showWhen, repeat } from "../nix/template";
+import { nextTick, signal } from "../elur/reactivity";
+import { html, ref, showWhen, repeat } from "../elur/template";
 
 // ── html`` tag ────────────────────────────────────────────────────────────────
 
 describe("html`…`", () => {
-    it("creates a NixTemplate with __isNixTemplate marker", () => {
+    it("creates a ElurTemplate with __isElurTemplate marker", () => {
         const t = html`<p>hello</p>`;
-        expect(t.__isNixTemplate).toBe(true);
+        expect(t.__isElurTemplate).toBe(true);
     });
 
     it("mounts static content into the DOM", () => {

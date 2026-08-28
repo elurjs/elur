@@ -1,5 +1,5 @@
 import { effect } from "../reactivity.js";
-import type { NixRef, TemplateBindingContext } from "./types.js";
+import type { ElurRef, TemplateBindingContext } from "./types.js";
 import { activateNodeBinding } from "./node-binding.js";
 import { queueDOMWrite } from "./dom-write.js";
 import { isUrlAttrName, isExecutableAttrName, sanitizeUrl } from "./sanitize.js";
@@ -161,8 +161,8 @@ const _delegatedHandlers = new Map<string, (e: Event) => void>();
  */
 export function _ensureDelegatedEvent(eventName: string): void {
     if (!_delegatedRegistry.has(eventName)) {
-        const propName = `__nix_${eventName}`;
-        const modsName = `__nix_${eventName}_mods`;
+        const propName = `__elur_${eventName}`;
+        const modsName = `__elur_${eventName}_mods`;
         const boundHandler = (e: Event) => _globalEventHandlerCore(e, propName, modsName);
         _delegatedHandlers.set(eventName, boundHandler);
         document.addEventListener(eventName, boundHandler);
@@ -177,8 +177,8 @@ export function _setDelegatedEvent(
     rawHandler: EventListener,
 ): void {
     _ensureDelegatedEvent(eventName);
-    const nodePropName = `__nix_${eventName}`;
-    const nodeModsName = `__nix_${eventName}_mods`;
+    const nodePropName = `__elur_${eventName}`;
+    const nodeModsName = `__elur_${eventName}_mods`;
     (el as any)[nodePropName] = rawHandler;
     if (modifiers.length > 0) (el as any)[nodeModsName] = modifiers;
 }
@@ -190,8 +190,8 @@ export function activateDelegatedEvent(
     rawHandler: EventListener,
 ): () => void {
     _setDelegatedEvent(el, eventName, modifiers, rawHandler);
-    const nodePropName = `__nix_${eventName}`;
-    const nodeModsName = `__nix_${eventName}_mods`;
+    const nodePropName = `__elur_${eventName}`;
+    const nodeModsName = `__elur_${eventName}_mods`;
     return () => {
         (el as any)[nodePropName] = null;
         (el as any)[nodeModsName] = null;
@@ -246,7 +246,7 @@ export function activateBindings(
 
 /**
  * Activates bindings using pre-resolved nodes — skips the TreeWalker phase.
- * Used by the compiler's __nixCompiledTemplate to eliminate the second TreeWalker.
+ * Used by the compiler's __elurCompiledTemplate to eliminate the second TreeWalker.
  */
 export function _activateBindingsWithNodes(
     _fragment: DocumentFragment,
@@ -303,8 +303,8 @@ export function _activateBindingsWithNodes(
             const element = el as Element;
 
             if (attrName === "ref") {
-                (value as NixRef<Element>).el = element;
-                disposes.push(() => { (value as NixRef<Element>).el = null; });
+                (value as ElurRef<Element>).el = element;
+                disposes.push(() => { (value as ElurRef<Element>).el = null; });
                 continue;
             }
 
@@ -344,12 +344,12 @@ export function _activateBindingsWithNodes(
                 continue;
             }
 
-            // on*/srcdoc bindings are non-idiomatic in Nix (events use @click) and
+            // on*/srcdoc bindings are non-idiomatic in Elur (events use @click) and
             // turn an untrusted value into executable code. Warn the developer but
             // do not block — the attribute name is developer-authored.
             if (ctx.executable ?? isExecutableAttrName(attrName)) {
                 console.warn(
-                    `[nix-js] Dynamic binding on executable attribute "${attrName}". Use @event for handlers; avoid binding untrusted values here.`,
+                    `[elur] Dynamic binding on executable attribute "${attrName}". Use @event for handlers; avoid binding untrusted values here.`,
                 );
             }
 

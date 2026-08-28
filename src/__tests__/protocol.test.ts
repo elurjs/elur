@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { html } from "../nix/template/html.js";
-import { raw } from "../nix/template/raw.js";
-import { NIX_RENDER_PROTOCOL } from "../nix/template/types.js";
-import { renderToString } from "../nix/server/index.js";
-import { hydrate } from "../nix/hydrate/index.js";
+import { html } from "../elur/template/html.js";
+import { raw } from "../elur/template/raw.js";
+import { ELUR_RENDER_PROTOCOL } from "../elur/template/types.js";
+import { renderToString } from "../elur/server/index.js";
+import { hydrate } from "../elur/hydrate/index.js";
 
 function compact(value: string): string {
     return value.replace(/\s+/g, " ").replace(/> /g, ">").replace(/ </g, "<").trim();
@@ -53,7 +53,7 @@ describe("trusted raw HTML protocol", () => {
 describe("custom mountDom/hydrateDom protocols", () => {
     it("calls mountDom during client mount", () => {
         const custom = {
-            [NIX_RENDER_PROTOCOL]: {
+            [ELUR_RENDER_PROTOCOL]: {
                 mountDom({ parent, before }: { parent: Node; before: Node | null }) {
                     const node = document.createElement("span");
                     node.textContent = "custom";
@@ -73,7 +73,7 @@ describe("custom mountDom/hydrateDom protocols", () => {
     it("calls hydrateDom during hydration and uses SSR DOM", async () => {
         let hydrated = false;
         const custom = {
-            [NIX_RENDER_PROTOCOL]: {
+            [ELUR_RENDER_PROTOCOL]: {
                 renderServer() {
                     return "<b data-custom>proto</b>";
                 },

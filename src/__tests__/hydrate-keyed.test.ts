@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { signal, type Signal } from "../nix/reactivity.js";
-import { html } from "../nix/template/html.js";
-import { repeat } from "../nix/template/keyed.js";
-import { NixComponent } from "../nix/lifecycle.js";
-import { renderToString } from "../nix/server/index.js";
-import { hydrate } from "../nix/hydrate/index.js";
+import { signal, type Signal } from "../elur/reactivity.js";
+import { html } from "../elur/template/html.js";
+import { repeat } from "../elur/template/keyed.js";
+import { ElurComponent } from "../elur/lifecycle.js";
+import { renderToString } from "../elur/server/index.js";
+import { hydrate } from "../elur/hydrate/index.js";
 
 // Helper: SSR + mount into a container and return container.
 async function ssr(template: ReturnType<typeof html>): Promise<HTMLDivElement> {
@@ -20,14 +20,14 @@ describe("hydrate: keyed repeat()", () => {
             <ul>${() => repeat(items.value, (item) => item.id, (item) => html`<li>${item.n}</li>`)}</ul>
         `;
         const rendered = await renderToString(template, { markers: "hydration" });
-        expect(rendered).toContain("<!--nix-ki:");
-        expect(rendered).toContain("<!--nix-ke-->");
+        expect(rendered).toContain("<!--elur-ki:");
+        expect(rendered).toContain("<!--elur-ke-->");
         expect((rendered.match(/<li>/g) ?? [])).toHaveLength(2);
         expect(rendered).toContain(">1<");
         expect(rendered).toContain(">2<");
         // Without markers there are no keyed markers.
         const plain = await renderToString(template, { markers: "none" });
-        expect(plain).not.toContain("nix-ki:");
+        expect(plain).not.toContain("elur-ki:");
     });
 
     it("adopts SSR nodes and updates reactive content while preserving identity", async () => {
@@ -97,7 +97,7 @@ describe("hydrate: keyed repeat()", () => {
 
     it("runs component lifecycle exactly once per item on hydrate and unmount", async () => {
         const calls: string[] = [];
-        class Item extends NixComponent {
+        class Item extends ElurComponent {
             private n: number;
             private id: string;
             constructor(n: number, id: string) {

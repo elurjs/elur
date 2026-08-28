@@ -1,4 +1,4 @@
-import { NIX_TEMPLATE_DESCRIPTOR, type NixTemplate, type NixMountHandle, type TemplateDescriptor } from "./types.js";
+import { ELUR_TEMPLATE_DESCRIPTOR, type ElurTemplate, type ElurMountHandle, type TemplateDescriptor } from "./types.js";
 import { detectContext, activateBindings } from "./bindings.js";
 import type { BindingContext } from "./bindings.js";
 
@@ -8,7 +8,7 @@ import type { BindingContext } from "./bindings.js";
 
 /**
  * Builds the static HTML string, replacing each interpolated value with
- * a comment marker (node), data-nix-e-N (event), or data-nix-a-N (attribute).
+ * a comment marker (node), data-elur-e-N (event), or data-elur-a-N (attribute).
  */
 export function buildHTML(
     strings: readonly string[],
@@ -28,18 +28,18 @@ export function buildHTML(
             const ctx = contexts[i];
 
             if (ctx.type === "node") {
-                result += s + `<!--nix-${i}-->`;
+                result += s + `<!--elur-${i}-->`;
             } else if (ctx.type === "event") {
                 const full = ctx.modifiers.length
                     ? `${ctx.eventName}.${ctx.modifiers.join(".")}`
                     : ctx.eventName;
                 const cut = `@${full}=`.length + (ctx.hadOpenQuote ? 1 : 0);
-                result += s.slice(0, -cut) + ` data-nix-e-${i}="${ctx.eventName}"`;
+                result += s.slice(0, -cut) + ` data-elur-e-${i}="${ctx.eventName}"`;
                 if (ctx.hadOpenQuote) skipLeading[i + 1] = 1;
             } else {
                 const cut =
                     `${ctx.attrName}=`.length + (ctx.hadOpenQuote ? 1 : 0);
-                result += s.slice(0, -cut) + ` data-nix-a-${i}="${ctx.attrName}"`;
+                result += s.slice(0, -cut) + ` data-elur-a-${i}="${ctx.attrName}"`;
                 if (ctx.hadOpenQuote) skipLeading[i + 1] = 1;
             }
         } else {
@@ -73,9 +73,9 @@ const _templateCache = new WeakMap<TemplateStringsArray, TemplateCache>();
 export function html(
     strings: TemplateStringsArray,
     ...values: unknown[]
-): NixTemplate {
+): ElurTemplate {
     // NOTE: Partial attribute interpolation (`class="btn ${size}"`) is handled
-    // at compile time by @deijose/vite-plugin-nix-js. Without the plugin,
+    // at compile time by @elurjs/vite-plugin-elur. Without the plugin,
     // only full bindings (`class=${value}`) are supported.
     let descriptorCache = _descriptorCache.get(strings);
     if (!descriptorCache) {
@@ -84,7 +84,7 @@ export function html(
         for (let i = 0; i < strings.length - 1; i++) {
             accumulated += strings[i];
             contexts.push(detectContext(accumulated));
-            accumulated += "__nix__";
+            accumulated += "__elur__";
         }
         descriptorCache = { contexts };
         _descriptorCache.set(strings, descriptorCache);
@@ -97,7 +97,7 @@ export function html(
         let cached = _templateCache.get(strings);
         if (cached) return cached;
         if (typeof document === "undefined") {
-            throw new Error("[nix-js] DOM rendering requires a document. Use @deijose/nix-js/server on the server.");
+            throw new Error("[elur] DOM rendering requires a document. Use elur/server on the server.");
         }
 
         const tpl = document.createElement("template");
@@ -112,8 +112,8 @@ export function html(
             nodeIndex++;
             if (wNode.nodeType === 8) {
                 const val = wNode.nodeValue;
-                if (val && val.startsWith("nix-")) {
-                    const idx = parseInt(val.slice(4), 10);
+                if (val && val.startsWith("elur-")) {
+                    const idx = parseInt(val.slice(5), 10);
                     if (!isNaN(idx)) pathMap[idx] = { nodeIndex };
                 }
             } else if (wNode.nodeType === 1) {
@@ -122,14 +122,14 @@ export function html(
                 for (let i = 0; i < attrs.length; i++) {
                     const attr = attrs[i];
                     const name = attr.name;
-                    if (name.startsWith("data-nix-e-")) {
-                        const idx = parseInt(name.slice(11), 10);
+                    if (name.startsWith("data-elur-e-")) {
+                        const idx = parseInt(name.slice(12), 10);
                         if (!isNaN(idx)) pathMap[idx] = { nodeIndex, name: attr.value };
                         el.removeAttribute(name);
                         continue;
                     }
-                    if (name.startsWith("data-nix-a-")) {
-                        const idx = parseInt(name.slice(11), 10);
+                    if (name.startsWith("data-elur-a-")) {
+                        const idx = parseInt(name.slice(12), 10);
                         if (!isNaN(idx)) pathMap[idx] = { nodeIndex, name: attr.value };
                         el.removeAttribute(name);
                     }
@@ -174,20 +174,20 @@ export function html(
         };
     }
 
-    const nixTemplate: NixTemplate = {
-        __isNixTemplate: true,
-        [NIX_TEMPLATE_DESCRIPTOR]: descriptor,
+    const elurTemplate: ElurTemplate = {
+        __isElurTemplate: true,
+        [ELUR_TEMPLATE_DESCRIPTOR]: descriptor,
 
         _render,
 
-        mount(container: Element | string): NixMountHandle {
+        mount(container: Element | string): ElurMountHandle {
             const el =
                 typeof container === "string"
                     ? (document.querySelector(container) as Element)
                     : container;
 
             if (!el) {
-                throw new Error(`[nix-js] mount: contenedor no encontrado: ${container}`);
+                throw new Error(`[elur] mount: contenedor no encontrado: ${container}`);
             }
 
             const cleanup = _render(el, null);
@@ -200,5 +200,5 @@ export function html(
         },
     };
 
-    return nixTemplate;
+    return elurTemplate;
 }

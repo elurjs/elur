@@ -17,7 +17,7 @@
     },
     "include": [
         "src/index.ts",
-        "src/nix"
+        "src/elur"
     ],
     // Exclude the demo/app entry — it is not part of the library
     "exclude": [

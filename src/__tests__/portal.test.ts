@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { portal, portalOutlet, createPortalOutlet, provideOutlet, injectOutlet } from "../nix/template/portal";
-import { html } from "../nix/template";
+import { portal, portalOutlet, createPortalOutlet, provideOutlet, injectOutlet } from "../elur/template/portal";
+import { html } from "../elur/template";
 
 describe("createPortalOutlet()", () => {
     it("crea un outlet con __isPortalOutlet=true y _container=null", () => {
@@ -11,12 +11,12 @@ describe("createPortalOutlet()", () => {
 });
 
 describe("portalOutlet()", () => {
-    it("monta un div con data-nix-outlet en el contenedor", () => {
+    it("monta un div con data-elur-outlet en el contenedor", () => {
         const outlet = createPortalOutlet();
         const container = document.createElement("div");
         portalOutlet(outlet).mount(container);
 
-        const div = container.querySelector("[data-nix-outlet]");
+        const div = container.querySelector("[data-elur-outlet]");
         expect(div).not.toBeNull();
     });
 
@@ -36,7 +36,7 @@ describe("portalOutlet()", () => {
         handle.unmount();
 
         expect(outlet._container).toBeNull();
-        expect(container.querySelector("[data-nix-outlet]")).toBeNull();
+        expect(container.querySelector("[data-elur-outlet]")).toBeNull();
     });
 
     it("_render inserta el div antes del nodo `before`", () => {
@@ -48,7 +48,7 @@ describe("portalOutlet()", () => {
         const tpl = portalOutlet(outlet);
         tpl._render(parent, before);
 
-        const div = parent.querySelector("[data-nix-outlet]");
+        const div = parent.querySelector("[data-elur-outlet]");
         expect(div).not.toBeNull();
         expect(div!.nextSibling).toBe(before);
     });
@@ -117,7 +117,7 @@ describe("portal()", () => {
         expect(outletContainer.querySelector(".modal")).not.toBeNull();
     });
 
-    it("renderiza en un NixRef", () => {
+    it("renderiza en un ElurRef", () => {
         const target = document.createElement("div");
         document.body.appendChild(target);
         const ref = { el: target };
@@ -129,7 +129,7 @@ describe("portal()", () => {
         expect(target.querySelector(".modal")).not.toBeNull();
     });
 
-    it("fallback a body si NixRef.el es null", () => {
+    it("fallback a body si ElurRef.el es null", () => {
         const ref = { el: null as Element | null };
 
         const tpl = portal(html`<div class="modal">N</div>`, ref);

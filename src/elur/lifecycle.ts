@@ -1,45 +1,45 @@
-import type { NixTemplate } from "./template/index.js";
+import type { ElurTemplate } from "./template/index.js";
 
-// --- NixChildren ---
+// --- ElurChildren ---
 
 /** Valid child content for components. */
-export type NixChildren =
-    | NixTemplate
-    | NixComponent
-    | Array<NixTemplate | NixComponent>
+export type ElurChildren =
+    | ElurTemplate
+    | ElurComponent
+    | Array<ElurTemplate | ElurComponent>
     | null
     | undefined;
 
-// --- NixComponent ---
+// --- ElurComponent ---
 
 /** Base class for components with lifecycle hooks. */
-export abstract class NixComponent {
+export abstract class ElurComponent {
     /** @internal */
-    readonly __isNixComponent = true as const;
+    readonly __isElurComponent = true as const;
 
     /** Default slot — child content injected by the parent. */
-    children?: NixChildren;
+    children?: ElurChildren;
 
     /** Optional label used by devtools. Falls back to class name. */
     _debugName?: string;
 
     /** @internal */
-    private _slots = new Map<string, NixChildren>();
+    private _slots = new Map<string, ElurChildren>();
 
     /** Sets the default slot content. Returns `this` for chaining. */
-    setChildren(content: NixChildren): this {
+    setChildren(content: ElurChildren): this {
         this.children = content;
         return this;
     }
 
     /** Sets a named slot. Returns `this` for chaining. */
-    setSlot(name: string, content: NixChildren): this {
+    setSlot(name: string, content: ElurChildren): this {
         this._slots.set(name, content);
         return this;
     }
 
     /** Returns content for a named slot. */
-    slot(name: string): NixChildren {
+    slot(name: string): ElurChildren {
         return this._slots.get(name);
     }
 
@@ -50,7 +50,7 @@ export abstract class NixComponent {
     }
 
     /** Returns the component template. Called once on mount; updates happen via signals. */
-    abstract render(): NixTemplate;
+    abstract render(): ElurTemplate;
 
     /** Called before `render()` — no DOM yet. Errors are caught by `onError` if present. */
     onInit?(): void;
@@ -71,20 +71,20 @@ export abstract class NixComponent {
 // --- Type guard ---
 
 /** @internal */
-export function isNixComponent(v: unknown): v is NixComponent {
+export function isElurComponent(v: unknown): v is ElurComponent {
     return (
         v != null &&
         typeof v === "object" &&
-        (v as Record<string, unknown>).__isNixComponent === true
+        (v as Record<string, unknown>).__isElurComponent === true
     );
 }
 
 // --- Devtools component tracking (internal) ---
 
 export interface _ComponentDebugHooks {
-    onMountStart?: (inst: NixComponent) => void;
-    onMountEnd?: (inst: NixComponent) => void;
-    onUnmount?: (inst: NixComponent) => void;
+    onMountStart?: (inst: ElurComponent) => void;
+    onMountEnd?: (inst: ElurComponent) => void;
+    onUnmount?: (inst: ElurComponent) => void;
 }
 
 let _componentDebugHooks: _ComponentDebugHooks | null = null;
@@ -93,14 +93,14 @@ export function _setComponentDebugHooks(hooks: _ComponentDebugHooks | null): voi
     _componentDebugHooks = hooks;
 }
 
-export function _debugComponentMountStart(inst: NixComponent): void {
+export function _debugComponentMountStart(inst: ElurComponent): void {
     _componentDebugHooks?.onMountStart?.(inst);
 }
 
-export function _debugComponentMountEnd(inst: NixComponent): void {
+export function _debugComponentMountEnd(inst: ElurComponent): void {
     _componentDebugHooks?.onMountEnd?.(inst);
 }
 
-export function _debugComponentUnmount(inst: NixComponent): void {
+export function _debugComponentUnmount(inst: ElurComponent): void {
     _componentDebugHooks?.onUnmount?.(inst);
 }

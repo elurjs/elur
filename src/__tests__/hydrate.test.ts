@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { signal } from "../nix/reactivity";
-import { html } from "../nix/template/html";
-import { ref } from "../nix/template/types";
-import { renderToString } from "../nix/server";
-import { hydrate } from "../nix/hydrate";
+import { signal } from "../elur/reactivity";
+import { html } from "../elur/template/html";
+import { ref } from "../elur/template/types";
+import { renderToString } from "../elur/server";
+import { hydrate } from "../elur/hydrate";
 
 describe("hydrate", () => {
     it("adopts server DOM and connects events without replacing nodes", async () => {

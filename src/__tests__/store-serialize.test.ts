@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { createStore } from "../nix/store.js";
+import { createStore } from "../elur/store.js";
 
 // =============================================================================
 // structuredClone escape hatch — custom serialize option

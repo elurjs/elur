@@ -2,7 +2,7 @@ import {
     _debugComponentMountStart,
     _debugComponentMountEnd,
     _debugComponentUnmount,
-    type NixComponent,
+    type ElurComponent,
 } from "../lifecycle.js";
 import {
     _captureContextSnapshot,
@@ -16,12 +16,12 @@ import {
 // =============================================================================
 
 /**
- * Renders a NixComponent into the DOM and calls onMount immediately.
+ * Renders a ElurComponent into the DOM and calls onMount immediately.
  * Propagates errors through onError (or re-throws if not present).
  * Returns a full cleanup function (onUnmount + mountCleanup + renderCleanup).
  */
 export function _mountComponent(
-    inst: NixComponent,
+    inst: ElurComponent,
     parent: Node,
     before: Node | null,
 ): () => void {
@@ -56,7 +56,7 @@ export function _mountComponent(
  * inside the fallback/transition itself must not propagate.
  */
 export function _mountComponentSilent(
-    inst: NixComponent,
+    inst: ElurComponent,
     parent: Node,
     before: Node | null,
 ): () => void {
@@ -84,13 +84,13 @@ export function _mountComponentSilent(
 }
 
 /**
- * Renders a NixComponent using a captured context snapshot.
+ * Renders a ElurComponent using a captured context snapshot.
  * Used for dynamic/keyed rendering inside reactive effects, where the
  * provide/inject context must be inherited from the point of declaration.
  * Calls onMount immediately. Returns a full cleanup function.
  */
 export function _mountComponentWithCtx(
-    inst: NixComponent,
+    inst: ElurComponent,
     parent: Node,
     before: Node | null,
     ctxSnapshot: ReturnType<typeof _captureContextSnapshot>,
@@ -121,14 +121,14 @@ export function _mountComponentWithCtx(
 }
 
 /**
- * Renders a NixComponent with *deferred* onMount — used inside `html` template
+ * Renders a ElurComponent with *deferred* onMount — used inside `html` template
  * fragments where the DOM nodes are still in a DocumentFragment and onMount must
  * fire only after the fragment is inserted into the live document.
  *
  * Pushes the full cleanup into `disposes` and the onMount call into `postMountHooks`.
  */
 export function _mountComponentDeferred(
-    inst: NixComponent,
+    inst: ElurComponent,
     parent: Node,
     before: Node | null,
     postMountHooks: Array<() => void>,

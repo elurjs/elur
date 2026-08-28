@@ -31,13 +31,13 @@ const projects = [
 ];
 
 if (!hasWebkit) {
-    console.warn("[nix-e2e] WebKit no disponible (faltan dependencias del sistema); se omite. Ejecuta `sudo npx playwright install-deps` para habilitarlo.");
+    console.warn("[elur-e2e] WebKit no disponible (faltan dependencias del sistema); se omite. Ejecuta `sudo npx playwright install-deps` para habilitarlo.");
 }
 if (!hasFirefox) {
-    console.warn("[nix-e2e] Firefox no disponible; se omite.");
+    console.warn("[elur-e2e] Firefox no disponible; se omite.");
 }
 if (!hasChromium) {
-    console.warn("[nix-e2e] Chromium no disponible; se omite.");
+    console.warn("[elur-e2e] Chromium no disponible; se omite.");
 }
 
 export default defineConfig({

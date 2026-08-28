@@ -1,11 +1,11 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { _popComponentContext, _pushComponentContext, _setContextScopeResolver } from "../context.js";
-import { isNixComponent, type NixComponent } from "../lifecycle.js";
+import { isElurComponent, type ElurComponent } from "../lifecycle.js";
 import {
     isKeyedList,
-    isNixTemplate,
-    NIX_RENDER_PROTOCOL,
-    NIX_TEMPLATE_DESCRIPTOR,
+    isElurTemplate,
+    ELUR_RENDER_PROTOCOL,
+    ELUR_TEMPLATE_DESCRIPTOR,
     type ServerRenderProtocolContext,
     type TemplateBindingContext,
     type TemplateDescriptor,
@@ -15,7 +15,7 @@ import { normalizeRepeatKey, serializeRepeatKey } from "../template/keyed.js";
 
 // Local guards avoid sharing the same minified import binding name with
 // callback parameters in the same module (esbuild bug with shared chunks).
-const isTemplate = isNixTemplate;
+const isTemplate = isElurTemplate;
 const isKeyed = isKeyedList;
 
 export interface RenderErrorInfo {
@@ -193,14 +193,14 @@ async function* renderValueChunks(value: unknown, state: RenderState): AsyncGene
         const resolved = await Promise.all(value.map((item) => resolveBindingValue(item)));
         checkAbort(state);
         for (const item of resolved) {
-            if (state.markers) yield { type: "markup", value: "<!--nix-ai-->", index: -1 };
+            if (state.markers) yield { type: "markup", value: "<!--elur-ai-->", index: -1 };
             yield* renderValueChunks(item, state);
-            if (state.markers) yield { type: "markup", value: "<!--nix-aiend-->", index: -1 };
+            if (state.markers) yield { type: "markup", value: "<!--elur-aiend-->", index: -1 };
         }
         return;
     }
     if ((typeof value === "object" || typeof value === "function") && value !== null) {
-        const protocol = (value as Record<PropertyKey, unknown>)[NIX_RENDER_PROTOCOL] as
+        const protocol = (value as Record<PropertyKey, unknown>)[ELUR_RENDER_PROTOCOL] as
             | { renderServer?: (context: ServerRenderProtocolContext) => string | Promise<string> }
             | undefined;
         if (protocol?.renderServer) {
@@ -218,7 +218,7 @@ async function* renderValueChunks(value: unknown, state: RenderState): AsyncGene
             return;
         }
     }
-    if (isNixComponent(value)) {
+    if (isElurComponent(value)) {
         yield* renderComponentChunks(value, state);
         return;
     }
@@ -237,27 +237,27 @@ async function* renderValueChunks(value: unknown, state: RenderState): AsyncGene
             const serialized = serializeRepeatKey(key);
             if (seen.has(serialized)) {
                 console.warn(
-                    `[nix-js] repeat(): duplicate key "${key}" during server render. ` +
+                    `[elur] repeat(): duplicate key "${key}" during server render. ` +
                         "Keys must be unique; entries after the first will leak during hydration.",
                 );
             }
             seen.add(serialized);
-            yield { type: "markup", value: `<!--nix-ki:${serialized}-->`, index: -1 };
+            yield { type: "markup", value: `<!--elur-ki:${serialized}-->`, index: -1 };
             yield* renderValueChunks(value.renderFn(item, index), state);
-            yield { type: "markup", value: "<!--nix-ke-->", index: -1 };
+            yield { type: "markup", value: "<!--elur-ke-->", index: -1 };
         }
         return;
     }
     if (isTemplate(value)) {
-        const descriptor = value[NIX_TEMPLATE_DESCRIPTOR];
-        if (!descriptor) throw new TypeError("[nix-js] Template does not support server rendering");
+        const descriptor = value[ELUR_TEMPLATE_DESCRIPTOR];
+        if (!descriptor) throw new TypeError("[elur] Template does not support server rendering");
         yield* renderDescriptorChunks(descriptor, state);
         return;
     }
     yield { type: "markup", value: escapeText(String(value)), index: -1 };
 }
 
-async function* renderComponentChunks(component: NixComponent, state: RenderState): AsyncGenerator<RenderChunk> {
+async function* renderComponentChunks(component: ElurComponent, state: RenderState): AsyncGenerator<RenderChunk> {
     _pushComponentContext();
     const info: RenderErrorInfo = {
         index: -1,
@@ -308,7 +308,7 @@ async function* renderDescriptorChunks(descriptor: TemplateDescriptor, state: Re
         const value = descriptor.values[index];
         if (context.type === "node") {
             yield { type: "markup", value: staticPart, index };
-            if (state.markers) yield { type: "boundary-start", value: `<!--nix-${index}-->`, index };
+            if (state.markers) yield { type: "boundary-start", value: `<!--elur-${index}-->`, index };
             try {
                 const resolved = await resolveBindingValue(value);
                 checkAbort(state);
@@ -317,7 +317,7 @@ async function* renderDescriptorChunks(descriptor: TemplateDescriptor, state: Re
                 state.onError?.(error, { index, context: "node", cause: error });
                 throw error;
             }
-            if (state.markers) yield { type: "boundary-end", value: `<!--nix-end-${index}-->`, index };
+            if (state.markers) yield { type: "boundary-end", value: `<!--elur-end-${index}-->`, index };
             continue;
         }
 
@@ -327,7 +327,7 @@ async function* renderDescriptorChunks(descriptor: TemplateDescriptor, state: Re
         if (context.type === "event") {
             if (state.markers) {
                 const separator = /\s$/.test(prefix) ? "" : " ";
-                yield { type: "markup", value: `${prefix}${separator}data-nix-e-${index}="${escapeAttribute(context.eventName)}"`, index };
+                yield { type: "markup", value: `${prefix}${separator}data-elur-e-${index}="${escapeAttribute(context.eventName)}"`, index };
             } else {
                 yield { type: "markup", value: prefix.replace(/\s+$/, ""), index };
             }
@@ -342,7 +342,7 @@ async function* renderDescriptorChunks(descriptor: TemplateDescriptor, state: Re
             const separator = /\s$/.test(prefix) ? "" : " ";
             yield { type: "markup", value: `${separator}${context.attrName}="${escapeAttribute(serialized)}"`, index };
         }
-        if (state.markers) yield { type: "markup", value: ` data-nix-a-${index}="${escapeAttribute(context.attrName)}"`, index };
+        if (state.markers) yield { type: "markup", value: ` data-elur-a-${index}="${escapeAttribute(context.attrName)}"`, index };
     }
 }
 

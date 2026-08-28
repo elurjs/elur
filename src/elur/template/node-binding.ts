@@ -1,9 +1,9 @@
 import { effect } from "../reactivity.js";
-import { isNixComponent } from "../lifecycle.js";
+import { isElurComponent } from "../lifecycle.js";
 import { _captureContextSnapshot } from "../context.js";
 import type { KEntry } from "./types.js";
 import type { RepeatKey } from "./keyed.js";
-import { isNixTemplate, isKeyedList, NIX_RENDER_PROTOCOL } from "./types.js";
+import { isElurTemplate, isKeyedList, ELUR_RENDER_PROTOCOL } from "./types.js";
 import {
     _mountComponent,
     _mountComponentWithCtx,
@@ -18,7 +18,7 @@ import { queueDOMWrite } from "./dom-write.js";
 
 /**
  * Activates a reactive node binding at `anchor`.
- * Handles: text, NixTemplate, NixComponent, KeyedList, Array, and static values.
+ * Handles: text, ElurTemplate, ElurComponent, KeyedList, Array, and static values.
  * Pushes dispose functions into `disposes`.
  */
 export function activateNodeBinding(
@@ -28,8 +28,8 @@ export function activateNodeBinding(
     postMountHooks: Array<() => void>,
 ): void {
     if (typeof value !== "function") {
-        if (value != null && typeof value === "object" && (value as Record<PropertyKey, unknown>)[NIX_RENDER_PROTOCOL] != null) {
-            const proto = (value as Record<PropertyKey, unknown>)[NIX_RENDER_PROTOCOL] as { mountDom?: (ctx: import("./types.js").DomProtocolContext) => (() => void) | void };
+        if (value != null && typeof value === "object" && (value as Record<PropertyKey, unknown>)[ELUR_RENDER_PROTOCOL] != null) {
+            const proto = (value as Record<PropertyKey, unknown>)[ELUR_RENDER_PROTOCOL] as { mountDom?: (ctx: import("./types.js").DomProtocolContext) => (() => void) | void };
             if (proto.mountDom) {
                 const cleanup = proto.mountDom({
                     parent: anchor.parentNode!,
@@ -39,9 +39,9 @@ export function activateNodeBinding(
                 return;
             }
         }
-        if (isNixComponent(value)) {
+        if (isElurComponent(value)) {
             _mountComponentDeferred(value, anchor.parentNode!, anchor, postMountHooks, disposes);
-        } else if (isNixTemplate(value)) {
+        } else if (isElurTemplate(value)) {
             disposes.push(value._render(anchor.parentNode!, anchor));
         } else if (isKeyedList(value)) {
             // Static keyed list (`repeat(...)` directly, without a getter):
@@ -60,7 +60,7 @@ export function activateNodeBinding(
                 mount: createKeyedMount(ctxSnapshot),
                 ctxSnapshot,
                 onDuplicateKey: (key) => {
-                    console.warn(`[nix-js] repeat(): duplicate key "${key}". Keys must be unique; the previous entry leaks (orphaned nodes + live effects).`);
+                    console.warn(`[elur] repeat(): duplicate key "${key}". Keys must be unique; the previous entry leaks (orphaned nodes + live effects).`);
                 },
             });
             disposes.push(() => {
@@ -71,9 +71,9 @@ export function activateNodeBinding(
             });
         } else if (Array.isArray(value)) {
             for (const item of value) {
-                if (isNixComponent(item)) {
+                if (isElurComponent(item)) {
                     _mountComponentDeferred(item, anchor.parentNode!, anchor, postMountHooks, disposes);
-                } else if (isNixTemplate(item)) {
+                } else if (isElurTemplate(item)) {
                     item._render(anchor.parentNode!, anchor);
                 } else if (item != null && item !== false) {
                     anchor.parentNode!.insertBefore(
@@ -151,17 +151,17 @@ export function activateNodeBinding(
 
         if (v == null || v === false) {
             // Empty
-        } else if (v != null && typeof v === "object" && (v as Record<PropertyKey, unknown>)[NIX_RENDER_PROTOCOL] != null) {
-            const proto = (v as Record<PropertyKey, unknown>)[NIX_RENDER_PROTOCOL] as { mountDom?: (ctx: import("./types.js").DomProtocolContext) => (() => void) | void };
+        } else if (v != null && typeof v === "object" && (v as Record<PropertyKey, unknown>)[ELUR_RENDER_PROTOCOL] != null) {
+            const proto = (v as Record<PropertyKey, unknown>)[ELUR_RENDER_PROTOCOL] as { mountDom?: (ctx: import("./types.js").DomProtocolContext) => (() => void) | void };
             if (proto.mountDom) {
                 innerCleanup = proto.mountDom({ parent: anchor.parentNode!, before: anchor }) ?? null;
             } else {
                 textNode = document.createTextNode(String(v));
                 anchor.parentNode!.insertBefore(textNode, anchor);
             }
-        } else if (isNixTemplate(v)) {
+        } else if (isElurTemplate(v)) {
             innerCleanup = v._render(anchor.parentNode!, anchor);
-        } else if (isNixComponent(v)) {
+        } else if (isElurComponent(v)) {
             innerCleanup = _mountComponentWithCtx(v, anchor.parentNode!, anchor, ctxSnapshot);
         } else if (isKeyedList(v)) {
 
@@ -179,15 +179,15 @@ export function activateNodeBinding(
                 list: v,
                 mount: keyedMount,
                 onDuplicateKey: (key) => {
-                    console.warn(`[nix-js] repeat(): duplicate key "${key}". Keys must be unique; the previous entry leaks (orphaned nodes + live effects).`);
+                    console.warn(`[elur] repeat(): duplicate key "${key}". Keys must be unique; the previous entry leaks (orphaned nodes + live effects).`);
                 },
             });
         } else if (Array.isArray(v)) {
             const cleanups: Array<() => void> = [];
             for (const item of v) {
-                if (isNixComponent(item)) {
+                if (isElurComponent(item)) {
                     cleanups.push(_mountComponent(item, anchor.parentNode!, anchor));
-                } else if (isNixTemplate(item)) {
+                } else if (isElurTemplate(item)) {
                     cleanups.push(item._render(anchor.parentNode!, anchor));
                 } else if (item != null && item !== false) {
                     const t = document.createTextNode(String(item));

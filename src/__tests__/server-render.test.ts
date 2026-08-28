@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { html } from "../nix/template/html";
-import { NIX_RENDER_PROTOCOL } from "../nix/template/types";
-import { createInjectionKey, inject, provide } from "../nix/context";
-import { NixComponent } from "../nix/lifecycle";
-import { renderToString } from "../nix/server";
+import { html } from "../elur/template/html";
+import { ELUR_RENDER_PROTOCOL } from "../elur/template/types";
+import { createInjectionKey, inject, provide } from "../elur/context";
+import { ElurComponent } from "../elur/lifecycle";
+import { renderToString } from "../elur/server";
 
 function compact(value: string): string {
     return value.replace(/\s+/g, " ").replace(/> /g, ">").replace(/ </g, "<").trim();
@@ -62,7 +62,7 @@ describe("server renderer", () => {
 
     it("renders class components without running DOM lifecycle hooks", async () => {
         const calls: string[] = [];
-        class ServerComponent extends NixComponent {
+        class ServerComponent extends ElurComponent {
             onInit() { calls.push("init"); }
             onMount() { calls.push("mount"); }
             render() {
@@ -79,7 +79,7 @@ describe("server renderer", () => {
 
     it("renders custom values through the server protocol", async () => {
         const custom = {
-            [NIX_RENDER_PROTOCOL]: {
+            [ELUR_RENDER_PROTOCOL]: {
                 async renderServer(context: { render(value: unknown): Promise<string> }) {
                     return `<aside>${await context.render(html`
                         <b>${"protocol"}</b>
@@ -96,14 +96,14 @@ describe("server renderer", () => {
 
     it("isolates component context across concurrent renders", async () => {
         const key = createInjectionKey<string>("request-value");
-        class Child extends NixComponent {
+        class Child extends ElurComponent {
             render() {
                 return html`
                     <span>${inject(key)}</span>
                 `;
             }
         }
-        class Parent extends NixComponent {
+        class Parent extends ElurComponent {
             private value: string;
             private delay: number;
             constructor(value: string, delay: number) {
@@ -116,7 +116,7 @@ describe("server renderer", () => {
                 return html`
                     <main>
                         ${{
-                        [NIX_RENDER_PROTOCOL]: {
+                        [ELUR_RENDER_PROTOCOL]: {
                             renderServer: async (context: { render(value: unknown): Promise<string> }) => {
                                 await new Promise((resolve) => setTimeout(resolve, this.delay));
                                 return context.render(new Child());
@@ -141,9 +141,9 @@ describe("server renderer", () => {
             <button @click=${() => { }} class=${"primary"}>${"Save"}</button>
         `;
         const rendered = await renderToString(template, { markers: "hydration" });
-        expect(rendered).toContain('data-nix-e-0="click"');
-        expect(rendered).toContain('data-nix-a-1="class"');
-        expect(rendered).toContain("<!--nix-2-->");
-        expect(rendered).toContain("<!--nix-end-2-->");
+        expect(rendered).toContain('data-elur-e-0="click"');
+        expect(rendered).toContain('data-elur-a-1="class"');
+        expect(rendered).toContain("<!--elur-2-->");
+        expect(rendered).toContain("<!--elur-end-2-->");
     });
 });

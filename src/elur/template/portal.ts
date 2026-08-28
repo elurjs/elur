@@ -1,7 +1,7 @@
-import { isNixComponent } from "../lifecycle.js";
-import type { NixComponent } from "../lifecycle.js";
+import { isElurComponent } from "../lifecycle.js";
+import type { ElurComponent } from "../lifecycle.js";
 import { provide, inject, createInjectionKey } from "../context.js";
-import type { NixTemplate, NixMountHandle, NixRef, PortalOutlet } from "./types.js";
+import type { ElurTemplate, ElurMountHandle, ElurRef, PortalOutlet } from "./types.js";
 import { _mountComponent } from "./mount-helpers.js";
 
 // =============================================================================
@@ -14,10 +14,10 @@ export function createPortalOutlet(): PortalOutlet {
 }
 
 /** Declares the DOM anchor for a PortalOutlet inside a template. */
-export function portalOutlet(outlet: PortalOutlet): NixTemplate {
+export function portalOutlet(outlet: PortalOutlet): ElurTemplate {
     return {
-        __isNixTemplate: true as const,
-        mount(container: Element | string): NixMountHandle {
+        __isElurTemplate: true as const,
+        mount(container: Element | string): ElurMountHandle {
             const el =
                 typeof container === "string"
                     ? (document.querySelector(container) ?? document.body)
@@ -27,7 +27,7 @@ export function portalOutlet(outlet: PortalOutlet): NixTemplate {
         },
         _render(parent: Node, before: Node | null): () => void {
             const el = document.createElement("div");
-            el.setAttribute("data-nix-outlet", "");
+            el.setAttribute("data-elur-outlet", "");
             outlet._container = el;
             parent.insertBefore(el, before);
             return () => {
@@ -45,19 +45,19 @@ export function portalOutlet(outlet: PortalOutlet): NixTemplate {
 /**
  * Renders `content` into `target` instead of the current tree position.
  * Useful for modals, tooltips, and overlays that must escape overflow clipping.
- * Returns a NixTemplate — works inside reactive conditionals.
+ * Returns a ElurTemplate — works inside reactive conditionals.
  *
  * @param content  Template or component to render.
- * @param target   CSS selector, Element, PortalOutlet, or NixRef. Defaults to `document.body`.
+ * @param target   CSS selector, Element, PortalOutlet, or ElurRef. Defaults to `document.body`.
  */
 export function portal(
-    content: NixTemplate | NixComponent,
-    target: Element | string | PortalOutlet | NixRef<Element> = document.body
-): NixTemplate {
+    content: ElurTemplate | ElurComponent,
+    target: Element | string | PortalOutlet | ElurRef<Element> = document.body
+): ElurTemplate {
     return {
-        __isNixTemplate: true as const,
+        __isElurTemplate: true as const,
 
-        mount(container: Element | string): NixMountHandle {
+        mount(container: Element | string): ElurMountHandle {
             const el =
                 typeof container === "string"
                     ? (document.querySelector(container) ?? document.body)
@@ -75,10 +75,10 @@ export function portal(
             } else if ("__isPortalOutlet" in target) {
                 targetEl = (target as PortalOutlet)._container ?? document.body;
             } else {
-                targetEl = (target as NixRef<Element>).el ?? document.body;
+                targetEl = (target as ElurRef<Element>).el ?? document.body;
             }
 
-            if (isNixComponent(content)) {
+            if (isElurComponent(content)) {
                 return _mountComponent(content, targetEl, null);
             }
 
@@ -91,7 +91,7 @@ export function portal(
 // --- Portal outlet via provide/inject ---
 // =============================================================================
 
-const _OUTLET_KEY = createInjectionKey<PortalOutlet>("nix:portal-outlet");
+const _OUTLET_KEY = createInjectionKey<PortalOutlet>("elur:portal-outlet");
 
 /** Provides a PortalOutlet to descendant components via dependency injection. */
 export function provideOutlet(outlet: PortalOutlet): void {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { signal, effect, computed, batch, untrack, watch, nextTick, _getNotifyBufSize } from "../nix/reactivity";
+import { signal, effect, computed, batch, untrack, watch, nextTick, _getNotifyBufSize } from "../elur/reactivity";
 
 // ── Signal ────────────────────────────────────────────────────────────────────
 

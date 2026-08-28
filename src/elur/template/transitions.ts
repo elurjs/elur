@@ -1,7 +1,7 @@
 import { effect } from "../reactivity.js";
-import { isNixComponent } from "../lifecycle.js";
-import type { NixComponent } from "../lifecycle.js";
-import type { NixTemplate, NixMountHandle, TransitionContent } from "./types.js";
+import { isElurComponent } from "../lifecycle.js";
+import type { ElurComponent } from "../lifecycle.js";
+import type { ElurTemplate, ElurMountHandle, TransitionContent } from "./types.js";
 import { COMMENT } from "./types.js";
 import { _mountComponentSilent } from "./mount-helpers.js";
 
@@ -11,7 +11,7 @@ import { _mountComponentSilent } from "./mount-helpers.js";
 
 /**
  * Options for `transition()`.  All class-name overrides are optional — by
- * default they are derived from `name` (default `"nix"`).
+ * default they are derived from `name` (default `"elur"`).
  *
  * | phase        | from class        | active class        | to class        |
  * |--------------|-------------------|---------------------|-----------------|
@@ -20,7 +20,7 @@ import { _mountComponentSilent } from "./mount-helpers.js";
  */
 export interface TransitionOptions {
     /**
-     * Prefix for all generated CSS classes. Default `"nix"`.
+     * Prefix for all generated CSS classes. Default `"elur"`.
      * e.g. `name: "fade"` generates `.fade-enter-from`, `.fade-leave-to`, …
      */
     name?: string;
@@ -51,7 +51,7 @@ export interface TransitionOptions {
 // =============================================================================
 
 function _resolveTransitionClasses(opts: TransitionOptions) {
-    const n = opts.name ?? "nix";
+    const n = opts.name ?? "elur";
     return {
         enterFrom: opts.enterFrom ?? `${n}-enter-from`,
         enterActive: opts.enterActive ?? `${n}-enter-active`,
@@ -108,13 +108,13 @@ function _waitTransitionEnd(el: Element, fallbackMs = 0): Promise<void> {
 export function transition(
     content: TransitionContent,
     options: TransitionOptions = {},
-): NixTemplate {
+): ElurTemplate {
     const cls = _resolveTransitionClasses(options);
 
     return {
-        __isNixTemplate: true as const,
+        __isElurTemplate: true as const,
 
-        mount(container: Element | string): NixMountHandle {
+        mount(container: Element | string): ElurMountHandle {
             const el =
                 typeof container === "string"
                     ? (document.querySelector(container) ?? document.body)
@@ -142,15 +142,15 @@ export function transition(
                 return null;
             };
 
-            function mountContent(tpl: NixTemplate | NixComponent): () => void {
-                if (isNixComponent(tpl)) {
-                    return _mountComponentSilent(tpl as NixComponent, parent, before);
+            function mountContent(tpl: ElurTemplate | ElurComponent): () => void {
+                if (isElurComponent(tpl)) {
+                    return _mountComponentSilent(tpl as ElurComponent, parent, before);
                 }
-                return (tpl as NixTemplate)._render(parent, before);
+                return (tpl as ElurTemplate)._render(parent, before);
             }
 
             /** Mount content and play enter animation (does NOT block). */
-            const doEnter = (tpl: NixTemplate | NixComponent, skipAnim = false): void => {
+            const doEnter = (tpl: ElurTemplate | ElurComponent, skipAnim = false): void => {
                 leaveGen++;
                 if (leaveCleanup) {
                     leaveCleanup();
@@ -212,9 +212,9 @@ export function transition(
 
             let disposeWatcher: (() => void) | null = null;
 
-            if (typeof content === "function" && !isNixComponent(content as unknown)) {
-                const getter = content as () => NixTemplate | NixComponent | null;
-                let prevVal: NixTemplate | NixComponent | null = null;
+            if (typeof content === "function" && !isElurComponent(content as unknown)) {
+                const getter = content as () => ElurTemplate | ElurComponent | null;
+                let prevVal: ElurTemplate | ElurComponent | null = null;
 
                 disposeWatcher = effect(() => {
                     const val = getter();
@@ -237,7 +237,7 @@ export function transition(
                 });
                 isFirstRender = false;
             } else {
-                doEnter(content as NixTemplate | NixComponent);
+                doEnter(content as ElurTemplate | ElurComponent);
             }
 
             return () => {

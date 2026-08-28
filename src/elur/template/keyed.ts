@@ -1,5 +1,5 @@
-import type { NixTemplate, KeyedList, KEntry } from "./types.js";
-import type { NixComponent } from "../lifecycle.js";
+import type { ElurTemplate, KeyedList, KEntry } from "./types.js";
+import type { ElurComponent } from "../lifecycle.js";
 
 // =============================================================================
 // --- repeat() ---
@@ -12,7 +12,7 @@ import type { NixComponent } from "../lifecycle.js";
 export function repeat<T>(
     items: T[],
     keyFn: (item: T, index: number) => string | number,
-    renderFn: (item: T, index: number) => NixTemplate | NixComponent
+    renderFn: (item: T, index: number) => ElurTemplate | ElurComponent
 ): KeyedList<T> {
     return { __isKeyedList: true as const, items, keyFn, renderFn };
 }
@@ -32,10 +32,10 @@ export type RepeatKey = string | number;
 export function normalizeRepeatKey(key: unknown, index: number): RepeatKey {
     if (typeof key === "string" || typeof key === "number") return key;
     console.warn(
-        `[nix-js] repeat(): key at index ${index} is not a string or number (got ${typeof key}); ` +
+        `[elur] repeat(): key at index ${index} is not a string or number (got ${typeof key}); ` +
             `using positional fallback. Non-serializable keys cannot preserve identity across SSR/hydration.`,
     );
-    return `__nix-key:${index}`;
+    return `__elur-key:${index}`;
 }
 
 export function utf8ToBase64(value: string): string {

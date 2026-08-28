@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { repeat, getSequence } from "../nix/template/keyed";
-import { html } from "../nix/template";
+import { repeat, getSequence } from "../elur/template/keyed";
+import { html } from "../elur/template";
 
 // =============================================================================
 // --- repeat() ---

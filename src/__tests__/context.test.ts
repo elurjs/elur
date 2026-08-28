@@ -1,14 +1,14 @@
 import { describe, it, expect } from "vitest";
-import { html } from "../nix/template";
-import { NixComponent } from "../nix/lifecycle";
-import { mount } from "../nix/component";
+import { html } from "../elur/template";
+import { ElurComponent } from "../elur/lifecycle";
+import { mount } from "../elur/component";
 import {
     createInjectionKey,
     provide,
     inject,
     _pushComponentContext,
     _popComponentContext,
-} from "../nix/context";
+} from "../elur/context";
 
 describe("context (provide / inject)", () => {
     it("createInjectionKey returns a unique symbol", () => {
@@ -38,12 +38,12 @@ describe("context (provide / inject)", () => {
 
         let received: string | undefined;
 
-        class Parent extends NixComponent {
+        class Parent extends ElurComponent {
             onInit() { provide(KEY, "dark"); }
             render() { return html`<div>${new Child()}</div>`; }
         }
 
-        class Child extends NixComponent {
+        class Child extends ElurComponent {
             onInit() { received = inject(KEY); }
             render() { return html`<span>child</span>`; }
         }
@@ -58,17 +58,17 @@ describe("context (provide / inject)", () => {
 
         let receivedByGrandchild: number | undefined;
 
-        class Grandchild extends NixComponent {
+        class Grandchild extends ElurComponent {
             onInit() { receivedByGrandchild = inject(KEY); }
             render() { return html`<span>gc</span>`; }
         }
 
-        class Child extends NixComponent {
+        class Child extends ElurComponent {
             onInit() { provide(KEY, 2); }
             render() { return html`<div>${new Grandchild()}</div>`; }
         }
 
-        class Parent extends NixComponent {
+        class Parent extends ElurComponent {
             onInit() { provide(KEY, 1); }
             render() { return html`<div>${new Child()}</div>`; }
         }

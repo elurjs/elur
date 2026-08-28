@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { createErrorBoundary } from "../nix/template/error-boundary";
-import { html } from "../nix/template";
-import { signal, nextTick } from "../nix/reactivity";
+import { createErrorBoundary } from "../elur/template/error-boundary";
+import { html } from "../elur/template";
+import { signal, nextTick } from "../elur/reactivity";
 
 // =============================================================================
 // --- Helpers ---
@@ -9,7 +9,7 @@ import { signal, nextTick } from "../nix/reactivity";
 
 function makeThrowingComponent(msg = "onInit error") {
     return {
-        __isNixComponent: true as const,
+        __isElurComponent: true as const,
         render: () => html`<div>never</div>`,
         onInit: () => { throw new Error(msg); },
     };
@@ -17,7 +17,7 @@ function makeThrowingComponent(msg = "onInit error") {
 
 function makeThrowingOnMount(msg = "onMount error") {
     return {
-        __isNixComponent: true as const,
+        __isElurComponent: true as const,
         render: () => html`<div class="content">OK</div>`,
         onMount: () => { throw new Error(msg); },
     };
@@ -63,12 +63,12 @@ describe("createErrorBoundary()", () => {
         expect(hasComment).toBe(true);
     });
 
-    it("retorna NixTemplate válido", () => {
+    it("retorna ElurTemplate válido", () => {
         const tpl = createErrorBoundary(
             html`<div>x</div>`,
             html`<div>fb</div>`
         );
-        expect(tpl.__isNixTemplate).toBe(true);
+        expect(tpl.__isElurTemplate).toBe(true);
         expect(typeof tpl.mount).toBe("function");
         expect(typeof tpl._render).toBe("function");
     });
@@ -125,7 +125,7 @@ describe("createErrorBoundary()", () => {
     it("la factory de fallback recibe el error correcto", () => {
         const error = new Error("specific error");
         const comp = {
-            __isNixComponent: true as const,
+            __isElurComponent: true as const,
             render: () => html`<div>x</div>`,
             onInit: () => { throw error; },
         };
@@ -143,7 +143,7 @@ describe("createErrorBoundary()", () => {
     it("onInit error es capturado por onError del componente antes del boundary", () => {
         const onError = vi.fn();
         const comp = {
-            __isNixComponent: true as const,
+            __isElurComponent: true as const,
             render: () => html`<div class="ok">OK</div>`,
             onInit: () => { throw new Error("init"); },
             onError
@@ -158,7 +158,7 @@ describe("createErrorBoundary()", () => {
     it("onMount error es capturado por onError del componente antes del boundary", () => {
         const onError = vi.fn();
         const comp = {
-            __isNixComponent: true as const,
+            __isElurComponent: true as const,
             render: () => html`<div class="ok">OK</div>`,
             onMount: () => { throw new Error("mount"); },
             onError
@@ -180,7 +180,7 @@ describe("createErrorBoundary()", () => {
 
     it("ignora errores lanzados durante el unmount cleanup", () => {
         const comp = {
-            __isNixComponent: true as const,
+            __isElurComponent: true as const,
             render: () => html`<div class="ok">OK</div>`,
             onUnmount: () => { throw new Error("unmount"); },
             onMount: () => () => { throw new Error("mountCleanup"); }
@@ -223,10 +223,10 @@ describe("createErrorBoundary()", () => {
     // --- Fallback es un componente ---
     // =========================================================================
 
-    it("renderiza fallback como NixComponent silenciosamente", () => {
+    it("renderiza fallback como ElurComponent silenciosamente", () => {
         const comp = makeThrowingComponent();
         const fallbackComp = {
-            __isNixComponent: true as const,
+            __isElurComponent: true as const,
             render: () => html`<div class="comp-fallback">CompFB</div>`,
         };
 
@@ -238,7 +238,7 @@ describe("createErrorBoundary()", () => {
     it("error en el fallback no propaga hacia arriba", () => {
         const comp = makeThrowingComponent();
         const badFallback = {
-            __isNixComponent: true as const,
+            __isElurComponent: true as const,
             render: () => html`<div>fb</div>`,
             onInit: () => { throw new Error("fallback también falla"); },
         };
@@ -252,7 +252,7 @@ describe("createErrorBoundary()", () => {
     // --- Template como contenido ---
     // =========================================================================
 
-    it("funciona con NixTemplate como contenido (sin error)", () => {
+    it("funciona con ElurTemplate como contenido (sin error)", () => {
         const tpl = createErrorBoundary(
             html`<span class="tpl-content">tpl</span>`,
             html`<span class="tpl-fb">fb</span>`
@@ -360,7 +360,7 @@ describe("createErrorBoundary()", () => {
         boundary.mount(container);
 
         // The boundary should still render a minimal error placeholder.
-        expect(container.querySelector("[data-nix-error-boundary]")).not.toBeNull();
+        expect(container.querySelector("[data-elur-error-boundary]")).not.toBeNull();
     });
 
     it("captura errores reactivos del fallback", async () => {
@@ -381,6 +381,6 @@ describe("createErrorBoundary()", () => {
         await nextTick();
 
         // Reactive error in fallback should not propagate; the placeholder should be present.
-        expect(container.querySelector("[data-nix-error-boundary]")).not.toBeNull();
+        expect(container.querySelector("[data-elur-error-boundary]")).not.toBeNull();
     });
 });

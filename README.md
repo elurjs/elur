@@ -1,18 +1,18 @@
-# Nix.js
+# Elur
 
-[![npm version](https://img.shields.io/npm/v/@deijose/nix-js.svg)](https://www.npmjs.com/package/@deijose/nix-js)
+[![npm version](https://img.shields.io/npm/v/elur.svg)](https://www.npmjs.com/package/elur)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://img.shields.io/badge/tests-595%20passing-brightgreen.svg)](https://github.com/DeijoseDevelop/nix-js/tree/main/src/__tests__)
+[![Tests](https://img.shields.io/badge/tests-595%20passing-brightgreen.svg)](https://github.com/elurjs/elur/tree/main/src/__tests__)
 [![Coverage](https://img.shields.io/badge/coverage-95.86%25-brightgreen.svg)]()
 [![Bundle size](https://img.shields.io/badge/min%2Bgzip-~15%20KB-orange.svg)]()
 [![TypeScript](https://img.shields.io/badge/TypeScript-first-3178C6.svg)]()
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-0-success.svg)]()
-[![Website](https://img.shields.io/badge/website-nix--js-indigo.svg)](https://nix-js.dev/)
-[![Benchmarks](https://img.shields.io/badge/benchmarks-interactive-red.svg)](https://github.com/DeijoseDevelop/nix-js-framework-benchmark)
+[![Website](https://img.shields.io/badge/website-elur-indigo.svg)](https://elur.dev/)
+[![Benchmarks](https://img.shields.io/badge/benchmarks-interactive-red.svg)](https://github.com/elurjs/elur-framework-benchmark)
 
-> A lightweight, fully reactive micro-framework for building modern web UIs — no virtual DOM, no compiler, no build-time magic. Just signals, tagged templates, and pure TypeScript.
+> A lightweight, fully reactive framework for building modern web UIs — no virtual DOM, no compiler, no build-time magic. Just signals, tagged templates, and pure TypeScript.
 >
-> **[→ Documentation & Live Demo](https://nix-js.dev/) | [→ Performance Benchmarks](https://js-benchmark.nix-js.dev/)**
+> **[→ Documentation & Live Demo](https://elur.dev/) | [→ Performance Benchmarks](https://js-benchmark.elur.dev/)**
 
 ```
 ~15 KB gzipped · zero dependencies · TypeScript-first · ES2022
@@ -22,7 +22,7 @@
 
 ## Table of Contents
 
-- [Nix.js](#nixjs)
+- [Elur](#elur)
   - [Table of Contents](#table-of-contents)
   - [Overview](#overview)
     - [Architecture at a glance](#architecture-at-a-glance)
@@ -52,14 +52,14 @@
     - [DOM refs: `ref()`](#dom-refs-ref)
   - [Components](#components)
     - [Function components](#function-components)
-    - [Class components: `NixComponent`](#class-components-nixcomponent)
+    - [Class components: `ElurComponent`](#class-components-elurcomponent)
     - [Lifecycle hooks](#lifecycle-hooks)
     - [`mount()`](#mount)
   - [Children \& Slots](#children--slots)
     - [Default slot: `children`](#default-slot-children)
     - [Named slots](#named-slots)
     - [Children in function components](#children-in-function-components)
-    - [`NixChildren` type](#nixchildren-type)
+    - [`ElurChildren` type](#elurchildren-type)
   - [Dependency Injection](#dependency-injection)
     - [`provide` / `inject`](#provide--inject)
     - [`createInjectionKey`](#createinjectionkey)
@@ -78,7 +78,7 @@
     - [Named Routes](#named-routes)
     - [`RouterView`](#routerview)
     - [`Link`](#link)
-    - [`useRouter` / `nixRouter`](#userouter--nixrouter)
+    - [`useRouter` / `elurRouter`](#userouter--elurrouter)
     - [Nested routes](#nested-routes)
     - [Query parameters](#query-parameters)
   - [Async \& Lazy Loading](#async--lazy-loading)
@@ -92,13 +92,13 @@
       - [Async guards](#async-guards)
       - [Type](#type)
   - [Forms](#forms)
-    - [`nixField()`](#nixfield)
+    - [`elurField()`](#elurfield)
       - [`validateOn`](#validateon)
       - [Field type coercion](#field-type-coercion)
     - [`createForm()`](#createform)
     - [Nested Form Fields (Dot-Path)](#nested-form-fields-dot-path)
     - [Cross-Field Validation](#cross-field-validation)
-    - [`nixFieldArray()`](#nixfieldarray)
+    - [`elurFieldArray()`](#elurfieldarray)
     - [Built-in validators](#built-in-validators)
     - [Zod / Valibot interop](#zod--valibot-interop)
     - [Server-side errors](#server-side-errors)
@@ -118,7 +118,7 @@
     - [Option C: Provide / inject](#option-c-provide--inject)
   - [Error Boundaries](#error-boundaries)
     - [Basic usage](#basic-usage-1)
-    - [NixComponent content](#nixcomponent-content)
+    - [ElurComponent content](#elurcomponent-content)
     - [Reactive errors](#reactive-errors)
     - [Nested boundaries](#nested-boundaries)
     - [What is and isn't caught](#what-is-and-isnt-caught)
@@ -154,7 +154,7 @@
 
 ## Overview
 
-Nix.js is a signal-based reactive micro-framework. Its design goals are:
+Elur is a signal-based reactive framework. Its design goals are:
 
 - **No virtual DOM.** Bindings update individual DOM nodes directly via `effect()`.
 - **No compiler.** Templates are standard JavaScript tagged template literals.
@@ -166,7 +166,7 @@ Nix.js is a signal-based reactive micro-framework. Its design goals are:
 
 ```
                           ┌─────────────────────────────────────────┐
-                          │            Nix.js Architecture          │
+                          │            Elur Architecture          │
                           └─────────────────────────────────────────┘
 
   ┌─── Reactivity Layer ──────────────────────────────────────────────────────┐
@@ -182,13 +182,13 @@ Nix.js is a signal-based reactive micro-framework. Its design goals are:
   └───────────────────────────┬───────────────────────────────────────────────┘
                               │
   ┌─── Component Layer ───────┼───────────────────────────────────────────────┐
-  │  NixTemplate (fn components)  ──  NixComponent (lifecycle)  ──  mount()  │
+  │  ElurTemplate (fn components)  ──  ElurComponent (lifecycle)  ──  mount()  │
   │  lifecycle hooks  ──  children / slots                                   │
   └───────────────────────────┬───────────────────────────────────────────────┘
                               │
   ┌─── Application Layer ─────┼───────────────────────────────────────────────┐
   │  createRouter()     createStore()     provide() / inject()               │
-  │  nixField()         createForm()      suspend() / lazy()                 │
+  │  elurField()         createForm()      suspend() / lazy()                 │
   │  createErrorBoundary()                showWhen()                         │
   └───────────────────────────────────────────────────────────────────────────┘
 ```
@@ -199,17 +199,17 @@ Each interpolation inside `html`` creates at most one `effect()`. When a signal 
 
 ## Installation & Setup
 
-Nix.js uses [Vite](https://vitejs.dev/) as its dev server and bundler.
+Elur uses [Vite](https://vitejs.dev/) as its dev server and bundler.
 
 ```bash
 # Install as a dependency
-npm install @deijose/nix-js
+npm install elur
 # or
-bun add @deijose/nix-js
+bun add elur
 ```
 
 ```typescript
-import { signal, html, NixComponent, mount } from "@deijose/nix-js";
+import { signal, html, ElurComponent, mount } from "elur";
 ```
 
 ### Development (from source)
@@ -229,10 +229,10 @@ npm run build
 
 ```
 src/
-  nix/
+  elur/
     reactivity.ts   — signal, effect, computed, batch, watch, untrack, nextTick
     template.ts     — html``, repeat(), ref()
-    lifecycle.ts    — NixComponent base class
+    lifecycle.ts    — ElurComponent base class
     component.ts    — mount()
     store.ts        — createStore()
     router.ts       — createRouter(), RouterView, Link, useRouter()
@@ -249,12 +249,12 @@ Import everything from the single entry point:
 import {
   signal, computed, effect, batch, watch, untrack, nextTick,
   html, repeat, ref,
-  NixComponent, mount,
+  ElurComponent, mount,
   createStore,
   createRouter, RouterView, Link, useRouter,
   suspend, lazy,
   provide, inject, createInjectionKey,
-} from "./nix";
+} from "./elur";
 ```
 
 ---
@@ -264,25 +264,25 @@ import {
 When you only need one module, import from subpaths:
 
 ```typescript
-import { signal, effect } from "@deijose/nix-js/signals";
-import { createRouter } from "@deijose/nix-js/router";
-import { createStore } from "@deijose/nix-js/store";
-import { createForm } from "@deijose/nix-js/form";
-import { suspend, lazy } from "@deijose/nix-js/async";
-import { html, repeat, transition } from "@deijose/nix-js/template";
-import { mount } from "@deijose/nix-js/component";
-import { NixComponent } from "@deijose/nix-js/lifecycle";
-import { provide, inject, createInjectionKey } from "@deijose/nix-js/context";
-import { enableDevTools } from "@deijose/nix-js/devtools";
+import { signal, effect } from "elur/signals";
+import { createRouter } from "elur/router";
+import { createStore } from "elur/store";
+import { createForm } from "elur/form";
+import { suspend, lazy } from "elur/async";
+import { html, repeat, transition } from "elur/template";
+import { mount } from "elur/component";
+import { ElurComponent } from "elur/lifecycle";
+import { provide, inject, createInjectionKey } from "elur/context";
+import { enableDevTools } from "elur/devtools";
 ```
 
 ### Server-side rendering (v3.0)
 
 ```typescript
-import { renderToString, renderToChunks, createServerRenderScope } from "@deijose/nix-js/server";
+import { renderToString, renderToChunks, createServerRenderScope } from "elur/server";
 ```
 
-The `server` subpath provides a DOM-free renderer that produces HTML from Nix.js templates without any browser environment or DOM simulation. Works directly on the template descriptor (strings, values, bindings) and serializes to HTML.
+The `server` subpath provides a DOM-free renderer that produces HTML from Elur templates without any browser environment or DOM simulation. Works directly on the template descriptor (strings, values, bindings) and serializes to HTML.
 
 - `renderToString(value, options?)` — renders a full string. Supports `markers: "hydration"`, `signal` (abort), `context` and `onError(error, info: RenderErrorInfo)`.
 - `renderToChunks(value, options?)` — streams incremental `RenderChunk`s (`markup`, `boundary-start`, `boundary-end`, `error`, `done`). `renderToString` is a wrapper over the same chunk renderer, so both always produce identical output.
@@ -293,7 +293,7 @@ Components may define `onServerRender()` — a server-only lifecycle hook that r
 ### Hydration (v3.0)
 
 ```typescript
-import { hydrate } from "@deijose/nix-js/hydrate";
+import { hydrate } from "elur/hydrate";
 ```
 
 The `hydrate` subpath provides real hydration that activates event bindings, signals, and effects on existing SSR DOM nodes instead of replacing them. Preserves DOM identity, focus, input state, and scroll position. Includes mismatch detection with fallback remount (`throw` / `warn-remount` / `remount`).
@@ -307,14 +307,14 @@ Hydration-specific guarantees:
 
 ### Render protocols & trusted raw HTML (v3.0.2)
 
-Custom values can implement the `NIX_RENDER_PROTOCOL` protocol with up to three
+Custom values can implement the `ELUR_RENDER_PROTOCOL` protocol with up to three
 entry points, so a single object works across all renderers:
 
 ```typescript
-import { NIX_RENDER_PROTOCOL, raw } from "@deijose/nix-js";
+import { ELUR_RENDER_PROTOCOL, raw } from "elur";
 
 const custom = {
-  [NIX_RENDER_PROTOCOL]: {
+  [ELUR_RENDER_PROTOCOL]: {
     renderServer(ctx) { return "<b>server</b>"; },
     mountDom({ parent, before }) { /* insert nodes, return cleanup */ },
     hydrateDom({ parent, bounds }) { /* adopt SSR nodes, return cleanup */ },
@@ -327,7 +327,7 @@ const custom = {
 
 Both `server` and `hydrate` are opt-in: the main bundle does not include them unless explicitly imported.
 
-This is optional: `import { ... } from "@deijose/nix-js"` remains fully supported.
+This is optional: `import { ... } from "elur"` remains fully supported.
 
 > **Minified artifact** — the library is minified with Oxc at build time; the
 > minified ESM/CJS artifact is validated by `npm run test:artifact` (guards SSR
@@ -337,19 +337,19 @@ This is optional: `import { ... } from "@deijose/nix-js"` remains fully supporte
 
 ## Quick Start
 
-A complete mini-app showing both component styles — function components (`NixTemplate`) for pages, class components (`NixComponent`) when lifecycle hooks are needed:
+A complete mini-app showing both component styles — function components (`ElurTemplate`) for pages, class components (`ElurComponent`) when lifecycle hooks are needed:
 
 ```typescript
 import {
-  signal, html, NixComponent, mount,
-  createRouter, RouterView, Link, nixRouter,
-} from "@deijose/nix-js";
+  signal, html, ElurComponent, mount,
+  createRouter, RouterView, Link, elurRouter,
+} from "elur";
 
-// --- Pages as function components (NixTemplate) ---
+// --- Pages as function components (ElurTemplate) ---
 // A plain function that returns html`` is all you need for pages
 // and purely display components — no class, no lifecycle boilerplate.
 
-function HomePage(): NixTemplate {
+function HomePage(): ElurTemplate {
   const count = signal(0);
   return html`
     <h1>Home</h1>
@@ -358,15 +358,15 @@ function HomePage(): NixTemplate {
   `;
 }
 
-function UserPage(): NixTemplate {
-  const router = nixRouter();
+function UserPage(): ElurTemplate {
+  const router = elurRouter();
   return html`<h1>User: ${() => router.params.value.id}</h1>`;
 }
 
-// --- Stateful component as class component (NixComponent) ---
+// --- Stateful component as class component (ElurComponent) ---
 // Use a class when you need onInit / onMount / onUnmount / onError hooks.
 
-class Clock extends NixComponent {
+class Clock extends ElurComponent {
   private time = signal(new Date().toLocaleTimeString());
   private _id = 0;
 
@@ -391,7 +391,7 @@ const router = createRouter([
 
 // --- App shell (function component) ---
 
-function App(): NixTemplate {
+function App(): ElurTemplate {
   return html`
     <nav>
       ${new Link("/", "Home")}
@@ -406,16 +406,16 @@ mount(App(), "#app", { router });
 ```
 
 This gives you:
-- **`NixTemplate`** (function components) for pages — minimal boilerplate, signals close over the function scope
-- **`NixComponent`** (class components) for the `Clock` — `onMount` starts the interval and returns its cleanup
-- **Dynamic route params** on `/user/:id` via `nixRouter()`
+- **`ElurTemplate`** (function components) for pages — minimal boilerplate, signals close over the function scope
+- **`ElurComponent`** (class components) for the `Clock` — `onMount` starts the interval and returns its cleanup
+- **Dynamic route params** on `/user/:id` via `elurRouter()`
 - **Client-side navigation** via `Link` with `pushState` (no page reloads)
 
 ---
 
 ## Core Concepts
 
-Nix.js is built around three primitives:
+Elur is built around three primitives:
 
 | Primitive | Role |
 |-----------|------|
@@ -423,7 +423,7 @@ Nix.js is built around three primitives:
 | `effect(fn)` | A function that re-runs whenever any signal it read changes. |
 | `html\`\`` | A tagged template that turns an HTML string + bindings into a live DOM fragment. |
 
-Everything else — `computed`, `watch`, `repeat`, `NixComponent`, `createStore`, the router, `provide`/`inject` — is built on top of these three primitives.
+Everything else — `computed`, `watch`, `repeat`, `ElurComponent`, `createStore`, the router, `provide`/`inject` — is built on top of these three primitives.
 
 ---
 
@@ -590,16 +590,16 @@ await nextTick(() => inputRef.el?.focus());
 
 ### `html` tag
 
-`html` is a tagged template literal that returns a `NixTemplate`. It parses the HTML once and creates a `DocumentFragment` with live bindings.
+`html` is a tagged template literal that returns a `ElurTemplate`. It parses the HTML once and creates a `DocumentFragment` with live bindings.
 
 ```typescript
-import { html, signal, mount } from "./nix";
+import { html, signal, mount } from "./elur";
 
 const name = signal("world");
 const tpl  = html`<h1>Hello, ${() => name.value}!</h1>`;
 
 mount(tpl, "#app");
-name.value = "Nix"; // DOM updates automatically
+name.value = "Elur"; // DOM updates automatically
 ```
 
 ### Text bindings
@@ -640,19 +640,19 @@ html`
 - `null`, `undefined`, or `false` → attribute is **removed**.
 
 > **Partial attribute interpolation** (`class="btn btn-${size}"`) is supported
-> via the **`@deijose/vite-plugin-nix-js`** Vite plugin (>= 1.1.0). The plugin
+> via the **`@elurjs/vite-plugin-elur`** Vite plugin (>= 1.1.0). The plugin
 > runs a compile-time lexer that rewrites partial interpolations into full
 > bindings before the core sees them. Install the plugin and add it to your
 > Vite config:
 >
 > ```bash
-> npm install -D @deijose/vite-plugin-nix-js
+> npm install -D @elurjs/vite-plugin-elur
 > ```
 >
 > ```typescript
 > // vite.config.ts
-> import nix from "@deijose/vite-plugin-nix-js";
-> export default defineConfig({ plugins: [nix()] });
+> import elur from "@elurjs/vite-plugin-elur";
+> export default defineConfig({ plugins: [elur()] });
 > ```
 >
 > With the plugin, static text and interpolations can be mixed inside the same
@@ -698,7 +698,7 @@ html`
 
 Interpolated values are always inserted as text nodes or via `setAttribute`, so they are never parsed as HTML — there is no markup-injection vector through interpolation.
 
-On top of that, **URL-bearing attributes are sanitized**. When you bind a value to `href`, `src`, `action`, `formaction`, `xlink:href`, `poster`, `background`, `cite`, `ping`, or `data`, Nix blocks dangerous schemes:
+On top of that, **URL-bearing attributes are sanitized**. When you bind a value to `href`, `src`, `action`, `formaction`, `xlink:href`, `poster`, `background`, `cite`, `ping`, or `data`, Elur blocks dangerous schemes:
 
 ```typescript
 // Blocked — the attribute is set to "" and a warning is logged
@@ -714,7 +714,7 @@ html`<img src=${"data:image/png;base64,iVBOR…"}>`;   // raster data URIs
 - Obfuscation via whitespace, control characters, BOM, or line separators (e.g. `"java\tscript:…"`) is normalized away before the scheme check.
 - `data:image/svg+xml` is rejected on purpose (SVG can carry inline script); raster `data:image/*` URIs are allowed.
 - **Performance:** only URL attributes run the check, and only when their value changes. `class`, `style`, `aria-*`, `data-*`, and custom attributes are never sanitized and keep their exact code path.
-- Sanitization is exposed for reuse: `import { sanitizeUrl } from "@deijose/nix-js/template"`.
+- Sanitization is exposed for reuse: `import { sanitizeUrl } from "elur/template"`.
 
 > Events must use the `@event` syntax. Binding a value to an `on*` attribute (e.g. `onclick=${…}`) or `srcdoc` logs a warning, since that turns an untrusted value into executable code.
 
@@ -759,7 +759,7 @@ html`
 
 ### Conditional rendering
 
-Return a `NixTemplate` or `null`/`false` from a function binding:
+Return a `ElurTemplate` or `null`/`false` from a function binding:
 
 ```typescript
 const show = signal(true);
@@ -797,7 +797,7 @@ For reactive lists that change over time, prefer `repeat()`.
 `repeat()` enables efficient diffing: DOM nodes for unchanged keys are preserved and **only** added, removed, or reordered items are touched.
 
 ```typescript
-import { repeat } from "./nix";
+import { repeat } from "./elur";
 
 const todos = signal([
   { id: 1, text: "Buy milk" },
@@ -820,7 +820,7 @@ html`
 function repeat<T>(
   items: T[],
   keyFn: (item: T, index: number) => string | number,
-  renderFn: (item: T, index: number) => NixTemplate | NixComponent
+  renderFn: (item: T, index: number) => ElurTemplate | ElurComponent
 ): KeyedList<T>
 ```
 
@@ -834,7 +834,7 @@ of silent collisions.
 `ref()` creates a typed container that is filled with the actual DOM element after mount, and cleared on unmount.
 
 ```typescript
-import { ref } from "./nix";
+import { ref } from "./elur";
 
 const inputRef = ref<HTMLInputElement>();
 
@@ -847,10 +847,10 @@ inputRef.el?.focus();
 inputRef.el?.value; // ""
 ```
 
-The `NixRef<T>` type:
+The `ElurRef<T>` type:
 
 ```typescript
-interface NixRef<T extends Element = Element> {
+interface ElurRef<T extends Element = Element> {
   el: T | null;
 }
 ```
@@ -861,12 +861,12 @@ interface NixRef<T extends Element = Element> {
 
 ### Function components
 
-The simplest and most common form: a plain function that calls `html\`\`` and returns a `NixTemplate`. This is the **recommended pattern for pages and purely display components** — signals close over the function's scope and update the DOM directly, with no class boilerplate.
+The simplest and most common form: a plain function that calls `html\`\`` and returns a `ElurTemplate`. This is the **recommended pattern for pages and purely display components** — signals close over the function's scope and update the DOM directly, with no class boilerplate.
 
 ```typescript
-import { html, signal, mount } from "./nix";
+import { html, signal, mount } from "./elur";
 
-function Counter(): NixTemplate {
+function Counter(): ElurTemplate {
   const count = signal(0);
   return html`
     <div>
@@ -882,14 +882,14 @@ mount(Counter(), "#app");
 // createRouter([{ path: "/counter", component: () => Counter() }]);
 ```
 
-### Class components: `NixComponent`
+### Class components: `ElurComponent`
 
-Extend `NixComponent` **only when you need lifecycle hooks** (`onInit`, `onMount`, `onUnmount`, `onError`). Common cases: timers, data fetching, external subscriptions, cleanup.
+Extend `ElurComponent` **only when you need lifecycle hooks** (`onInit`, `onMount`, `onUnmount`, `onError`). Common cases: timers, data fetching, external subscriptions, cleanup.
 
 ```typescript
-import { NixComponent, html, signal } from "./nix";
+import { ElurComponent, html, signal } from "./elur";
 
-class Timer extends NixComponent {
+class Timer extends ElurComponent {
   count = signal(0);
   private _id = 0;
 
@@ -917,7 +917,7 @@ html`<div>${new Timer()}</div>`
 All hooks are optional:
 
 ```typescript
-class MyComponent extends NixComponent {
+class MyComponent extends ElurComponent {
   // ① Called BEFORE render(), no DOM yet.
   //    Use it to initialize derived state or call provide().
   onInit() {
@@ -926,7 +926,7 @@ class MyComponent extends NixComponent {
   }
 
   // ② Must be implemented. Returns the template. Called once.
-  render(): NixTemplate {
+  render(): ElurTemplate {
     return html`...`;
   }
 
@@ -957,7 +957,7 @@ new MyComponent()
       ↓
   onInit()        ← no DOM, synchronous
       ↓
-  render()        ← returns NixTemplate
+  render()        ← returns ElurTemplate
       ↓
   [DOM inserted]
       ↓
@@ -973,7 +973,7 @@ new MyComponent()
 
 ### `mount()`
 
-Mounts a `NixTemplate` or `NixComponent` into the DOM. Returns a handle with an `unmount()` method.
+Mounts a `ElurTemplate` or `ElurComponent` into the DOM. Returns a handle with an `unmount()` method.
 
 ```typescript
 // Function component
@@ -993,16 +993,16 @@ handle.unmount(); // runs onUnmount, disposes all effects, removes DOM
 
 ## Children & Slots
 
-Nix.js lets you pass content **into** a component from the outside — just like `children` in React or `<slot>` in Vue — without any compiler magic.
+Elur lets you pass content **into** a component from the outside — just like `children` in React or `<slot>` in Vue — without any compiler magic.
 
 ### Default slot: `children`
 
 Any class component exposes a `children` property. Set it with `setChildren()` and render it with `${this.children}` anywhere in the template.
 
 ```typescript
-import { NixComponent, html, mount } from "@deijose/nix-js";
+import { ElurComponent, html, mount } from "elur";
 
-class Card extends NixComponent {
+class Card extends ElurComponent {
   render() {
     return html`
       <div class="card">
@@ -1041,7 +1041,7 @@ new Card().setChildren(
 For components with multiple injection points (header, body, footer), use `setSlot(name, content)` and retrieve them inside `render()` with `this.slot(name)`:
 
 ```typescript
-class PageLayout extends NixComponent {
+class PageLayout extends ElurComponent {
   render() {
     return html`
       <div class="layout">
@@ -1082,9 +1082,9 @@ ${this.slot("header") ?? html`<h1>Default Title</h1>`}
 For function components, pass children as a plain prop:
 
 ```typescript
-import type { NixChildren } from "@deijose/nix-js";
+import type { ElurChildren } from "elur";
 
-function Card({ children }: { children?: NixChildren }) {
+function Card({ children }: { children?: ElurChildren }) {
   return html`<div class="card">${children}</div>`;
 }
 
@@ -1095,13 +1095,13 @@ const app = Card({
 mount(app, "#app");
 ```
 
-### `NixChildren` type
+### `ElurChildren` type
 
 ```typescript
-type NixChildren =
-  | NixTemplate                           // html`` result
-  | NixComponent                          // class component instance
-  | Array<NixTemplate | NixComponent>     // mix of both
+type ElurChildren =
+  | ElurTemplate                           // html`` result
+  | ElurComponent                          // class component instance
+  | Array<ElurTemplate | ElurComponent>     // mix of both
   | null
   | undefined;
 ```
@@ -1110,7 +1110,7 @@ type NixChildren =
 
 ## Dependency Injection
 
-Nix.js provides a Vue-style `provide`/`inject` system for passing data down a component tree without prop drilling.
+Elur provides a Vue-style `provide`/`inject` system for passing data down a component tree without prop drilling.
 
 ### `provide` / `inject`
 
@@ -1118,11 +1118,11 @@ Nix.js provides a Vue-style `provide`/`inject` system for passing data down a co
 - `inject(key)` — retrieve the closest provided value for `key`, or `undefined` if none was provided.
 
 ```typescript
-import { provide, inject, createInjectionKey } from "./nix";
+import { provide, inject, createInjectionKey } from "./elur";
 
 const THEME_KEY = createInjectionKey<Signal<string>>("theme");
 
-class ThemeProvider extends NixComponent {
+class ThemeProvider extends ElurComponent {
   theme = signal("dark");
 
   onInit() {
@@ -1134,7 +1134,7 @@ class ThemeProvider extends NixComponent {
   }
 }
 
-class ThemedButton extends NixComponent {
+class ThemedButton extends ElurComponent {
   theme = inject(THEME_KEY); // Signal<string> | undefined
 
   render() {
@@ -1156,7 +1156,7 @@ class ThemedButton extends NixComponent {
 Creates a globally unique, typed symbol to use as a key. Typed keys prevent mismatches between provider and consumer.
 
 ```typescript
-import type { InjectionKey } from "./nix";
+import type { InjectionKey } from "./elur";
 
 // Typed key — Signal<string> is the shape of the provided value
 const LOCALE_KEY: InjectionKey<Signal<string>> = createInjectionKey("locale");
@@ -1172,7 +1172,7 @@ const USER_KEY:   InjectionKey<User>           = createInjectionKey("user");
 Creates a reactive global store. Every property of the initial state becomes a `Signal`. An optional `options` object (`{ name?, actions?, getters?, plugins? }`) adds typed actions, computed getters, and plugins.
 
 ```typescript
-import { createStore } from "./nix";
+import { createStore } from "./elur";
 
 // Basic store — no actions
 const theme = createStore({ dark: true, fontSize: 16 });
@@ -1262,12 +1262,12 @@ const store = createStore(
 Plugins are simple functions that receive the store instance. They can extend state, intercept mutations, or synchronize with external APIs.
 
 ```typescript
-const persistPlugin: NixPlugin<MyState> = (store) => {
-  const saved = localStorage.getItem(`nix_${store.$id}`);
+const persistPlugin: ElurPlugin<MyState> = (store) => {
+  const saved = localStorage.getItem(`elur_${store.$id}`);
   if (saved) store.$patch(JSON.parse(saved));
 
   const unsub = store.$watch((state) => {
-    localStorage.setItem(`nix_${store.$id}`, JSON.stringify(state));
+    localStorage.setItem(`elur_${store.$id}`, JSON.stringify(state));
   });
 
   return unsub; // Automatically called on store.$dispose()
@@ -1277,7 +1277,7 @@ const persistPlugin: NixPlugin<MyState> = (store) => {
 #### Security & Robustness
 
 - **Prototype Protection**: `createStore` blocks keys like `__proto__` or `constructor` to prevent prototype pollution.
-- **State Integrity**: `initialState` is validated via `structuredClone`. If it contains non-serializable data (like functions or DOM nodes), Nix throws a descriptive error.
+- **State Integrity**: `initialState` is validated via `structuredClone`. If it contains non-serializable data (like functions or DOM nodes), Elur throws a descriptive error.
 - **Read-only Safety**: Getters and internal signals are protected. Attempting to mutate or dispose them directly will throw an informative error.
 
 ---
@@ -1288,10 +1288,10 @@ A client-side History API router with dynamic parameters, query strings, nested 
 
 ### `createRouter`
 
-Call once at app startup. Sets up the router singleton consumed by `RouterView`, `Link`, and `nixRouter` / `useRouter`.
+Call once at app startup. Sets up the router singleton consumed by `RouterView`, `Link`, and `elurRouter` / `useRouter`.
 
 ```typescript
-import { createRouter, RouterView, Link } from "./nix";
+import { createRouter, RouterView, Link } from "./elur";
 
 const router = createRouter([
   { path: "/",        component: () => new HomePage()    },
@@ -1331,7 +1331,7 @@ mount(AppA(), "#app-a", { router: routerA });
 mount(AppB(), "#app-b", { router: routerB });
 ```
 
-`nixRouter()` resolves in this order:
+`elurRouter()` resolves in this order:
 
 1. Injected router from context (`mount(..., { router })`)
 2. Singleton fallback (legacy `createRouter(...)` behavior)
@@ -1345,7 +1345,7 @@ Route records support an optional `meta` object. The matched route metadata is e
 ```typescript
 interface RouteRecord {
   path: string;
-  component: () => NixTemplate | NixComponent;
+  component: () => ElurTemplate | ElurComponent;
   meta?: Record<string, unknown>;
 }
 
@@ -1398,7 +1398,7 @@ const router = createRouter([
 ]);
 
 router.navigate({ name: "user-detail", params: { id: 42 } });
-router.navigate({ name: "search", query: { q: "nix", page: 1 } });
+router.navigate({ name: "search", query: { q: "elur", page: 1 } });
 router.replace({ name: "user-detail", params: { id: "99" } });
 
 // still valid (non-breaking)
@@ -1412,12 +1412,12 @@ Named route errors are explicit:
 
 ### `RouterView`
 
-A `NixComponent` that renders the matched component for a given depth level. Use `new RouterView()` for the root, `new RouterView(1)` for nested child routes.
+A `ElurComponent` that renders the matched component for a given depth level. Use `new RouterView()` for the root, `new RouterView(1)` for nested child routes.
 
 Both `RouterView` and `Link` accept an optional explicit router as the last constructor argument. When provided, that router is used instead of the global/injected singleton — useful for isolated tests or multi-router applications.
 
 ```typescript
-class App extends NixComponent {
+class App extends ElurComponent {
   render() {
     return html`
       <nav>
@@ -1454,14 +1454,14 @@ new Link("/about", "About Us", router)
 
 Clicking a `Link` calls `router.navigate()` and updates the URL via `history.pushState` — no page reload.
 
-### `useRouter` / `nixRouter`
+### `useRouter` / `elurRouter`
 
-`nixRouter()` is the recommended way to access the router. It resolves the injected router from context first, falling back to the singleton. `useRouter()` remains available as an alias for backward compatibility.
+`elurRouter()` is the recommended way to access the router. It resolves the injected router from context first, falling back to the singleton. `useRouter()` remains available as an alias for backward compatibility.
 
 ```typescript
-class UserDetail extends NixComponent {
+class UserDetail extends ElurComponent {
   render() {
-    const router = nixRouter();
+    const router = elurRouter();
     return html`
       <h1>User: ${() => router.params.value.id}</h1>
       <p>Page: ${() => router.query.value.page ?? "1"}</p>
@@ -1486,7 +1486,7 @@ createRouter([
   },
 ]);
 
-class DashboardLayout extends NixComponent {
+class DashboardLayout extends ElurComponent {
   render() {
     return html`
       <aside>
@@ -1502,7 +1502,7 @@ class DashboardLayout extends NixComponent {
 ### Query parameters
 
 ```typescript
-const router = nixRouter();
+const router = elurRouter();
 
 // Navigate with query params via the options object
 router.navigate("/users", { query: { page: 2, sort: "name" } });
@@ -1528,7 +1528,7 @@ router.navigate("/users", { query: { page: null } });
 Runs an async function and renders different UIs depending on its state: `pending`, `resolved`, or `error`. The equivalent of `<Suspense>` in other frameworks.
 
 ```typescript
-import { suspend } from "./nix";
+import { suspend } from "./elur";
 
 const userView = suspend(
   () => fetch("/api/user").then(r => r.json()),
@@ -1576,12 +1576,12 @@ suspend(
 When your data comes from an external source (API, database) and you need to refresh after mutations, pass an `invalidate` signal. When the signal value changes, `suspend()` re-runs `asyncFn` **without destroying and recreating the DOM** — only the reactive content updates.
 
 ```typescript
-import { signal, html, suspend, mount } from "@deijose/nix-js";
-import type { NixTemplate } from "@deijose/nix-js";
+import { signal, html, suspend, mount } from "elur";
+import type { ElurTemplate } from "elur";
 
 const refresh = signal(0);
 
-function UsersPage(): NixTemplate {
+function UsersPage(): ElurTemplate {
   return html`
     <div>
       ${suspend(
@@ -1620,16 +1620,16 @@ ${suspend(() => api.getAll(), renderFn, { invalidate: refreshKey })}
 
 > **Note:** `createQuery` and query cache utilities now live in a separate package:
 > ```bash
-> npm install @deijose/nix-query
+> npm install @elurjs/query
 > ```
 
 For apps with multiple components sharing the same data source, **key-based queries** with **built-in caching** eliminate prop drilling entirely. Data is cached globally by key — when a component remounts, cached data renders **instantly** (no loading spinner) while a background refetch runs silently. Similar to React Query / TanStack Query.
 
 ```typescript
-import { NixComponent, invalidateQueries, html, repeat } from "@deijose/nix-js";
-import { createQuery } from "@deijose/nix-query";
+import { ElurComponent, invalidateQueries, html, repeat } from "elur";
+import { createQuery } from "@elurjs/query";
 
-class ReservationsTable extends NixComponent {
+class ReservationsTable extends ElurComponent {
   private q = createQuery("reservations", () =>
     fetch("/api/reservations").then(r => r.json())
   );
@@ -1697,7 +1697,7 @@ const q2 = createQuery(
 Wraps a dynamic `import()` for code-splitting. The module chunk is loaded once and cached; subsequent renders use the cached constructor directly.
 
 ```typescript
-import { createRouter, lazy } from "./nix";
+import { createRouter, lazy } from "./elur";
 
 createRouter([
   { path: "/",      component: lazy(() => import("./pages/Home"))  },
@@ -1716,9 +1716,9 @@ Each page module must export its component as `export default`:
 
 ```typescript
 // pages/Home.ts
-import { NixComponent, html } from "../nix";
+import { ElurComponent, html } from "../elur";
 
-export default class HomePage extends NixComponent {
+export default class HomePage extends ElurComponent {
   render() {
     return html`<h1>Home</h1>`;
   }
@@ -1755,8 +1755,8 @@ Intercept navigation before it commits. Guards run in order: all `beforeEach` gu
 Called before **every** navigation. Returns an unsubscribe function.
 
 ```typescript
-import { createRouter } from "@deijose/nix-js";
-import type { NavigationGuard } from "@deijose/nix-js";
+import { createRouter } from "elur";
+import type { NavigationGuard } from "elur";
 
 const router = createRouter([...]);
 
@@ -1818,18 +1818,18 @@ type NavigationGuard = (
 
 ## Forms
 
-Nix.js includes a built-in form management system inspired by react-hook-form.
+Elur includes a built-in form management system inspired by react-hook-form.
 It works entirely via signals — no magic, no decorators, and zero extra dependencies.
 Validation libraries like Zod, Valibot, or Yup are supported as optional add-ons.
 
-### `nixField()`
+### `elurField()`
 
 For managing a **single field** independently:
 
 ```typescript
-import { nixField, required, minLength } from "@deijose/nix-js";
+import { elurField, required, minLength } from "elur";
 
-const name = nixField("", [required(), minLength(2)]);
+const name = elurField("", [required(), minLength(2)]);
 
 // In a template:
 html`
@@ -1857,27 +1857,27 @@ html`
 
 #### `validateOn`
 
-Both `nixField` and `createForm` accept a `validateOn` option (`blur` | `input` | `submit`):
+Both `elurField` and `createForm` accept a `validateOn` option (`blur` | `input` | `submit`):
 
 - **`blur` (default)**: Errors appear only after the input loses focus.
 - **`input`**: Errors appear as soon as the user starts typing.
 - **`submit`**: Errors are hidden until the first `handleSubmit` call.
 
 ```typescript
-const name = nixField("", [required()], "input");
+const name = elurField("", [required()], "input");
 ```
 
 #### Field type coercion
 
-`nixField` automatically coerce the DOM value based on the initial type:
+`elurField` automatically coerce the DOM value based on the initial type:
 
 - **String**: used as-is (default).
 - **Number**: parsed with `Number(value)`. An empty input becomes `NaN` instead of `0` so you can detect cleared fields.
 - **Boolean**: checkbox/radio use `checked`; `<select>` and text inputs accept `"true"`, `"false"`, `"1"`, `"0"` or `""`. Unknown values fall back to the initial value.
 
 ```typescript
-const age = nixField(0);       // numeric input
-const accept = nixField(false); // checkbox or select "true"/"false"
+const age = elurField(0);       // numeric input
+const accept = elurField(false); // checkbox or select "true"/"false"
 ```
 
 ### `createForm()`
@@ -1885,7 +1885,7 @@ const accept = nixField(false); // checkbox or select "true"/"false"
 For managing a **full form** with submit handling:
 
 ```typescript
-import { createForm, required, email, min } from "@deijose/nix-js";
+import { createForm, required, email, min } from "elur";
 
 const form = createForm(
   { name: "", email: "", age: 0 },
@@ -1998,14 +1998,14 @@ type Validator<T, AllValues = unknown> = (
 ) => string | null | undefined;
 ```
 
-### `nixFieldArray()`
+### `elurFieldArray()`
 
 For managing dynamic lists of field groups (add, remove, reorder).
 
 ```typescript
-import { nixFieldArray, required } from "@deijose/nix-js";
+import { elurFieldArray, required } from "elur";
 
-const items = nixFieldArray(
+const items = elurFieldArray(
   [{ name: "Item 1" }],
   { name: [required()] }
 );
@@ -2056,7 +2056,7 @@ You can write your own: a validator is just `(value: T) => string | null`.
 // Custom validator
 const noSpaces = (v: string) => /\s/.test(v) ? "No spaces allowed" : null;
 
-const username = nixField("", [required(), noSpaces]);
+const username = elurField("", [required(), noSpaces]);
 ```
 
 ### Zod / Valibot interop
@@ -2123,7 +2123,7 @@ form.reset({ name: "John", email: "john@example.com", age: 30 });
 // Subsequent form.reset() calls now return to this baseline.
 
 // Array fields
-const items = nixFieldArray([{ name: "A" }]);
+const items = elurFieldArray([{ name: "A" }]);
 items.setValues([{ name: "X" }, { name: "Y" }]);
 items.patchValues([{ name: "X-updated" }, { name: "Z" }]); // updates + appends
 items.reset([{ name: "New baseline" }]);
@@ -2160,7 +2160,7 @@ are preserved. Only `style.display` changes.
 The element is **visible** when the value is truthy, **hidden** when falsy.
 
 ```typescript
-import { signal } from "@deijose/nix-js";
+import { signal } from "elur";
 
 const isOpen = signal(false);
 
@@ -2200,7 +2200,7 @@ html`<div hide=${true}>Also never visible</div>`
 Imperative helper for controlling visibility outside of a template:
 
 ```typescript
-import { showWhen, effect } from "@deijose/nix-js";
+import { showWhen, effect } from "elur";
 
 const panel = document.getElementById("panel") as HTMLElement;
 
@@ -2232,14 +2232,14 @@ into `document.body`. Portals are essential for modals, tooltips, dropdowns, and
 toast notifications that must not be clipped by `overflow: hidden` or buried by
 stacking contexts.
 
-The portal returns a `NixTemplate`, so it integrates naturally as a node value
+The portal returns a `ElurTemplate`, so it integrates naturally as a node value
 in any template, including inside reactive conditionals. Cleanup is automatic:
 when the parent template unmounts, the portal content is removed too.
 
 ### Basic usage
 
 ```typescript
-import { portal, html } from "@deijose/nix-js";
+import { portal, html } from "elur";
 
 // Render into document.body (default target)
 portal(html`<div class="modal">...</div>`)
@@ -2256,7 +2256,7 @@ portal(html`<nav>...</nav>`, "#sidebar")
 The portal is mounted and unmounted together with its controlling condition:
 
 ```typescript
-import { signal, portal, html } from "@deijose/nix-js";
+import { signal, portal, html } from "elur";
 
 const isOpen = signal(false);
 
@@ -2289,7 +2289,7 @@ html`
   }
 `
 
-class MyModal extends NixComponent {
+class MyModal extends ElurComponent {
   render() {
     return html`<div class="modal-inner">...</div>`;
   }
@@ -2303,12 +2303,12 @@ html`${() => showModal.value ? portal(new MyModal()) : null}`
 ## Portal Ergonomics
 
 Passing raw DOM elements or CSS selectors to `portal()` works, but couples
-your component logic to the DOM structure. Nix provides three cleaner alternatives.
+your component logic to the DOM structure. Elur provides three cleaner alternatives.
 
 ### Option A: Outlet token
 
 ```typescript
-import { createPortalOutlet, portalOutlet, portal, html, mount } from "@deijose/nix-js";
+import { createPortalOutlet, portalOutlet, portal, html, mount } from "elur";
 
 const modalOutlet = createPortalOutlet();
 
@@ -2325,7 +2325,7 @@ html`${() => isOpen.value ? portal(html`<Modal />`, modalOutlet) : null}`
 ### Option B: Ref as target
 
 ```typescript
-import { ref, portal, html } from "@deijose/nix-js";
+import { ref, portal, html } from "elur";
 
 const toastRoot = ref<HTMLElement>();
 
@@ -2345,10 +2345,10 @@ html`
 import {
   createPortalOutlet, portalOutlet,
   provideOutlet, injectOutlet,
-  portal, html, signal, NixComponent
-} from "@deijose/nix-js";
+  portal, html, signal, ElurComponent
+} from "elur";
 
-class AppLayout extends NixComponent {
+class AppLayout extends ElurComponent {
   private outlet = createPortalOutlet();
   onInit() { provideOutlet(this.outlet); }
   render() {
@@ -2359,7 +2359,7 @@ class AppLayout extends NixComponent {
   }
 }
 
-class DeepButton extends NixComponent {
+class DeepButton extends ElurComponent {
   private outlet: PortalOutlet | undefined;
   private open = signal(false);
   onInit() { this.outlet = injectOutlet(); }
@@ -2394,7 +2394,7 @@ fallback UI is rendered in its place — without crashing the rest of the applic
 ### Basic usage
 
 ```typescript
-import { createErrorBoundary, html, mount } from "@deijose/nix-js";
+import { createErrorBoundary, html, mount } from "elur";
 
 mount(
   createErrorBoundary(
@@ -2421,10 +2421,10 @@ createErrorBoundary(
 )
 ```
 
-### NixComponent content
+### ElurComponent content
 
 ```typescript
-class DataWidget extends NixComponent {
+class DataWidget extends ElurComponent {
   onInit() {
     if (!backendAvailable) throw new Error("Backend offline");
   }
@@ -2502,7 +2502,7 @@ animation logic in your code.
 ```
 
 ```typescript
-import { signal, html, transition, mount } from "@deijose/nix-js";
+import { signal, html, transition, mount } from "elur";
 
 const show = signal(true);
 
@@ -2560,7 +2560,7 @@ transition(content, {
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `name` | `string` | `"nix"` | Prefix for all generated CSS classes |
+| `name` | `string` | `"elur"` | Prefix for all generated CSS classes |
 | `enterFrom` | `string` | `"{name}-enter-from"` | Override enter-from class |
 | `enterActive` | `string` | `"{name}-enter-active"` | Override enter-active class |
 | `enterTo` | `string` | `"{name}-enter-to"` | Override enter-to class |
@@ -2604,17 +2604,17 @@ transition(content, {
 
 | Export | Description |
 |--------|-------------|
-| `html\`\`` | Tagged template → `NixTemplate` |
+| `html\`\`` | Tagged template → `ElurTemplate` |
 | `repeat(items, keyFn, renderFn)` | Keyed list with efficient diffing |
-| `ref<T>()` | Create a `NixRef<T>` for direct DOM access |
+| `ref<T>()` | Create a `ElurRef<T>` for direct DOM access |
 
 ### Components
 
 | Export | Description |
 |--------|-------------|
-| `NixTemplate` | Interface returned by `html\`\`` — the building block for function components and pages |
-| `NixComponent` | Abstract base class — use when lifecycle hooks are needed (`onInit`, `onMount`, `onUnmount`, `onError`) |
-| `mount(component, container, opts?)` | Mount a `NixTemplate` or `NixComponent` → `{ unmount() }`. Accepts `{ router }` option. |
+| `ElurTemplate` | Interface returned by `html\`\`` — the building block for function components and pages |
+| `ElurComponent` | Abstract base class — use when lifecycle hooks are needed (`onInit`, `onMount`, `onUnmount`, `onError`) |
+| `mount(component, container, opts?)` | Mount a `ElurTemplate` or `ElurComponent` → `{ unmount() }`. Accepts `{ router }` option. |
 
 ### Dependency Injection
 
@@ -2632,15 +2632,15 @@ transition(content, {
 | `createStore(state, options?)` | Create a reactive global store (`options`: `{ name?, actions?, getters?, plugins? }`) |
 | `Store<T, A>` | Type of the returned store. Includes `$id`, `$state`, `$stateSignal`, `$patch`, `$reset`, `$watch`, `$dispose`. |
 | `StoreSignals<T>` | Signal-mapped type of a state shape |
-| `NixPlugin<T>` | Plugin function type |
+| `ElurPlugin<T>` | Plugin function type |
 
 ### Router
 
 | Export | Description |
 |--------|-------------|
 | `createRouter(routes, opts?)` | Initialize the router. Accepts `mode`, `scrollBehavior`. |
-| `nixRouter()` | Access the active router (context-injected or singleton) |
-| `useRouter()` | Alias for `nixRouter()` — backward compatible |
+| `elurRouter()` | Access the active router (context-injected or singleton) |
+| `useRouter()` | Alias for `elurRouter()` — backward compatible |
 | `RouterView` | Component that renders the matched route at a given depth |
 | `Link` | Reactive anchor component with active styling |
 | `RouterKey` | Injection key for the router |
@@ -2658,15 +2658,15 @@ transition(content, {
 | `lazy(importFn, fallback?)` | Dynamic import with caching |
 | `SuspenseOptions` | Options type for `suspend()` |
 
-> `createQuery`, `invalidateQueries`, `clearQueryCache`, `setQueryCacheTime` are available from `@deijose/nix-query`.
+> `createQuery`, `invalidateQueries`, `clearQueryCache`, `setQueryCacheTime` are available from `@elurjs/query`.
 
 ### Forms
 
 | Export | Description |
 |--------|-------------|
-| `nixField(initial, vs?, mode?)` | Manage a single form field |
+| `elurField(initial, vs?, mode?)` | Manage a single form field |
 | `createForm(state, opts?)` | Manage a full form (supports dot-path nested fields, cross-field validators, and programmatic value setting) |
-| `nixFieldArray(items, vs?, mode?)` | Manage dynamic lists of fields |
+| `elurFieldArray(items, vs?, mode?)` | Manage dynamic lists of fields |
 | `required(msg?)` | Non-empty value validator |
 | `minLength(n, msg?)` | Minimum string length validator |
 | `maxLength(n, msg?)` | Maximum string length validator |
@@ -2720,16 +2720,16 @@ Everything ships in a single zero-dependency import:
 |---|---|
 | **Reactivity** | `signal`, `computed`, `effect`, `batch`, `watch`, `untrack`, `nextTick` |
 | **Templates** | `` html` ` ``, `repeat`, `ref`, `portal`, `transition`, `showWhen` |
-| **Components** | `NixTemplate` (function components), `NixComponent` (lifecycle class), `mount`, children & named slots |
-| **Router** | `createRouter` (meta + scrollBehavior + mode + named routes), `RouterView`, `Link`, `nixRouter`, `RouterKey`, guards, nested routes, `mount(..., { router })` |
-| **Forms** | `nixField`, `createForm` (nested dot-path fields, cross-field validators), built-in validators, Zod/Valibot interop |
+| **Components** | `ElurTemplate` (function components), `ElurComponent` (lifecycle class), `mount`, children & named slots |
+| **Router** | `createRouter` (meta + scrollBehavior + mode + named routes), `RouterView`, `Link`, `elurRouter`, `RouterKey`, guards, nested routes, `mount(..., { router })` |
+| **Forms** | `elurField`, `createForm` (nested dot-path fields, cross-field validators), built-in validators, Zod/Valibot interop |
 | **State** | `createStore` (plugins + batching + `$watch` + `$dispose`), `provide`, `inject`, `createInjectionKey` |
 | **Async** | `suspend` (with `invalidate` for re-fetching), `lazy` |
 | **Error handling** | `createErrorBoundary` |
 
-> **Query Package:** `createQuery` and query cache utilities live in `@deijose/nix-query`.
+> **Query Package:** `createQuery` and query cache utilities live in `@elurjs/query`.
 > ```bash
-> npm install @deijose/nix-query
+> npm install @elurjs/query
 > ```
 
 ---
@@ -2738,7 +2738,7 @@ Everything ships in a single zero-dependency import:
 
 ### Runtime & Architecture
 
-| | Nix.js | React 19 | Vue 3 | Solid.js | Svelte 5 |
+| | Elur | React 19 | Vue 3 | Solid.js | Svelte 5 |
 |---|---|---|---|---|---|
 | **Reactivity** | Signals | State + VDOM diff | Refs + VDOM diff | Signals | Runes (signals) |
 | **Virtual DOM** | No | Yes | Yes | No | No |
@@ -2749,7 +2749,7 @@ Everything ships in a single zero-dependency import:
 
 ### Built-in Features
 
-| Feature | Nix.js | React | Vue | Solid | Svelte |
+| Feature | Elur | React | Vue | Solid | Svelte |
 |---|---|---|---|---|---|
 | Router | Built-in | react-router | vue-router | @solidjs/router | svelte-kit |
 | Form validation | Built-in | react-hook-form | vee-validate | — | — |
@@ -2759,7 +2759,7 @@ Everything ships in a single zero-dependency import:
 | Error boundaries | Built-in | ErrorBoundary | errorHandler | ErrorBoundary | — |
 | Transitions | Built-in | — | Transition | — | transition: |
 
-**When to choose Nix.js:**
+**When to choose Elur:**
 - You want a single-import framework with routing, forms, stores, and DI built in
 - You prefer tagged templates over JSX or SFC compilers
 - You want fine-grained reactivity without a virtual DOM
@@ -2792,7 +2792,7 @@ restrictions are deliberate:
 Enable the in-app devtools panel for signal and router inspection:
 
 ```typescript
-import { enableDevTools } from "@deijose/nix-js/devtools";
+import { enableDevTools } from "elur/devtools";
 
 const { disable } = enableDevTools({
     initiallyOpen: true,

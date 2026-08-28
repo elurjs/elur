@@ -1,7 +1,7 @@
 import { signal } from "./reactivity.js";
 import type { Signal } from "./reactivity.js";
-import { NixComponent } from "./lifecycle.js";
-import type { NixTemplate } from "./template/index.js";
+import { ElurComponent } from "./lifecycle.js";
+import type { ElurTemplate } from "./template/index.js";
 import { html } from "./template/index.js";
 import { createInjectionKey, inject } from "./context.js";
 
@@ -18,7 +18,7 @@ import { createInjectionKey, inject } from "./context.js";
  * - `{ redirect: string }` — redirect, object form.
  *
  * The object form exists so guards written for the outlet API can be reused
- * verbatim by the core. See `nix-ionic`'s `GuardResult`.
+ * verbatim by the core. See `elur-ionic`'s `GuardResult`.
  */
 export type NavigationGuardResult =
     | void
@@ -45,7 +45,7 @@ export interface RouteRecord {
      * (Ionic's IonRouterOutlet, future others), the outlet owns component
      * mounting and the core never invokes this. In that case, omit it.
      */
-    component?: () => NixTemplate | NixComponent;
+    component?: () => ElurTemplate | ElurComponent;
     /** Optional arbitrary metadata for guards, layouts, and auth checks. */
     meta?: Record<string, unknown>;
     /** Child routes. Paths are joined with the parent. */
@@ -131,7 +131,7 @@ export interface Router {
     afterEach(hook: AfterEachHook): () => void;
 }
 
-export const RouterKey = createInjectionKey<Router>("nix:router");
+export const RouterKey = createInjectionKey<Router>("elur:router");
 
 // =============================================================================
 //  Internals
@@ -145,7 +145,7 @@ type Segment =
 interface FlatRoute {
     fullPath: string;
     segments: Segment[];
-    chain: Array<(() => NixTemplate | NixComponent) | undefined>;
+    chain: Array<(() => ElurTemplate | ElurComponent) | undefined>;
     name?: string;
     meta?: Record<string, unknown>;
     beforeEnter?: NavigationGuard;
@@ -166,13 +166,13 @@ let _currentPopstateCleanup: (() => void) | null = null;
 // tracks them separately so it can inspect the router actually active in the UI.
 const _mountedRouters: Router[] = [];
 
-const SCROLL_STATE_KEY = "__nix_scroll";
-const POSITION_STATE_KEY = "__nix_pos";
+const SCROLL_STATE_KEY = "__elur_scroll";
+const POSITION_STATE_KEY = "__elur_pos";
 
 function getRouter(): RouterInternal {
     if (!_currentRouter) {
         throw new Error(
-            "[nix-js] No active router. Call createRouter() first, " +
+            "[elur] No active router. Call createRouter() first, " +
             "or instantiate an outlet that auto-bootstraps one (e.g. IonRouterOutlet)."
         );
     }
@@ -269,7 +269,7 @@ function joinPaths(parent: string, child: string): string {
 function flattenRoutes(
     routes: RouteRecord[],
     parentPath = "",
-    parentChain: Array<(() => NixTemplate | NixComponent) | undefined> = [],
+    parentChain: Array<(() => ElurTemplate | ElurComponent) | undefined> = [],
 ): FlatRoute[] {
     const result: FlatRoute[] = [];
     for (const route of routes) {
@@ -466,7 +466,7 @@ export function createRouter(routes: RouteRecord[], options?: RouterOptions): Ro
     for (const route of flat) {
         if (!route.name) continue;
         if (_nameIndex.has(route.name)) {
-            console.warn(`[Nix Router] Duplicate route name: "${route.name}"`);
+            console.warn(`[Elur Router] Duplicate route name: "${route.name}"`);
         }
         _nameIndex.set(route.name, route);
     }
@@ -597,7 +597,7 @@ export function createRouter(routes: RouteRecord[], options?: RouterOptions): Ro
     function _resolveNamedPath(location: NamedRouteLocation): string {
         const found = _nameIndex.get(location.name);
         if (!found) {
-            throw new Error(`[Nix Router] No route with name "${location.name}"`);
+            throw new Error(`[Elur Router] No route with name "${location.name}"`);
         }
         const parts = found.segments.map((seg) => {
             if (seg.kind === "literal") return seg.value;
@@ -605,7 +605,7 @@ export function createRouter(routes: RouteRecord[], options?: RouterOptions): Ro
             const value = location.params?.[seg.name];
             if (value == null) {
                 throw new Error(
-                    `[Nix Router] Missing param "${seg.name}" for route "${location.name}"`,
+                    `[Elur Router] Missing param "${seg.name}" for route "${location.name}"`,
                 );
             }
             return encodeURIComponent(String(value));
@@ -869,7 +869,7 @@ export function createRouter(routes: RouteRecord[], options?: RouterOptions): Ro
 
     if (_currentRouter) {
         console.warn(
-            "[nix-js] A router already exists. The previous router is being replaced. " +
+            "[elur] A router already exists. The previous router is being replaced. " +
             "Only one router instance should be active at a time.",
         );
     }
@@ -911,7 +911,7 @@ export function createRouter(routes: RouteRecord[], options?: RouterOptions): Ro
     return router;
 }
 
-export function nixRouter(): Router {
+export function elurRouter(): Router {
     const injected = inject(RouterKey);
     if (injected) return injected;
     return getRouter();
@@ -927,7 +927,7 @@ export function _resetRouter(): void {
     _mountedRouters.length = 0;
 }
 
-export class RouterView extends NixComponent {
+export class RouterView extends ElurComponent {
     private _depth: number;
     private _router?: RouterInternal;
 
@@ -937,11 +937,11 @@ export class RouterView extends NixComponent {
         this._router = router as RouterInternal | undefined;
     }
 
-    render(): NixTemplate {
+    render(): ElurTemplate {
         const depth = this._depth;
         const explicitRouter = this._router;
         return html`<div class="router-view">${() => {
-            const router = explicitRouter ?? nixRouter() as RouterInternal;
+            const router = explicitRouter ?? elurRouter() as RouterInternal;
             const matched = matchFlat(router.current.value, router._flat);
             if (!matched) {
                 return html`
@@ -967,7 +967,7 @@ export class RouterView extends NixComponent {
     }
 }
 
-export class Link extends NixComponent {
+export class Link extends ElurComponent {
     private _to: string;
     private _label: string;
     private _router?: RouterInternal;
@@ -979,10 +979,10 @@ export class Link extends NixComponent {
         this._router = router as RouterInternal | undefined;
     }
 
-    render(): NixTemplate {
+    render(): ElurTemplate {
         const to = this._to;
         const label = this._label;
-        const router = this._router ?? nixRouter() as RouterInternal;
+        const router = this._router ?? elurRouter() as RouterInternal;
         const appPath = to.startsWith("/") ? to : "/" + to;
         const fullPath = (router._base ? (router._base + appPath) : appPath).replace(/\/+/g, "/");
         const href = router._mode === "hash" ? "#" + fullPath : fullPath;

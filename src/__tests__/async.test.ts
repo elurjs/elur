@@ -1,9 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
-import { html } from "../nix/template";
-import { mount } from "../nix/component";
-import { suspend, lazy } from "../nix/async";
-import { signal } from "../nix/reactivity";
-import { NixComponent } from "../nix/lifecycle";
+import { html } from "../elur/template";
+import { mount } from "../elur/component";
+import { suspend, lazy } from "../elur/async";
+import { signal } from "../elur/reactivity";
+import { ElurComponent } from "../elur/lifecycle";
 
 describe("suspend", () => {
     it("shows fallback while promise is pending", () => {
@@ -63,7 +63,7 @@ describe("suspend", () => {
         const el = document.createElement("div");
         mount(comp, el);
         // Validates internal implementation fallback class
-        expect(el.querySelector(".nix-spinner")).not.toBeNull();
+        expect(el.querySelector(".elur-spinner")).not.toBeNull();
     });
 
     it("re-fetches when invalidate signal changes", async () => {
@@ -228,11 +228,11 @@ describe("lazy()", () => {
     it("carga un componente de forma asíncrona y lo cachea", async () => {
         let importCount = 0;
 
-        class MockPage extends NixComponent {
+        class MockPage extends ElurComponent {
             render() { return html`<div class="page">Lazy Page</div>`; }
         }
 
-        const loadPage = () => new Promise<{ default: new () => NixComponent }>((resolve) => {
+        const loadPage = () => new Promise<{ default: new () => ElurComponent }>((resolve) => {
             importCount++;
             setTimeout(() => resolve({ default: MockPage }), 10);
         });
@@ -258,14 +258,14 @@ describe("lazy()", () => {
     });
 
     it("supports named exports via selector", async () => {
-        class NamedPage extends NixComponent {
+        class NamedPage extends ElurComponent {
             render() { return html`<div class="named-page">Named Export</div>`; }
         }
 
         const loadNamed = () => Promise.resolve({ PageComponent: NamedPage } as Record<string, unknown>);
 
         const LazyComp = lazy(loadNamed, {
-            selector: (mod) => mod.PageComponent as new () => NixComponent,
+            selector: (mod) => mod.PageComponent as new () => ElurComponent,
             fallback: html`<div class="lazy-fallback">loading...</div>`
         });
 

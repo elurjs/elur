@@ -1,7 +1,7 @@
 import { batch } from "../reactivity.js";
-import { isNixComponent } from "../lifecycle.js";
+import { isElurComponent } from "../lifecycle.js";
 import { _mountComponentWithCtx } from "./mount-helpers.js";
-import { isNixTemplate, type KEntry, type KeyedList } from "./types.js";
+import { isElurTemplate, type KEntry, type KeyedList } from "./types.js";
 import { getSequence, type RepeatKey } from "./keyed.js";
 
 // =============================================================================
@@ -17,10 +17,10 @@ export function createKeyedMount(
     ctxSnapshot: Map<unknown, unknown>[],
 ): (rendered: unknown, parent: Node, endMarker: Node) => () => void {
     return (rendered: unknown, parent: Node, endMarker: Node): (() => void) => {
-        if (isNixComponent(rendered)) {
+        if (isElurComponent(rendered)) {
             return _mountComponentWithCtx(rendered, parent, endMarker, ctxSnapshot);
         }
-        if (isNixTemplate(rendered)) {
+        if (isElurTemplate(rendered)) {
             return rendered._render(parent, endMarker);
         }
         if (rendered != null && rendered !== false) {

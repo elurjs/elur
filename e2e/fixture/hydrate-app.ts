@@ -1,4 +1,4 @@
-import { hydrate } from "/src/nix/hydrate/index.js";
+import { hydrate } from "/src/elur/hydrate/index.js";
 import { hColor, hSize, template } from "/e2e/fixture/hydrate-page.ts";
 
 declare global {

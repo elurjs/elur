@@ -1,5 +1,5 @@
-export type { NixTemplate, NixMountHandle, NixRef, KeyedList, KEntry, PortalOutlet, ErrorFallback, TransitionContent, TemplateBindingContext, TemplateDescriptor, NixRenderProtocol, ServerRenderProtocolContext, DomProtocolContext, HydrationProtocolContext } from "./types.js";
-export { ref, isNixTemplate, isKeyedList, COMMENT, NIX_TEMPLATE_DESCRIPTOR, NIX_RENDER_PROTOCOL, templateFeatures } from "./types.js";
+export type { ElurTemplate, ElurMountHandle, ElurRef, KeyedList, KEntry, PortalOutlet, ErrorFallback, TransitionContent, TemplateBindingContext, TemplateDescriptor, ElurRenderProtocol, ServerRenderProtocolContext, DomProtocolContext, HydrationProtocolContext } from "./types.js";
+export { ref, isElurTemplate, isKeyedList, COMMENT, ELUR_TEMPLATE_DESCRIPTOR, ELUR_RENDER_PROTOCOL, templateFeatures } from "./types.js";
 
 export { html, buildHTML } from "./html.js";
 

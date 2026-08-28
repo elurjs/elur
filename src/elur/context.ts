@@ -1,7 +1,7 @@
 // --- Public types ---
 
 /** Typed key for provide/inject. Generic `T` enforces type safety between provider and consumer. */
-export type InjectionKey<T> = symbol & { readonly __nixType?: T };
+export type InjectionKey<T> = symbol & { readonly __elurType?: T };
 
 /** Creates a unique typed InjectionKey. */
 export function createInjectionKey<T>(description?: string): InjectionKey<T> {
@@ -78,7 +78,7 @@ export function _withComponentContext<T>(
 
 /**
  * Registers a value so descendant components can retrieve it via `inject()`.
- * Must be called inside `onInit()` of a NixComponent.
+ * Must be called inside `onInit()` of a ElurComponent.
  */
 export function provide<T>(
     key: InjectionKey<T> | string | symbol,
@@ -88,7 +88,7 @@ export function provide<T>(
     const top = stack[stack.length - 1];
     if (!top) {
         throw new Error(
-            "[nix-js] provide() must be called inside onInit() of a NixComponent."
+            "[elur] provide() must be called inside onInit() of a ElurComponent."
         );
     }
     top.set(key, value);

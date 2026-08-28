@@ -1,8 +1,8 @@
-# Contributing to Nix.js
+# Contributing to Elur
 
-First off, **thank you** for considering contributing to Nix.js! 🎉
+First off, **thank you** for considering contributing to Elur! 🎉
 
-Nix.js is a lightweight, fully reactive micro-framework — no virtual DOM, no compiler, just signals and tagged templates. Every contribution, whether it's a bug report, a feature suggestion, documentation improvement, or a code change, helps make this project better.
+Elur is a lightweight, fully reactive framework — no virtual DOM, no compiler, just signals and tagged templates. Every contribution, whether it's a bug report, a feature suggestion, documentation improvement, or a code change, helps make this project better.
 
 Please take a moment to review this guide before submitting your contribution.
 
@@ -48,13 +48,13 @@ Found a bug? Help us fix it by opening an issue with the following information:
 3. **Steps to reproduce**: A minimal, reproducible example.
 4. **Expected behavior**: What you expected to happen.
 5. **Actual behavior**: What actually happened.
-6. **Environment**: Node.js version, browser, OS, and Nix.js version.
+6. **Environment**: Node.js version, browser, OS, and Elur version.
 
 > **Tip:** Use the `bug report` issue template if one is available.
 
 ### Suggesting Features
 
-Have an idea to improve Nix.js? We'd love to hear it!
+Have an idea to improve Elur? We'd love to hear it!
 
 1. **Search existing issues** first to avoid duplicates.
 2. Open a new issue with the `feature request` label.
@@ -90,8 +90,8 @@ Ready to write some code? Awesome! Please follow the [Pull Request Workflow](#pu
 # 1. Fork the repository on GitHub
 
 # 2. Clone your fork
-git clone https://github.com/<your-username>/nix-js.git
-cd nix-js
+git clone https://github.com/<your-username>/elur.git
+cd elur
 
 # 3. Install dependencies
 bun install
@@ -122,9 +122,9 @@ npm run test
 
 ### Recommended Editor Extensions
 
-For the best development experience with Nix.js, we recommend the following VS Code extensions:
+For the best development experience with Elur, we recommend the following VS Code extensions:
 
-- **[lit-html](https://marketplace.visualstudio.com/items?itemName=ericc-ch.lit-html)** by `ericc-ch` — Provides syntax highlighting and IntelliSense for HTML inside JavaScript and TypeScript tagged template strings. Since Nix.js heavily uses `html` tagged template literals, this extension will give you proper HTML autocompletion, syntax coloring, and error detection inside your templates.
+- **[lit-html](https://marketplace.visualstudio.com/items?itemName=ericc-ch.lit-html)** by `ericc-ch` — Provides syntax highlighting and IntelliSense for HTML inside JavaScript and TypeScript tagged template strings. Since Elur heavily uses `html` tagged template literals, this extension will give you proper HTML autocompletion, syntax coloring, and error detection inside your templates.
 
   To install it, search for `ericc-ch.lit-html` in the VS Code Extensions panel or run:
   ```bash
@@ -207,11 +207,11 @@ Before submitting your Pull Request, please make sure:
 
 ## Code Guidelines
 
-To keep Nix.js lightweight and consistent, please follow these guidelines:
+To keep Elur lightweight and consistent, please follow these guidelines:
 
 - **TypeScript strict mode** — Avoid using `any` unless absolutely necessary. Prefer proper typing.
-- **Zero runtime dependencies** — Nix.js is built to have no external runtime dependencies. Do not add any `dependencies` to `package.json`. Development dependencies (`devDependencies`) are acceptable.
-- **Keep it small** — Every byte counts for a micro-framework. Avoid adding unnecessary abstractions or features that could be implemented in userland.
+- **Zero runtime dependencies** — Elur is built to have no external runtime dependencies. Do not add any `dependencies` to `package.json`. Development dependencies (`devDependencies`) are acceptable.
+- **Keep it small** — Every byte counts for a framework. Avoid adding unnecessary abstractions or features that could be implemented in userland.
 - **Meaningful naming** — Use clear, descriptive names for variables, functions, and files.
 - **Comment the "why"** — Code should be self-documenting. Add comments only when the *reason* behind a decision isn't obvious.
 - **No side effects** — Keep modules pure. The library is marked as `sideEffects: false` in `package.json`.
@@ -266,8 +266,8 @@ After submitting a PR, here's what to expect:
 
 Looking for something to work on? Here are areas where contributions are especially welcome:
 
-- 🏷️ Issues labeled [`good first issue`](https://github.com/DeijoseDevelop/nix-js/labels/good%20first%20issue) — Great for newcomers
-- 🆘 Issues labeled [`help wanted`](https://github.com/DeijoseDevelop/nix-js/labels/help%20wanted) — We need your help!
+- 🏷️ Issues labeled [`good first issue`](https://github.com/elurjs/elur/labels/good%20first%20issue) — Great for newcomers
+- 🆘 Issues labeled [`help wanted`](https://github.com/elurjs/elur/labels/help%20wanted) — We need your help!
 - 📝 Documentation improvements and examples
 - 🧪 Additional test coverage
 - ⚡ Performance optimizations
@@ -276,8 +276,8 @@ Looking for something to work on? Here are areas where contributions are especia
 
 ## License
 
-By contributing to Nix.js, you agree that your contributions will be licensed under the [MIT License](LICENSE).
+By contributing to Elur, you agree that your contributions will be licensed under the [MIT License](LICENSE).
 
 ---
 
-**Thank you for helping make Nix.js better!** 💜
+**Thank you for helping make Elur better!** 💜

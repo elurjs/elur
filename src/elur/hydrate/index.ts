@@ -1,17 +1,17 @@
 import { _captureContextSnapshot, _popComponentContext, _pushComponentContext } from "../context.js";
-import { isNixComponent, type NixComponent } from "../lifecycle.js";
+import { isElurComponent, type ElurComponent } from "../lifecycle.js";
 import { effect } from "../reactivity.js";
 import { sanitizeUrl } from "../template/sanitize.js";
 import { activateDelegatedEvent, isDelegableEvent } from "../template/bindings.js";
 import {
     isKeyedList,
-    isNixTemplate,
-    NIX_RENDER_PROTOCOL,
-    NIX_TEMPLATE_DESCRIPTOR,
+    isElurTemplate,
+    ELUR_RENDER_PROTOCOL,
+    ELUR_TEMPLATE_DESCRIPTOR,
     type KEntry,
-    type NixMountHandle,
-    type NixRef,
-    type NixTemplate,
+    type ElurMountHandle,
+    type ElurRef,
+    type ElurTemplate,
     type TemplateDescriptor,
 } from "../template/types.js";
 import {
@@ -54,21 +54,21 @@ interface ScannedMarkers {
 }
 
 export function hydrate(
-    value: NixTemplate | NixComponent,
+    value: ElurTemplate | ElurComponent,
     container: Element,
     options: HydrateOptions = {},
-): NixMountHandle {
+): ElurMountHandle {
     try {
-        if (isNixComponent(value)) return hydrateComponent(value, container, options);
-        const descriptor = value[NIX_TEMPLATE_DESCRIPTOR];
+        if (isElurComponent(value)) return hydrateComponent(value, container, options);
+        const descriptor = value[ELUR_TEMPLATE_DESCRIPTOR];
         if (!descriptor) throwMismatch(options, -1, "descriptor", "Template has no hydration descriptor");
         const cleanup = hydrateDescriptor(descriptor!, container, options);
         return { unmount: cleanup };
     } catch (error) {
         if (options.mismatch === "throw") throw error;
-        if (options.mismatch !== "remount") console.warn("[nix-js] Hydration mismatch; remounting root:", error);
+        if (options.mismatch !== "remount") console.warn("[elur] Hydration mismatch; remounting root:", error);
         container.replaceChildren();
-        const cleanup = isNixComponent(value)
+        const cleanup = isElurComponent(value)
             ? value.render()._render(container, null)
             : value._render(container, null);
         return { unmount: cleanup };
@@ -76,10 +76,10 @@ export function hydrate(
 }
 
 function hydrateComponent(
-    component: NixComponent,
+    component: ElurComponent,
     container: Element,
     options: HydrateOptions,
-): NixMountHandle {
+): ElurMountHandle {
     _pushComponentContext();
     let cleanup = () => { };
     try {
@@ -90,7 +90,7 @@ function hydrateComponent(
             else throw error;
         }
         const template = component.render();
-        const descriptor = template[NIX_TEMPLATE_DESCRIPTOR];
+        const descriptor = template[ELUR_TEMPLATE_DESCRIPTOR];
         if (!descriptor) throwMismatch(options, -1, "descriptor", "Component template has no hydration descriptor");
         cleanup = hydrateDescriptor(descriptor!, container, options);
     } finally {
@@ -121,14 +121,14 @@ function hydrateDescriptor(
         if (context.type === "event") {
             const element = markers.events.get(index);
             if (!element) throwMismatch(options, index, "event", `Missing event marker ${index}`);
-            element!.removeAttribute(`data-nix-e-${index}`);
+            element!.removeAttribute(`data-elur-e-${index}`);
             cleanups.push(activateEvent(element!, context.eventName, context.modifiers, value));
             continue;
         }
         if (context.type === "attr") {
             const element = markers.attributes.get(index);
             if (!element) throwMismatch(options, index, "attribute", `Missing attribute marker ${index}`);
-            element!.removeAttribute(`data-nix-a-${index}`);
+            element!.removeAttribute(`data-elur-a-${index}`);
             cleanups.push(activateAttribute(element!, context.attrName, context.url === true, value));
             continue;
         }
@@ -161,14 +161,14 @@ function scanMarkers(root: ParentNode, bounds?: MarkerRange): ScannedMarkers {
         if (bounds && !isInsideRange(current, bounds)) continue;
         if (current.nodeType === Node.COMMENT_NODE) {
             const comment = current as Comment;
-            const startMatch = /^nix-(\d+)$/.exec(comment.data);
+            const startMatch = /^elur-(\d+)$/.exec(comment.data);
             if (startMatch) {
                 const index = Number(startMatch[1]);
                 if (stack.length === 0) starts.set(index, comment);
                 stack.push(index);
                 continue;
             }
-            const endMatch = /^nix-end-(\d+)$/.exec(comment.data);
+            const endMatch = /^elur-end-(\d+)$/.exec(comment.data);
             if (endMatch) {
                 const index = Number(endMatch[1]);
                 const active = stack.pop();
@@ -178,7 +178,7 @@ function scanMarkers(root: ParentNode, bounds?: MarkerRange): ScannedMarkers {
                 }
                 continue;
             }
-            const keyedStartMatch = /^nix-ki:(.+)$/.exec(comment.data);
+            const keyedStartMatch = /^elur-ki:(.+)$/.exec(comment.data);
             if (keyedStartMatch) {
                 const serializedKey = keyedStartMatch[1];
                 if (keyedStack.length === 0 && stack.length === 1) {
@@ -188,7 +188,7 @@ function scanMarkers(root: ParentNode, bounds?: MarkerRange): ScannedMarkers {
                 }
                 continue;
             }
-            if (comment.data === "nix-ke") {
+            if (comment.data === "elur-ke") {
                 const active = keyedStack.pop();
                 if (active) {
                     if (active.parentIndex >= 0) {
@@ -197,11 +197,11 @@ function scanMarkers(root: ParentNode, bounds?: MarkerRange): ScannedMarkers {
                         keyed.set(active.parentIndex, list);
                     }
                 } else {
-                    throw new Error("[nix-js] Hydration marker mismatch: orphan keyed end marker (nix-ke)");
+                    throw new Error("[elur] Hydration marker mismatch: orphan keyed end marker (elur-ke)");
                 }
                 continue;
             }
-            if (comment.data === "nix-ai") {
+            if (comment.data === "elur-ai") {
                 if (arrayStack.length === 0 && stack.length === 1) {
                     arrayStack.push({ start: comment, parentIndex: stack[stack.length - 1] });
                 } else {
@@ -209,7 +209,7 @@ function scanMarkers(root: ParentNode, bounds?: MarkerRange): ScannedMarkers {
                 }
                 continue;
             }
-            if (comment.data === "nix-aiend") {
+            if (comment.data === "elur-aiend") {
                 const active = arrayStack.pop();
                 if (active && active.parentIndex >= 0) {
                     const list = arrayItems.get(active.parentIndex) ?? [];
@@ -223,9 +223,9 @@ function scanMarkers(root: ParentNode, bounds?: MarkerRange): ScannedMarkers {
         if (stack.length > 0) continue;
         const element = current as Element;
         for (const attribute of Array.from(element.attributes)) {
-            const eventMatch = /^data-nix-e-(\d+)$/.exec(attribute.name);
+            const eventMatch = /^data-elur-e-(\d+)$/.exec(attribute.name);
             if (eventMatch) events.set(Number(eventMatch[1]), element);
-            const attributeMatch = /^data-nix-a-(\d+)$/.exec(attribute.name);
+            const attributeMatch = /^data-elur-a-(\d+)$/.exec(attribute.name);
             if (attributeMatch) attributes.set(Number(attributeMatch[1]), element);
         }
     }
@@ -286,7 +286,7 @@ function activateAttribute(
     value: unknown,
 ): () => void {
     if (name === "ref") {
-        const reference = value as NixRef<Element>;
+        const reference = value as ElurRef<Element>;
         reference.el = element;
         return () => { reference.el = null; };
     }
@@ -349,7 +349,7 @@ function activateNode(
     const keyedMount = createKeyedMount(ctxSnapshot);
 
     const warnDuplicate = (key: RepeatKey) => {
-        console.warn(`[nix-js] repeat(): duplicate key "${key}". Keys must be unique; the previous entry leaks (orphaned nodes + live effects).`);
+        console.warn(`[elur] repeat(): duplicate key "${key}". Keys must be unique; the previous entry leaks (orphaned nodes + live effects).`);
     };
 
     const dispose = effect(() => {
@@ -453,7 +453,7 @@ function hydrateNodeValue(
             mount: createKeyedMount(ctxSnapshot),
             ctxSnapshot,
             onDuplicateKey: (key) => {
-                console.warn(`[nix-js] repeat(): duplicate key "${key}". Keys must be unique; the previous entry leaks (orphaned nodes + live effects).`);
+                console.warn(`[elur] repeat(): duplicate key "${key}". Keys must be unique; the previous entry leaks (orphaned nodes + live effects).`);
             },
         });
         return adopted.cleanup;
@@ -480,12 +480,12 @@ function hydrateNodeValue(
         }
         return cleanups.length ? () => { for (let i = cleanups.length - 1; i >= 0; i--) cleanups[i](); } : undefined;
     }
-    if (isNixTemplate(value)) {
-        const descriptor = value[NIX_TEMPLATE_DESCRIPTOR];
+    if (isElurTemplate(value)) {
+        const descriptor = value[ELUR_TEMPLATE_DESCRIPTOR];
         if (!descriptor) throwMismatch(options, -1, "descriptor", "Nested template has no hydration descriptor");
         return hydrateDescriptor(descriptor!, range.start.parentNode as ParentNode, options, range);
     }
-    if (isNixComponent(value)) {
+    if (isElurComponent(value)) {
         _pushComponentContext();
         let result: (() => void) | undefined;
         try {
@@ -496,7 +496,7 @@ function hydrateNodeValue(
                 else throw error;
             }
             const template = value.render();
-            const descriptor = template[NIX_TEMPLATE_DESCRIPTOR];
+            const descriptor = template[ELUR_TEMPLATE_DESCRIPTOR];
             if (!descriptor) throwMismatch(options, -1, "descriptor", "Nested component has no hydration descriptor");
             const cleanup = hydrateDescriptor(descriptor!, range.start.parentNode as ParentNode, options, range);
             const mountCleanup = value.onMount?.();
@@ -511,7 +511,7 @@ function hydrateNodeValue(
         return result;
     }
     if (value != null && typeof value === "object") {
-        const protocol = (value as Record<PropertyKey, unknown>)[NIX_RENDER_PROTOCOL] as
+        const protocol = (value as Record<PropertyKey, unknown>)[ELUR_RENDER_PROTOCOL] as
             | { hydrateDom?: (ctx: import("../template/types.js").HydrationProtocolContext) => (() => void) | void }
             | undefined;
         if (protocol?.hydrateDom) {
@@ -544,7 +544,7 @@ function adoptKeyedRange(
         const serialized = serializeRepeatKey(key);
         if (clientByKey.has(serialized)) {
             console.warn(
-                `[nix-js] repeat(): duplicate client key "${key}" during hydration. ` +
+                `[elur] repeat(): duplicate client key "${key}" during hydration. ` +
                 "Keys must be unique; entries after the first leak.",
             );
         }
@@ -562,12 +562,12 @@ function adoptKeyedRange(
         const key = normalizeRepeatKey(list.keyFn(item, clientIndex), clientIndex);
         if (serializeRepeatKey(key) !== marker.serializedKey) {
             console.warn(
-                `[nix-js] repeat(): hydration key mismatch at index ${clientIndex} ` +
+                `[elur] repeat(): hydration key mismatch at index ${clientIndex} ` +
                 `(${deserializeRepeatKey(marker.serializedKey)} != ${key}). The SSR item is adopted by position.`,
             );
         }
         if (state.has(key)) {
-            console.warn(`[nix-js] repeat(): duplicate key "${key}" during hydration; removing duplicate SSR node.`);
+            console.warn(`[elur] repeat(): duplicate key "${key}" during hydration; removing duplicate SSR node.`);
             removeKeyedMarker(marker);
             continue;
         }
@@ -611,8 +611,8 @@ function mountNodeValue(range: MarkerRange, value: unknown): (() => void) | unde
         }
         return cleanups.length ? () => { for (let i = cleanups.length - 1; i >= 0; i--) cleanups[i](); } : undefined;
     }
-    if (isNixTemplate(value)) return value._render(range.end.parentNode!, range.end);
-    if (isNixComponent(value)) return value.render()._render(range.end.parentNode!, range.end);
+    if (isElurTemplate(value)) return value._render(range.end.parentNode!, range.end);
+    if (isElurComponent(value)) return value.render()._render(range.end.parentNode!, range.end);
     const node = document.createTextNode(String(value));
     range.end.parentNode!.insertBefore(node, range.end);
     return () => node.parentNode?.removeChild(node);
@@ -644,7 +644,7 @@ function throwMismatch(
 ): never {
     const mismatch = { index, kind, message } satisfies HydrationMismatch;
     options.onMismatch?.(mismatch);
-    const error = new Error(`[nix-js] Hydration marker mismatch: ${message}`);
+    const error = new Error(`[elur] Hydration marker mismatch: ${message}`);
     Object.assign(error, { mismatch });
     throw error;
 }

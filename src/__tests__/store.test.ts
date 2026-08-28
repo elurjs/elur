@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
-import { computed, effect } from "../nix/reactivity";
-import { createStore } from "../nix/store";
-import { guardPlugin } from "../nix/plugins";
+import { computed, effect } from "../elur/reactivity";
+import { createStore } from "../elur/store";
+import { guardPlugin } from "../elur/plugins";
 
 describe("createStore", () => {
     it("creates signals for each property", () => {
@@ -207,7 +207,7 @@ describe("createStore", () => {
 
     describe("$watch", () => {
         it("notifica el nuevo estado cuando cambian señales", () => {
-            const store = createStore({ count: 0, name: "nix" });
+            const store = createStore({ count: 0, name: "elur" });
             const calls: Array<[number, string]> = [];
 
             const stop = store.$watch((next) => {
@@ -215,11 +215,11 @@ describe("createStore", () => {
             });
 
             store.count.value = 1;
-            store.name.value = "nix-js";
+            store.name.value = "elur-framework";
 
             expect(calls).toEqual([
-                [1, "nix"],
-                [1, "nix-js"],
+                [1, "elur"],
+                [1, "elur-framework"],
             ]);
 
             stop();

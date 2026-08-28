@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
-import { html } from "../nix/template";
-import { repeat } from "../nix/template/keyed";
-import { signal, nextTick } from "../nix/reactivity";
+import { html } from "../elur/template";
+import { repeat } from "../elur/template/keyed";
+import { signal, nextTick } from "../elur/reactivity";
 
 // =============================================================================
 // --- Nodos: valores estáticos ---
@@ -32,7 +32,7 @@ describe("Node binding: valores estáticos", () => {
         expect(el.querySelector("div")!.textContent).toBe("");
     });
 
-    it("renderiza un NixTemplate anidado", () => {
+    it("renderiza un ElurTemplate anidado", () => {
         const el = document.createElement("div");
         html`<div>${html`<span class="inner">X</span>`}</div>`.mount(el);
         expect(el.querySelector(".inner")).not.toBeNull();
@@ -44,7 +44,7 @@ describe("Node binding: valores estáticos", () => {
         expect(el.querySelector("ul")!.textContent).toBe("abc");
     });
 
-    it("renderiza un array de NixTemplates", () => {
+    it("renderiza un array de ElurTemplates", () => {
         const el = document.createElement("div");
         const items = [html`<li>1</li>`, html`<li>2</li>`];
         html`<ul>${items}</ul>`.mount(el);
@@ -64,20 +64,20 @@ describe("Node binding: valores estáticos", () => {
         expect(el.querySelector("ul")!.textContent).toBe("abc");
     });
 
-    it("renderiza un NixComponent estático dentro del template", () => {
+    it("renderiza un ElurComponent estático dentro del template", () => {
         const el = document.createElement("div");
         const comp = {
-            __isNixComponent: true as const,
+            __isElurComponent: true as const,
             render: () => html`<span class="comp">Comp</span>`
         };
         html`<div>${comp as any}</div>`.mount(el);
         expect(el.querySelector(".comp")).not.toBeNull();
     });
 
-    it("renderiza un array de NixComponents estáticos", () => {
+    it("renderiza un array de ElurComponents estáticos", () => {
         const el = document.createElement("div");
         const makeComp = (name: string) => ({
-            __isNixComponent: true as const,
+            __isElurComponent: true as const,
             render: () => html`<li class="comp">${name}</li>`
         });
 
@@ -103,11 +103,11 @@ describe("Node binding: valores reactivos", () => {
 
         expect(el.querySelector("p")!.textContent).toBe("world");
 
-        name.value = "nix";
+        name.value = "elur";
         await nextTick();
         await new Promise(r => setTimeout(r, 0));
 
-        expect(el.querySelector("p")!.textContent).toBe("nix");
+        expect(el.querySelector("p")!.textContent).toBe("elur");
     });
 
     it("actualiza texto en-place sin recrear el nodo", async () => {
@@ -171,7 +171,7 @@ describe("Node binding: valores reactivos", () => {
 
         // Usamos un componente para detectar unmount
         const comp = {
-            __isNixComponent: true as const,
+            __isElurComponent: true as const,
             render: () => html`<div class="comp">C</div>`,
             onUnmount,
         };
@@ -202,7 +202,7 @@ describe("Node binding: valores reactivos", () => {
         const el = document.createElement("div");
 
         const comp = {
-            __isNixComponent: true as const,
+            __isElurComponent: true as const,
             render: () => html`<span class="comp">Comp</span>`
         };
 
@@ -366,7 +366,7 @@ describe("Node binding: repeat() keyed list", () => {
         const el = document.createElement("div");
 
         const makeComp = (n: number) => ({
-            __isNixComponent: true as const,
+            __isElurComponent: true as const,
             render: () => html`<li>${n}</li>`,
             onUnmount,
         });

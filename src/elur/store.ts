@@ -34,12 +34,12 @@ export class ReadonlySignal<T> extends Signal<T> {
 
         Object.defineProperty(this, "value", {
             get: () => source.value,
-            set: () => { throw new Error(`[nix-js] "${this.label}" is read-only.`); },
+            set: () => { throw new Error(`[elur] "${this.label}" is read-only.`); },
             configurable: false,
         });
 
-        this.update = () => { throw new Error(`[nix-js] "${this.label}" is read-only.`); };
-        this.dispose = () => { throw new Error(`[nix-js] Cannot dispose "${this.label}" directly.`); };
+        this.update = () => { throw new Error(`[elur] "${this.label}" is read-only.`); };
+        this.dispose = () => { throw new Error(`[elur] Cannot dispose "${this.label}" directly.`); };
     }
 }
 
@@ -118,7 +118,7 @@ export type GuardFn<T extends object> = (
 ) => Partial<T> | void;
 
 /**
- * A NixPlugin is a function that receives the assembled store and
+ * A ElurPlugin is a function that receives the assembled store and
  * optionally returns a cleanup function called on $dispose().
  *
  * There are NO lifecycle hooks. Plugins extend the signal graph directly
@@ -128,7 +128,7 @@ export type GuardFn<T extends object> = (
  *   computed(() => store.someSignal.value) — derive new nodes
  *   store.$snapshot()                      — passive read for logging/persistence
  */
-export type NixPlugin<
+export type ElurPlugin<
     T extends object,
     A extends object = Record<never, never>,
     G extends Record<string, Signal<unknown>> = Record<never, never>,
@@ -155,7 +155,7 @@ export type CreateStoreOptions<
     /** Getter factory — receives raw signals, returns computed Signals exposed as ReadonlySignals. */
     getters?: (signals: StoreSignals<NoInfer<T>>) => G;
     /** Plugins to extend the store. Each receives the assembled store. */
-    plugins?: NixPlugin<NoInfer<T>, A, G>[];
+    plugins?: ElurPlugin<NoInfer<T>, A, G>[];
     /**
      * Custom serializer for the store baseline (used by `$reset`).
      * Defaults to `structuredClone`. Provide this when your state contains
@@ -176,14 +176,14 @@ const RESERVED = new Set([
 
 function assertKey(key: string): void {
     if (key === "__proto__" || key === "constructor" || key === "prototype") {
-        throw new Error(`[nix-js] Store key "${key}" is not allowed for security reasons.`);
+        throw new Error(`[elur] Store key "${key}" is not allowed for security reasons.`);
     }
-    if (RESERVED.has(key)) throw new Error(`[nix-js] Store key "${key}" is reserved.`);
+    if (RESERVED.has(key)) throw new Error(`[elur] Store key "${key}" is reserved.`);
 }
 
 function warnReserved(key: string, ctx: "action" | "getter"): boolean {
     if (!RESERVED.has(key)) return true;
-    console.warn(`[nix-js] Store ${ctx} "${key}" is reserved and will be ignored.`);
+    console.warn(`[elur] Store ${ctx} "${key}" is reserved and will be ignored.`);
     return false;
 }
 
@@ -265,7 +265,7 @@ export function createStore<
         _baseline = serialize ? serialize(initialState) : structuredClone(initialState);
     } catch (e) {
         throw new Error(
-            `[nix-js] Store "${name}" initialState contains non-serializable data ` +
+            `[elur] Store "${name}" initialState contains non-serializable data ` +
             `(functions, DOM nodes, Symbols, or WeakRefs). ` +
             `Provide a custom \`serialize\` option or remove these before creating the store. ` +
             `Original error: ${e}`
@@ -351,7 +351,7 @@ export function createStore<
             if (!warnReserved(key, "action")) continue;
             if (occupiedKeys.has(key)) {
                 console.warn(
-                    `[nix-js] Store "${name}": action "${key}" collides with an existing ` +
+                    `[elur] Store "${name}": action "${key}" collides with an existing ` +
                     `signal or getter and will be ignored.`,
                 );
                 continue;
@@ -368,7 +368,7 @@ export function createStore<
             if (!warnReserved(key, "getter")) continue;
             if (occupiedKeys.has(key)) {
                 console.warn(
-                    `[nix-js] Store "${name}": getter "${key}" collides with an existing ` +
+                    `[elur] Store "${name}": getter "${key}" collides with an existing ` +
                     `signal or action and will be ignored.`,
                 );
                 continue;
@@ -378,7 +378,7 @@ export function createStore<
 
             if (!(sig instanceof Signal)) {
                 throw new TypeError(
-                    `[nix-js] Store "${name}": getter "${key}" must return a Signal ` +
+                    `[elur] Store "${name}": getter "${key}" must return a Signal ` +
                     `(wrap it with computed()). Got: ${typeof sig}`
                 );
             }
@@ -397,7 +397,7 @@ export function createStore<
             if (typeof cleanup === "function") cleanups.push(cleanup);
         } catch (error) {
             console.error(
-                `[nix-js] Plugin initialization failed for store "${name}":`,
+                `[elur] Plugin initialization failed for store "${name}":`,
                 error
             );
         }

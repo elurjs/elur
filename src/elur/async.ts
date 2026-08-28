@@ -1,6 +1,6 @@
 import { signal, effect, Signal } from "./reactivity.js";
-import { NixComponent } from "./lifecycle.js";
-import { type NixTemplate, html, isNixTemplate } from "./template/index.js";
+import { ElurComponent } from "./lifecycle.js";
+import { type ElurTemplate, html, isElurTemplate } from "./template/index.js";
 
 // --- Types ---
 
@@ -10,8 +10,8 @@ type AsyncState<T> =
     | { status: "error"; error: unknown };
 
 export interface SuspenseOptions {
-    fallback?: NixTemplate;
-    errorFallback?: (err: unknown) => NixTemplate;
+    fallback?: ElurTemplate;
+    errorFallback?: (err: unknown) => ElurTemplate;
     resetOnRefresh?: boolean;
     invalidate?: Signal<unknown>;
     cacheKey?: string;
@@ -20,21 +20,21 @@ export interface SuspenseOptions {
 
 // --- Default fallbacks ---
 
-function defaultLoadingFallback(): NixTemplate {
+function defaultLoadingFallback(): ElurTemplate {
     return html`
         <span style="color:#52525b;font-size:13px;display:inline-flex;align-items:center;gap:6px">
-            <span class="nix-spinner" style="
+            <span class="elur-spinner" style="
                 display:inline-block;width:14px;height:14px;border-radius:50%;
                 border:2px solid #38bdf840;border-top-color:#38bdf8;
-                animation:nix-spin .7s linear infinite
+                animation:elur-spin .7s linear infinite
             "></span>
             Loading…
         </span>
-        <style>@keyframes nix-spin{to{transform:rotate(360deg)}}</style>
+        <style>@keyframes elur-spin{to{transform:rotate(360deg)}}</style>
     `;
 }
 
-function defaultErrorTemplate(err: unknown): NixTemplate {
+function defaultErrorTemplate(err: unknown): ElurTemplate {
     return html`
         <span style="color:#f87171;font-size:13px">
             ⚠ ${err instanceof Error ? err.message : String(err)}
@@ -121,9 +121,9 @@ function _isSuspenseCacheFresh(key: string, staleTime: number): boolean {
  */
 export function suspend<T>(
     asyncFn: () => Promise<T>,
-    renderFn: (data: T) => NixTemplate | NixComponent,
+    renderFn: (data: T) => ElurTemplate | ElurComponent,
     options: SuspenseOptions = {}
-): NixComponent {
+): ElurComponent {
     const {
         fallback,
         errorFallback,
@@ -136,7 +136,7 @@ export function suspend<T>(
     const resolvedFallback = fallback ?? defaultLoadingFallback();
     const resolvedErrorFallback = errorFallback ?? defaultErrorTemplate;
 
-    class SuspendComponent extends NixComponent {
+    class SuspendComponent extends ElurComponent {
         private _state: Signal<AsyncState<T>>;
         private _disposeWatcher: (() => void) | undefined;
 
@@ -197,8 +197,8 @@ export function suspend<T>(
             );
         }
 
-        render(): NixTemplate {
-            return html`<div class="nix-suspense" style="display:contents">${() => {
+        render(): ElurTemplate {
+            return html`<div class="elur-suspense" style="display:contents">${() => {
                 const s = this._state.value;
                 if (s.status === "pending") return resolvedFallback;
                 if (s.status === "error") return resolvedErrorFallback(s.error);
@@ -214,9 +214,9 @@ export function suspend<T>(
 
 export interface LazyOptions {
     /** Component selector when the module uses a named export. Defaults to `mod.default`. */
-    selector?: (mod: Record<string, unknown>) => new () => NixComponent;
+    selector?: (mod: Record<string, unknown>) => new () => ElurComponent;
     /** Template shown while the component is loading. */
-    fallback?: NixTemplate;
+    fallback?: ElurTemplate;
 }
 
 /**
@@ -225,17 +225,17 @@ export interface LazyOptions {
  */
 export function lazy(
     importFn: () => Promise<Record<string, unknown>>,
-    options?: NixTemplate | LazyOptions
-): () => NixComponent {
+    options?: ElurTemplate | LazyOptions
+): () => ElurComponent {
     const opts: LazyOptions =
-        options === undefined || isNixTemplate(options as object)
-            ? { fallback: options as NixTemplate | undefined }
+        options === undefined || isElurTemplate(options as object)
+            ? { fallback: options as ElurTemplate | undefined }
             : (options as LazyOptions);
 
-    const selector = opts.selector ?? ((mod) => mod.default as new () => NixComponent);
-    let Cached: (new () => NixComponent) | null = null;
+    const selector = opts.selector ?? ((mod) => mod.default as new () => ElurComponent);
+    let Cached: (new () => ElurComponent) | null = null;
 
-    return (): NixComponent => {
+    return (): ElurComponent => {
         if (Cached) return new Cached();
 
         return suspend(

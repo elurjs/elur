@@ -7,7 +7,7 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { createServer } from "vite";
-import { renderToChunks, renderToString } from "../src/nix/server/index.js";
+import { renderToChunks, renderToString } from "../src/elur/server/index.js";
 
 const root = resolve(import.meta.dirname, "..");
 const PORT = 4175;
@@ -28,7 +28,7 @@ const server = await createServer({
     },
     plugins: [
         {
-            name: "nix-e2e-ssr",
+            name: "elur-e2e-ssr",
             configureServer(s) {
                 s.middlewares.use(async (req, res, next) => {
                     const url = req.url ?? "/";
@@ -90,4 +90,4 @@ const server = await createServer({
 
 await server.listen();
 // eslint-disable-next-line no-console
-console.log(`[nix-e2e] serving at http://127.0.0.1:${PORT}`);
+console.log(`[elur-e2e] serving at http://127.0.0.1:${PORT}`);

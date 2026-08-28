@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { html, buildHTML } from "../nix/template";
-import type { BindingContext } from "../nix/template/bindings";
+import { html, buildHTML } from "../elur/template";
+import type { BindingContext } from "../elur/template/bindings";
 
 // =============================================================================
 // --- Grupo 1: Construcción Estática (Pre-compilador) ---
@@ -13,8 +13,8 @@ describe("Construcción Estática: buildHTML", () => {
 
         const result = buildHTML(strings, contexts);
 
-        expect(result).toBe('<div class="wrapper"><!--nix-0--></div>');
-        expect(result).toContain("<!--nix-0-->");
+        expect(result).toBe('<div class="wrapper"><!--elur-0--></div>');
+        expect(result).toContain("<!--elur-0-->");
     });
 
     it("no modifica HTML si no hay bindings", () => {
@@ -33,9 +33,9 @@ describe("Construcción Estática: buildHTML", () => {
 
         const result = buildHTML(strings, contexts);
 
-        expect(result).toContain("<!--nix-0-->");
-        expect(result).toContain("<!--nix-1-->");
-        expect(result).toContain("<!--nix-2-->");
+        expect(result).toContain("<!--elur-0-->");
+        expect(result).toContain("<!--elur-1-->");
+        expect(result).toContain("<!--elur-2-->");
     });
 
     it("transforma eventos con modificadores correctamente", () => {
@@ -49,7 +49,7 @@ describe("Construcción Estática: buildHTML", () => {
 
         const result = buildHTML(strings, contexts);
 
-        expect(result).toBe('<button  data-nix-e-0="click"></button>');
+        expect(result).toBe('<button  data-elur-e-0="click"></button>');
     });
 
     it("transforma atributos dinámicos con comillas", () => {
@@ -62,7 +62,7 @@ describe("Construcción Estática: buildHTML", () => {
 
         const result = buildHTML(strings, contexts);
 
-        expect(result).toBe('<input  data-nix-a-0="class" type="text">');
+        expect(result).toBe('<input  data-elur-a-0="class" type="text">');
     });
 
     it("transforma atributos sin comillas", () => {
@@ -75,7 +75,7 @@ describe("Construcción Estática: buildHTML", () => {
 
         const result = buildHTML(strings, contexts);
 
-        expect(result).toBe('<input  data-nix-a-0="id" type="text">');
+        expect(result).toBe('<input  data-elur-a-0="id" type="text">');
     });
 
     it("procesa múltiples bindings mixtos correctamente", () => {
@@ -89,7 +89,7 @@ describe("Construcción Estática: buildHTML", () => {
         const result = buildHTML(strings, contexts);
 
         expect(result).toBe(
-            '<div  data-nix-a-0="id"  data-nix-e-1="click"><!--nix-2--></div>'
+            '<div  data-elur-a-0="id"  data-elur-e-1="click"><!--elur-2--></div>'
         );
     });
 
@@ -102,7 +102,7 @@ describe("Construcción Estática: buildHTML", () => {
 
         const result = buildHTML(strings, contexts);
 
-        expect(result).toContain('data-nix-a-0="title"');
+        expect(result).toContain('data-elur-a-0="title"');
         expect(result).not.toContain('""');
     });
 });
@@ -112,10 +112,10 @@ describe("Construcción Estática: buildHTML", () => {
 // =============================================================================
 
 describe("Motor de Plantillas: html`` tag", () => {
-    it("retorna un objeto NixTemplate válido", () => {
+    it("retorna un objeto ElurTemplate válido", () => {
         const tpl = html`<p>Base</p>`;
 
-        expect(tpl.__isNixTemplate).toBe(true);
+        expect(tpl.__isElurTemplate).toBe(true);
         expect(typeof tpl._render).toBe("function");
         expect(typeof tpl.mount).toBe("function");
     });

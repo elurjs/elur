@@ -1,5 +1,5 @@
 import { watch, untrack } from "./reactivity.js";
-import { type NixPlugin, type Store, type GuardFn } from "./store.js";
+import { type ElurPlugin, type Store, type GuardFn } from "./store.js";
 
 /**
  * Minimal interface that any storage adapter must implement.
@@ -32,7 +32,7 @@ export function persistPlugin<T extends Record<string, unknown>>(
         /** Debounce interval in milliseconds for batching writes. Defaults to 0 (immediate). */
         debounce?: number;
     } = {},
-): NixPlugin<T> {
+): ElurPlugin<T> {
     const {
         storage = localStorage,
         exclude = [],
@@ -97,7 +97,7 @@ export function loggerPlugin<T extends Record<string, unknown>>(
         /** Optional filter to skip logging for specific changes. */
         filter?: (diff: Partial<T>) => boolean;
     } = {},
-): NixPlugin<T> {
+): ElurPlugin<T> {
     const { collapsed = true, filter } = opts;
 
     return (store) => {
@@ -117,7 +117,7 @@ export function loggerPlugin<T extends Record<string, unknown>>(
             if (filter && !filter(diff)) return;
 
             groupFn(
-                `%c[nix:${store.$id}]%c ${Object.keys(diff).join(", ")}`,
+                `%c[elur:${store.$id}]%c ${Object.keys(diff).join(", ")}`,
                 "color:#7F77DD;font-weight:500",
                 "color:inherit;font-weight:400",
             );
@@ -134,7 +134,7 @@ export function loggerPlugin<T extends Record<string, unknown>>(
  */
 export function guardPlugin<T extends Record<string, unknown>>(
     guards: GuardFn<T>[],
-): NixPlugin<T> {
+): ElurPlugin<T> {
     return (store) => {
         const registry = (store as unknown as { _guardFns: GuardFn<T>[] })._guardFns;
         for (const guard of guards) {
@@ -158,7 +158,7 @@ export function bridgePlugin<
 >(
     sourceStore: Store<TB>,
     sync: (sourceState: TB, targetStore: Store<TA>) => void,
-): NixPlugin<TA> {
+): ElurPlugin<TA> {
     return (targetStore) => {
         return watch(sourceStore.$stateSignal, (sourceState) => {
             sync(sourceState, targetStore);

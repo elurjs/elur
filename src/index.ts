@@ -1,6 +1,6 @@
-// Nix.js — Public Library Entry Point
+// Elur — Public Library Entry Point
 // Single entry for the compiled library. Import from here as an npm consumer:
-//   import { signal, html, NixComponent, mount } from "@deijose/nix-js";
+//   import { signal, html, ElurComponent, mount } from "elur";
 
 // --- Values ---
 export {
@@ -26,12 +26,12 @@ export {
     injectOutlet,
     createErrorBoundary,
     transition,
-    NIX_TEMPLATE_DESCRIPTOR,
-    NIX_RENDER_PROTOCOL,
+    ELUR_TEMPLATE_DESCRIPTOR,
+    ELUR_RENDER_PROTOCOL,
     templateFeatures,
     // Components
     mount,
-    NixComponent,
+    ElurComponent,
     // Store
     createStore,
     persistPlugin,
@@ -42,7 +42,7 @@ export {
     createRouter,
     RouterView,
     Link,
-    nixRouter,
+    elurRouter,
     RouterKey,
     _hasActiveRouter,
     // Async / Lazy
@@ -53,8 +53,8 @@ export {
     inject,
     createInjectionKey,
     // Forms
-    nixField,
-    nixFieldArray,
+    elurField,
+    elurFieldArray,
     createForm,
     required,
     minLength,
@@ -66,24 +66,24 @@ export {
     createValidator,
     validators,
     extendValidators,
-} from "./nix/index.js";
+} from "./elur/index.js";
 
 // --- Types ---
 export type {
     // Reactivity
     WatchOptions,
     // Templates
-    NixTemplate,
-    NixMountHandle,
+    ElurTemplate,
+    ElurMountHandle,
     TemplateBindingContext,
     TemplateDescriptor,
-    NixRenderProtocol,
+    ElurRenderProtocol,
     ServerRenderProtocolContext,
     DomProtocolContext,
     HydrationProtocolContext,
     MountOptions,
     KeyedList,
-    NixRef,
+    ElurRef,
     PortalOutlet,
     ErrorFallback,
     TransitionOptions,
@@ -91,7 +91,7 @@ export type {
     // Store
     Store,
     StoreSignals,
-    NixPlugin,
+    ElurPlugin,
     // Router
     Router,
     NamedRouteLocation,
@@ -123,5 +123,5 @@ export type {
     FormState,
     FormOptions,
     ValidatorsBase,
-    NixChildren,
-} from "./nix/index.js";
+    ElurChildren,
+} from "./elur/index.js";

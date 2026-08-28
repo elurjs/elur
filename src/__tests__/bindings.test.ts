@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
-import { detectContext } from "../nix/template/bindings";
-import { signal, nextTick } from "../nix/reactivity";
-import { html } from "../nix/template";
+import { detectContext } from "../elur/template/bindings";
+import { signal, nextTick } from "../elur/reactivity";
+import { html } from "../elur/template";
 
 // =============================================================================
 // --- detectContext ---

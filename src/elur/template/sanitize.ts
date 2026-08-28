@@ -2,7 +2,7 @@
 // --- Attribute value sanitization ---
 // =============================================================================
 //
-// Threat model: in Nix the attribute *name* is always authored by the developer
+// Threat model: in Elur the attribute *name* is always authored by the developer
 // (it lives in the static part of the html`` literal and is never interpolated),
 // so it is trusted. The attribute *value* is frequently untrusted (API data,
 // user input, route params). The only attribute family where an untrusted value
@@ -39,7 +39,7 @@ export function isUrlAttrName(name: string): boolean {
 
 /**
  * True if `name` is an attribute that turns its value into executable code or
- * arbitrary markup (inline event handlers, `srcdoc`). In idiomatic Nix events
+ * arbitrary markup (inline event handlers, `srcdoc`). In idiomatic Elur events
  * use `@click` (handled as an event binding, never as an attribute), so an
  * `on*`/`srcdoc` attribute binding is almost always a developer mistake. Used
  * only to emit a warning — never to block.
@@ -76,7 +76,7 @@ export function sanitizeUrl(raw: string): string {
             return raw;
         }
         console.warn(
-            `[nix-js] Blocked attribute URL with unsafe scheme: "${normalized.slice(0, 48)}${normalized.length > 48 ? "…" : ""}"`,
+            `[elur] Blocked attribute URL with unsafe scheme: "${normalized.slice(0, 48)}${normalized.length > 48 ? "…" : ""}"`,
         );
         return "";
     }

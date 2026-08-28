@@ -64,7 +64,7 @@ test.describe("partial attribute interpolation — static (browser DOM)", () => 
         // El contador se reinicia tras el mount del fixture; los mounts del
         // fixture ya ocurrieron. Verificamos el invariante con batch (abajo),
         // y aquí que el DOM está correcto tras la primera asignación síncrona.
-        const writes = await page.evaluate(() => window.__nix.writes);
+        const writes = await page.evaluate(() => window.__elur.writes);
         expect(writes).toBe(0);
         await expect(page.locator('[data-r="attr"]')).toHaveClass("btn btn-lg");
     });

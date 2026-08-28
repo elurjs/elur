@@ -1,7 +1,7 @@
 import { _debugGetRouterInternal } from "./router.js";
 import {
     _setComponentDebugHooks,
-    type NixComponent,
+    type ElurComponent,
 } from "./lifecycle.js";
 import {
     _setSignalDebugHooks,
@@ -79,14 +79,14 @@ interface _ComponentRecord extends _ComponentSnapshot {
     ref: _ComponentRef;
 }
 
-type _ComponentRef = { deref(): NixComponent | undefined };
+type _ComponentRef = { deref(): ElurComponent | undefined };
 
 const _signalRefs = new Set<_SignalRef>();
 let _signalMeta = new WeakMap<Signal<any>, _SignalMeta>();
 let _signalSeq = 1;
 let _signalHistoryLimit = 50;
 
-let _componentIds = new WeakMap<NixComponent, number>();
+let _componentIds = new WeakMap<ElurComponent, number>();
 const _componentMounted = new Map<number, _ComponentRecord>();
 const _componentMountStack: number[] = [];
 let _componentSeq = 1;
@@ -96,7 +96,7 @@ function _makeSignalRef<T>(s: Signal<T>): _SignalRef {
     return { deref: () => s };
 }
 
-function _makeComponentRef(inst: NixComponent): _ComponentRef {
+function _makeComponentRef(inst: ElurComponent): _ComponentRef {
     if (typeof WeakRef !== "undefined") return new WeakRef(inst) as _ComponentRef;
     return { deref: () => inst };
 }
@@ -156,24 +156,24 @@ export function _listSignals(): _SignalSnapshot[] {
     return out;
 }
 
-function _componentName(inst: NixComponent): string {
+function _componentName(inst: ElurComponent): string {
     const maybeDebugName = (inst as { _debugName?: string })._debugName;
     if (maybeDebugName && maybeDebugName.trim()) return maybeDebugName;
     const ctor = (inst as { constructor?: { name?: string } }).constructor;
     return ctor?.name && ctor.name.trim() ? ctor.name : "AnonymousComponent";
 }
 
-function _componentSlotNames(inst: NixComponent): string[] {
+function _componentSlotNames(inst: ElurComponent): string[] {
     const slots = (inst as unknown as { _slots?: unknown })._slots;
     if (!(slots instanceof Map)) return [];
     return Array.from(slots.keys()).map((k) => String(k));
 }
 
-function _componentProps(inst: NixComponent): Record<string, unknown> {
+function _componentProps(inst: ElurComponent): Record<string, unknown> {
     const out: Record<string, unknown> = {};
     for (const key of Object.keys(inst as unknown as Record<string, unknown>)) {
         if (
-            key === "__isNixComponent" ||
+            key === "__isElurComponent" ||
             key === "children" ||
             key === "_debugName" ||
             key.startsWith("_")
@@ -248,7 +248,7 @@ function _resetDevtoolsStores(): void {
     _signalMeta = new WeakMap<Signal<any>, _SignalMeta>();
     _signalSeq = 1;
 
-    _componentIds = new WeakMap<NixComponent, number>();
+    _componentIds = new WeakMap<ElurComponent, number>();
     _componentMounted.clear();
     _componentMountStack.length = 0;
     _componentSeq = 1;
@@ -300,11 +300,11 @@ function _renderSignals(target: HTMLDivElement): void {
         .map((s) => {
             const fullValue = _safeStringify(s.value);
             const preview = _valuePreview(s.value, 120);
-            return `<tr data-nix-devtools-signal-id="${s.id}">
+            return `<tr data-elur-devtools-signal-id="${s.id}">
                 <td style="padding:6px 8px;white-space:nowrap;">${s.id}</td>
                 <td style="padding:6px 8px;max-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:ui-monospace, SFMono-Regular, Menlo, monospace;" title="${_escapeHtml(fullValue)}">${_escapeHtml(preview)}</td>
                 <td>${s.subscriberCount}</td>
-                <td data-nix-devtools-history-count="${s.history.length}">${s.history.length}</td>
+                <td data-elur-devtools-history-count="${s.history.length}">${s.history.length}</td>
                 <td>${_relativeTime(s.lastUpdated)}</td>
             </tr>`;
         })
@@ -315,7 +315,7 @@ function _renderSignals(target: HTMLDivElement): void {
             <strong>Signals</strong>
             <span style="opacity:.8">${signals.length} active</span>
         </div>
-        <div data-nix-devtools-scroll="signals" style="max-height:260px;overflow:auto;overscroll-behavior:contain;border:1px solid #2f2f35;border-radius:8px;">
+        <div data-elur-devtools-scroll="signals" style="max-height:260px;overflow:auto;overscroll-behavior:contain;border:1px solid #2f2f35;border-radius:8px;">
             <table style="width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed;">
                 <thead>
                     <tr style="background:#1f1f24;">
@@ -332,13 +332,13 @@ function _renderSignals(target: HTMLDivElement): void {
         <p style="margin:8px 0 0 0;font-size:11px;opacity:.75;">Click a row to log full history in console.</p>
     `;
 
-    for (const row of target.querySelectorAll<HTMLTableRowElement>("tr[data-nix-devtools-signal-id]")) {
+    for (const row of target.querySelectorAll<HTMLTableRowElement>("tr[data-elur-devtools-signal-id]")) {
         row.style.cursor = "pointer";
         row.addEventListener("click", () => {
-            const id = Number(row.dataset.nixDevtoolsSignalId);
+            const id = Number(row.dataset.elurDevtoolsSignalId);
             const signal = signals.find((s) => s.id === id);
             if (!signal) return;
-            console.group(`[Nix DevTools] Signal #${signal.id}`);
+            console.group(`[Elur DevTools] Signal #${signal.id}`);
             console.log("Current value:", signal.value);
             console.log("Subscribers:", signal.subscriberCount);
             console.table(signal.history.map((h) => ({ at: new Date(h.at).toISOString(), value: h.value })));
@@ -409,7 +409,7 @@ function _renderComponents(target: HTMLDivElement): void {
             <span><b>current:</b> ${_escapeHtml(router?.currentPath ?? "-")}</span>
             <span><b>matched:</b> ${_escapeHtml(router?.matchedPath ?? "none")}</span>
         </div>
-        <div data-nix-devtools-scroll="components" style="max-height:280px;overflow:auto;overscroll-behavior:contain;border:1px solid #2f2f35;border-radius:8px;">
+        <div data-elur-devtools-scroll="components" style="max-height:280px;overflow:auto;overscroll-behavior:contain;border:1px solid #2f2f35;border-radius:8px;">
             ${roots.length > 0
             ? roots.map((r) => _renderTreeNode(r, 0)).join("")
             : "<div style='padding:10px;opacity:.75'>No mounted components tracked. Enable devtools before your first mount() to capture initial tree.</div>"}
@@ -429,7 +429,7 @@ function _renderRouter(target: HTMLDivElement): void {
     if (!router) {
         target.innerHTML = `
             <strong>Router State</strong>
-            <div style="margin-top:8px;opacity:.75">No active Nix router instance. Ensure your app uses createRouter()/RouterView from @deijose/nix-js/router.</div>
+            <div style="margin-top:8px;opacity:.75">No active Elur router instance. Ensure your app uses createRouter()/RouterView from elur/router.</div>
         `;
         return;
     }
@@ -437,7 +437,7 @@ function _renderRouter(target: HTMLDivElement): void {
     const chain = _mountPathChain(router.matchedPath);
     target.innerHTML = `
         <strong>Router State</strong>
-        <div data-nix-devtools-scroll="router" style="margin-top:8px;font-size:12px;line-height:1.55;max-height:280px;overflow:auto;overscroll-behavior:contain;border:1px solid #2f2f35;border-radius:8px;padding:8px;">
+        <div data-elur-devtools-scroll="router" style="margin-top:8px;font-size:12px;line-height:1.55;max-height:280px;overflow:auto;overscroll-behavior:contain;border:1px solid #2f2f35;border-radius:8px;padding:8px;">
             <div><b>mode</b>: ${router.mode}</div>
             <div><b>base</b>: ${router.base}</div>
             <div><b>current</b>: ${_escapeHtml(router.currentPath)}</div>
@@ -452,23 +452,23 @@ function _renderRouter(target: HTMLDivElement): void {
 
 function _rememberScroll(tab: _DevToolsTab): void {
     if (!_state.content) return;
-    const box = _state.content.querySelector<HTMLElement>(`[data-nix-devtools-scroll='${tab}']`);
+    const box = _state.content.querySelector<HTMLElement>(`[data-elur-devtools-scroll='${tab}']`);
     if (!box) return;
     _state.scrollMemo[tab] = { top: box.scrollTop, left: box.scrollLeft };
 }
 
 function _restoreScroll(tab: _DevToolsTab): void {
     if (!_state.content) return;
-    const box = _state.content.querySelector<HTMLElement>(`[data-nix-devtools-scroll='${tab}']`);
+    const box = _state.content.querySelector<HTMLElement>(`[data-elur-devtools-scroll='${tab}']`);
     if (!box) return;
     const memo = _state.scrollMemo[tab];
     box.scrollTop = memo.top;
     box.scrollLeft = memo.left;
-    if (box.dataset.nixDevtoolsScrollBound !== "1") {
+    if (box.dataset.elurDevtoolsScrollBound !== "1") {
         box.addEventListener("scroll", () => {
             _state.scrollMemo[tab] = { top: box.scrollTop, left: box.scrollLeft };
         }, { passive: true });
-        box.dataset.nixDevtoolsScrollBound = "1";
+        box.dataset.elurDevtoolsScrollBound = "1";
     }
 }
 
@@ -494,15 +494,15 @@ function _refreshPanel(force = false): void {
 
 function _syncTabButtons(): void {
     if (!_state.panel) return;
-    for (const btn of _state.panel.querySelectorAll<HTMLButtonElement>("button[data-nix-devtools-tab]")) {
-        const isActive = btn.dataset.nixDevtoolsTab === _state.activeTab;
+    for (const btn of _state.panel.querySelectorAll<HTMLButtonElement>("button[data-elur-devtools-tab]")) {
+        const isActive = btn.dataset.elurDevtoolsTab === _state.activeTab;
         btn.style.background = isActive ? "#2d4c7a" : "#1f1f24";
     }
 }
 
 function _createOverlay(options: Required<Pick<DevToolsOptions, "position">>): void {
     const root = document.createElement("div");
-    root.setAttribute("data-nix-devtools-root", "");
+    root.setAttribute("data-elur-devtools-root", "");
     root.style.position = "fixed";
     root.style.zIndex = "2147483647";
     root.style.bottom = "16px";
@@ -512,8 +512,8 @@ function _createOverlay(options: Required<Pick<DevToolsOptions, "position">>): v
 
     const button = document.createElement("button");
     button.type = "button";
-    button.textContent = "Nix DevTools";
-    button.setAttribute("data-nix-devtools-button", "");
+    button.textContent = "Elur DevTools";
+    button.setAttribute("data-elur-devtools-button", "");
     button.style.background = "#111827";
     button.style.color = "#f9fafb";
     button.style.border = "1px solid #374151";
@@ -523,7 +523,7 @@ function _createOverlay(options: Required<Pick<DevToolsOptions, "position">>): v
     button.style.boxShadow = "0 6px 18px rgba(0,0,0,.3)";
 
     const panel = document.createElement("div");
-    panel.setAttribute("data-nix-devtools-panel", "");
+    panel.setAttribute("data-elur-devtools-panel", "");
     panel.style.marginTop = "8px";
     panel.style.width = "460px";
     panel.style.maxWidth = "min(92vw, 460px)";
@@ -541,13 +541,13 @@ function _createOverlay(options: Required<Pick<DevToolsOptions, "position">>): v
     tabs.style.marginBottom = "10px";
 
     const content = document.createElement("div");
-    content.setAttribute("data-nix-devtools-content", "");
+    content.setAttribute("data-elur-devtools-content", "");
 
     const makeTab = (name: _DevToolsTab, label: string): HTMLButtonElement => {
         const t = document.createElement("button");
         t.type = "button";
         t.textContent = label;
-        t.setAttribute("data-nix-devtools-tab", name);
+        t.setAttribute("data-elur-devtools-tab", name);
         t.style.border = "1px solid #353543";
         t.style.borderRadius = "8px";
         t.style.padding = "6px 9px";

@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
-import { signal } from "../nix/reactivity.js";
-import { html } from "../nix/template/html.js";
-import { NixComponent } from "../nix/lifecycle.js";
-import { createInjectionKey, inject, provide } from "../nix/context.js";
-import { renderToString } from "../nix/server/index.js";
-import { hydrate } from "../nix/hydrate/index.js";
+import { signal } from "../elur/reactivity.js";
+import { html } from "../elur/template/html.js";
+import { ElurComponent } from "../elur/lifecycle.js";
+import { createInjectionKey, inject, provide } from "../elur/context.js";
+import { renderToString } from "../elur/server/index.js";
+import { hydrate } from "../elur/hydrate/index.js";
 
-async function ssr(template: ReturnType<typeof html> | NixComponent, markers = "hydration"): Promise<HTMLDivElement> {
+async function ssr(template: ReturnType<typeof html> | ElurComponent, markers = "hydration"): Promise<HTMLDivElement> {
     const container = document.createElement("div");
     container.innerHTML = await renderToString(template, { markers: markers as "hydration" });
     return container;
@@ -100,7 +100,7 @@ describe("SSR/hydration matrix", () => {
             const container = document.createElement("div");
             // First marker missing → strict remount of whole root is avoided by
             // warn-remount which remounts the root, keeping it self-contained.
-            container.innerHTML = "<div><span><!--nix-0-->a</span><span>b</span></div>";
+            container.innerHTML = "<div><span><!--elur-0-->a</span><span>b</span></div>";
             const handle = hydrate(template, container, { mismatch: "warn-remount" });
             expect(container.querySelector("span")?.textContent).toBe("a");
             handle.unmount();
@@ -111,7 +111,7 @@ describe("SSR/hydration matrix", () => {
         it("rejects when the render signal aborts", async () => {
             const controller = new AbortController();
             const slow = {
-                [Symbol.for("@deijose/nix-js/render-protocol")]: {
+                [Symbol.for("elur/render-protocol")]: {
                     async renderServer() {
                         await new Promise((resolve) => setTimeout(resolve, 30));
                         return "x";
@@ -140,17 +140,17 @@ describe("SSR/hydration matrix", () => {
     describe("nested providers during hydration", () => {
         it("resolves provide/inject across nested components", async () => {
             const key = createInjectionKey<string>("nested");
-            class Leaf extends NixComponent {
+            class Leaf extends ElurComponent {
                 render() {
                     return html`<b>${inject(key)}</b>`;
                 }
             }
-            class Branch extends NixComponent {
+            class Branch extends ElurComponent {
                 render() {
                     return html`<span>${new Leaf()}</span>`;
                 }
             }
-            class Root extends NixComponent {
+            class Root extends ElurComponent {
                 onInit() { provide(key, "provided"); }
                 render() {
                     return html`<div>${new Branch()}</div>`;

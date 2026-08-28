@@ -6,37 +6,37 @@ test.describe("bindings rechazados — mensajes de error (browser DOM)", () => {
     });
 
     test("boolean parcial lanza error descriptivo", async ({ page }) => {
-        const msg = await page.evaluate(() => window.__nix.tryPartial("boolean"));
+        const msg = await page.evaluate(() => window.__elur.tryPartial("boolean"));
         expect(msg).toContain('disabled');
         expect(msg).toContain("binding index 0");
         expect(msg).toContain('disabled=${condition}');
     });
 
     test("evento parcial lanza error descriptivo", async ({ page }) => {
-        const msg = await page.evaluate(() => window.__nix.tryPartial("event"));
+        const msg = await page.evaluate(() => window.__elur.tryPartial("event"));
         expect(msg).toContain("@click");
         expect(msg).toContain("binding index 0");
         expect(msg).toContain("@click=${handler}");
     });
 
     test("ref/show/hide parciales lanzan error", async ({ page }) => {
-        const ref = await page.evaluate(() => window.__nix.tryPartial("ref"));
+        const ref = await page.evaluate(() => window.__elur.tryPartial("ref"));
         expect(ref).toContain("ref");
-        const show = await page.evaluate(() => window.__nix.tryPartial("show"));
+        const show = await page.evaluate(() => window.__elur.tryPartial("show"));
         expect(show).toContain("show");
-        const hide = await page.evaluate(() => window.__nix.tryPartial("hide"));
+        const hide = await page.evaluate(() => window.__elur.tryPartial("hide"));
         expect(hide).toContain("hide");
     });
 
     test("atributo dinámico y tag name dinámico lanzan error", async ({ page }) => {
-        const dyn = await page.evaluate(() => window.__nix.tryPartial("dynamic"));
+        const dyn = await page.evaluate(() => window.__elur.tryPartial("dynamic"));
         expect(dyn).toContain("attribute name");
-        const tag = await page.evaluate(() => window.__nix.tryPartial("tagname"));
+        const tag = await page.evaluate(() => window.__elur.tryPartial("tagname"));
         expect(tag).toContain("tag name");
     });
 
     test("comilla sin cerrar lanza error", async ({ page }) => {
-        const msg = await page.evaluate(() => window.__nix.tryPartial("unclosed"));
+        const msg = await page.evaluate(() => window.__elur.tryPartial("unclosed"));
         expect(msg).toContain("Unclosed quoted attribute value");
     });
 });
