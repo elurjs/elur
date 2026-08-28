@@ -1,6 +1,6 @@
 // Elur — Public Library Entry Point
 // Single entry for the compiled library. Import from here as an npm consumer:
-//   import { signal, html, ElurComponent, mount } from "elur";
+//   import { signal, html, ElurComponent, mount } from "@elurjs/core";
 
 // --- Values ---
 export {

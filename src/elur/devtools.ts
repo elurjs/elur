@@ -429,7 +429,7 @@ function _renderRouter(target: HTMLDivElement): void {
     if (!router) {
         target.innerHTML = `
             <strong>Router State</strong>
-            <div style="margin-top:8px;opacity:.75">No active Elur router instance. Ensure your app uses createRouter()/RouterView from elur/router.</div>
+            <div style="margin-top:8px;opacity:.75">No active Elur router instance. Ensure your app uses createRouter()/RouterView from @elurjs/core/router.</div>
         `;
         return;
     }

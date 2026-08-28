@@ -97,7 +97,7 @@ export function html(
         let cached = _templateCache.get(strings);
         if (cached) return cached;
         if (typeof document === "undefined") {
-            throw new Error("[elur] DOM rendering requires a document. Use elur/server on the server.");
+            throw new Error("[elur] DOM rendering requires a document. Use @elurjs/core/server on the server.");
         }
 
         const tpl = document.createElement("template");
