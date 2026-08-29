@@ -39,7 +39,7 @@ function _createReactivityState(): _ReactivityGlobalState {
     };
 }
 
-const _reactivityStateKey = Symbol.for("elur/reactivity-state");
+const _reactivityStateKey = Symbol.for("@elurjs/core/reactivity-state");
 const _globalObj = globalThis as Record<PropertyKey, unknown>;
 const _state = (() => {
     const existing = _globalObj[_reactivityStateKey] as _ReactivityGlobalState | undefined;

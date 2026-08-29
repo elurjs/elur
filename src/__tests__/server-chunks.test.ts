@@ -55,7 +55,7 @@ describe("renderToChunks", () => {
     it("aborts a slow render through the scope", async () => {
         const scope = createServerRenderScope();
         const slow = {
-            [Symbol.for("elur/render-protocol")]: {
+            [Symbol.for("@elurjs/core/render-protocol")]: {
                 async renderServer() {
                     await new Promise((resolve) => setTimeout(resolve, 200));
                     return "late";
@@ -115,7 +115,7 @@ describe("server lifecycle and error info", () => {
     it("passes RenderErrorInfo to onError", async () => {
         const errors: unknown[] = [];
         const throwing = {
-            [Symbol.for("elur/render-protocol")]: {
+            [Symbol.for("@elurjs/core/render-protocol")]: {
                 renderServer() {
                     throw new Error("boom");
                 },

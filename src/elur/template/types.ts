@@ -43,8 +43,8 @@ export interface ElurRenderProtocol {
     hydrateDom?(context: HydrationProtocolContext): (() => void) | void;
 }
 
-export const ELUR_TEMPLATE_DESCRIPTOR = Symbol.for("elur/template-descriptor");
-export const ELUR_RENDER_PROTOCOL = Symbol.for("elur/render-protocol");
+export const ELUR_TEMPLATE_DESCRIPTOR = Symbol.for("@elurjs/core/template-descriptor");
+export const ELUR_RENDER_PROTOCOL = Symbol.for("@elurjs/core/render-protocol");
 
 /**
  * Runtime feature capabilities, for tooling to detect support without

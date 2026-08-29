@@ -111,7 +111,7 @@ describe("SSR/hydration matrix", () => {
         it("rejects when the render signal aborts", async () => {
             const controller = new AbortController();
             const slow = {
-                [Symbol.for("elur/render-protocol")]: {
+                [Symbol.for("@elurjs/core/render-protocol")]: {
                     async renderServer() {
                         await new Promise((resolve) => setTimeout(resolve, 30));
                         return "x";

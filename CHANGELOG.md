@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.5.1
+
+### Changed
+
+- **Internal symbols namespaced under `@elurjs/core/*`** — the global
+  `Symbol.for(...)` keys were renamed from `elur/*` to `@elurjs/core/*` to
+  match the published package name and avoid collisions with other `elur*`
+  packages:
+  - `elur/reactivity-state` → `@elurjs/core/reactivity-state`
+  - `elur/template-descriptor` → `@elurjs/core/template-descriptor`
+  - `elur/render-protocol` → `@elurjs/core/render-protocol`
+  Consumers that import the exported constants (`ELUR_TEMPLATE_DESCRIPTOR`,
+  `ELUR_RENDER_PROTOCOL`) are unaffected; only code that references the raw
+  `Symbol.for("...")` string (e.g. `@elurjs/kit`'s `ssr-flag.ts`) needs to
+  use the new key.
+
 ## v3.5.0
 
 ### Added
