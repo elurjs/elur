@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.6.2
+
+### Fixed
+
+- **`Link` active style normalization** — `router.ts` compared
+  `router.current.value === to` using the raw `to` prop, which may be
+  relative (e.g. `"about"`). Since `current.value` is always a normalized
+  absolute path (e.g. `"/about"`), active styling never applied for relative
+  links. The comparison now uses the normalized `appPath`.
+- **`passive` event modifier disables delegation** — `bindings.ts` excluded
+  `capture` and `once` from delegated events but not `passive`. A delegated
+  `@scroll.passive` silently ignored the passive option. Delegation now
+  falls back to direct `addEventListener` when `passive` is present, so the
+  option is honored.
+- **Store guards transform `$reset` target** — `store.ts` invoked guards
+  during `$reset` with `(current, current)` and ignored the return value.
+  `$reset` now passes `(baseline, current)` and applies the guard's
+  transformed result, consistent with `$patch`.
+- **SSR `RenderChunk` error type emitted** — `server/index.ts` declared
+  `"error"` as a possible `RenderChunk` type but `streamChunks` threw
+  without emitting it. The error chunk is now yielded before re-throwing,
+  making the type contract accurate.
+
+### Changed
+
+- **E2E tests updated** — fixtures and specs rewritten to use full
+  attribute interpolation (`class=${`btn ${"x"}`}`) instead of partial
+  interpolation (`class="btn ${"x"}"`), which moved to the Vite plugin in
+  v3.4.0. The core no longer throws on partial interpolation at template
+  creation time; `errors.spec.ts` now documents this behavior. All 50 E2E
+  tests pass.
+
 ## v3.6.1
 
 ### Added

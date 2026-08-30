@@ -78,7 +78,7 @@ test.describe("SSR + hydration — browser real", () => {
         await expect(page.locator('[data-h="card"]')).toHaveClass("card-streamed");
     });
 
-    test("keyed SSR sin markers: li con parciales", async ({ page }) => {
+    test("keyed SSR sin markers: li con clases compuestas", async ({ page }) => {
         const response = await page.goto("/ssr-keyed-plain");
         expect(response?.status()).toBe(200);
         const html = await response!.text();

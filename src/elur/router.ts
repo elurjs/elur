@@ -987,7 +987,7 @@ export class Link extends ElurComponent {
         const fullPath = (router._base ? (router._base + appPath) : appPath).replace(/\/+/g, "/");
         const href = router._mode === "hash" ? "#" + fullPath : fullPath;
         return html`
-            <a     href=${href}     style=${() => router.current.value === to
+            <a     href=${href}     style=${() => router.current.value === appPath
                 ? "color:#38bdf8;font-weight:700;text-decoration:none;cursor:pointer;padding:4px 10px;border-radius:4px;background:#0c2a3a"
                 : "color:#a3a3a3;text-decoration:none;cursor:pointer;padding:4px 10px;border-radius:4px"}     @click=${(e: Event) => { e.preventDefault(); router.navigate(to); }}>${label}</a>
         `;

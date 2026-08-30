@@ -1,15 +1,15 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("partial attribute interpolation — static (browser DOM)", () => {
+test.describe("static attributes — composed values (browser DOM)", () => {
     test.beforeEach(async ({ page }) => {
         await page.goto("/mount");
     });
 
-    test("prefijo + infijo en un atributo quoted", async ({ page }) => {
+    test("prefijo + infijo en un atributo", async ({ page }) => {
         await expect(page.locator('[data-c="pre"]')).toHaveClass("btn big size-x end");
     });
 
-    test("sufijo unquoted", async ({ page }) => {
+    test("sufijo", async ({ page }) => {
         await expect(page.locator('[data-c="suf"]')).toHaveAttribute("id", "suf-x");
     });
 
@@ -21,7 +21,7 @@ test.describe("partial attribute interpolation — static (browser DOM)", () => 
         await expect(page.locator('[data-c="adj"]')).toHaveAttribute("id", "12");
     });
 
-    test("null/undefined/false parciales siguen semántica JS", async ({ page }) => {
+    test("null/undefined/false siguen semántica JS", async ({ page }) => {
         await expect(page.locator('[data-c="null"]')).toHaveClass("x null y");
         await expect(page.locator('[data-c="undef"]')).toHaveClass("x undefined y");
         await expect(page.locator('[data-c="false"]')).toHaveClass("x false y");
@@ -38,7 +38,7 @@ test.describe("partial attribute interpolation — static (browser DOM)", () => 
         await expect(page.locator('[data-c="sq"]')).toHaveAttribute("title", "it's fine");
     });
 
-    test("unquoted con prefijo y sufijo estático", async ({ page }) => {
+    test("prefijo y sufijo estático", async ({ page }) => {
         await expect(page.locator('[data-c="unq"]')).toHaveAttribute("id", "pre-v-post");
     });
 
@@ -55,7 +55,7 @@ test.describe("partial attribute interpolation — static (browser DOM)", () => 
         await expect(page.locator('[data-c="spaces"]')).toHaveClass("sp 1");
     });
 
-    test("parcial anidado con node binding", async ({ page }) => {
+    test("anidado con node binding", async ({ page }) => {
         await expect(page.locator('[data-c="nested"] span')).toHaveClass("s-n");
         await expect(page.locator('[data-c="nested"] span')).toHaveText("text");
     });

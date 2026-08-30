@@ -275,7 +275,8 @@ export function _activateBindingsWithNodes(
             const canDelegate =
                 isDelegableEvent(eventName) &&
                 !mods.includes("capture") &&
-                !mods.includes("once");
+                !mods.includes("once") &&
+                !mods.includes("passive");
 
             if (canDelegate) {
                 disposes.push(activateDelegatedEvent(el as Element, eventName, mods, rawHandler));

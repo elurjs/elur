@@ -356,7 +356,25 @@ describe("guardPlugin", () => {
         );
         store.count.value = 5;
         store.$reset();
-        expect(guard).toHaveBeenCalledWith({ count: 5 }, { count: 5 });
+        // Guard receives (next=baseline, current): the baseline is the reset target.
+        expect(guard).toHaveBeenCalledWith({ count: 0 }, { count: 5 });
         expect(store.count.value).toBe(0);
+    });
+
+    it("guards can transform the $reset target", () => {
+        const store = createStore(
+            { count: 0 },
+            {
+                plugins: [
+                    guardPlugin<{ count: number }>([
+                        (_next, _current) => ({ count: 99 }),
+                    ]),
+                ],
+            }
+        );
+        store.count.value = 5;
+        store.$reset();
+        // The guard overrides the baseline, so reset goes to 99 instead of 0.
+        expect(store.count.value).toBe(99);
     });
 });

@@ -276,12 +276,16 @@ export function createStore<
 
     function $reset(): void {
         const current = $snapshot();
+        let next: Partial<T> = _baseline;
         for (const guard of _guardFns) {
-            guard(current, current);
+            const result = guard(next, current);
+            if (result !== undefined) {
+                next = { ...next, ...result };
+            }
         }
         batch(() => {
             for (const key of keys) {
-                signals[key].value = _baseline[key];
+                signals[key].value = (next as T)[key];
             }
         });
     }

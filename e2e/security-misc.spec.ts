@@ -42,14 +42,14 @@ test.describe("SVG, custom elements, ARIA y data-* (browser DOM)", () => {
         await page.goto("/mount");
     });
 
-    test("SVG xlink:href con parcial", async ({ page }) => {
+    test("SVG xlink:href compuesto", async ({ page }) => {
         await expect(page.locator('[data-s="use"]')).toHaveAttribute(
             "xlink:href",
             "#icon-home",
         );
     });
 
-    test("custom element con clase parcial", async ({ page }) => {
+    test("custom element con clase compuesta", async ({ page }) => {
         await expect(page.locator('[data-s="custom"]')).toHaveClass("x y");
     });
 

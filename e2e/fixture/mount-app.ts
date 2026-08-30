@@ -84,6 +84,11 @@ window.__elur = {
         const el = document.querySelector(sel) as unknown as Record<string, unknown>;
         return el ? el[prop] : undefined;
     },
+    // Since v3.4.0, the core no longer throws at template creation time for
+    // partial attribute interpolation — it silently produces a (possibly broken)
+    // descriptor. Error detection for partial interpolation is now a
+    // build-time Vite plugin feature. This helper documents the core's
+    // current behavior: template creation does NOT throw.
     tryPartial(kind) {
         try {
             switch (kind) {
@@ -106,28 +111,28 @@ window.__elur = {
 
 window.__elur.initWrites();
 
-// --- Static partial cases ---------------------------------------------------
+// --- Static cases (full interpolation) ---------------------------------------
 
 const obj = { toString: () => "obj" };
 
 const staticTpl = html`
-  <p data-c="pre" class="btn ${"big"} size-${"x"} end">prefix-infix</p>
-  <p data-c="suf" id=suf-${"x"}>suffix</p>
-  <p data-c="inf" class="a ${"1"} b">infix</p>
-  <p data-c="adj" id=${1}${2}>adjacent</p>
-  <p data-c="null" class="x ${null} y">null</p>
-  <p data-c="undef" class="x ${undefined} y">undefined</p>
-  <p data-c="false" class="x ${false} y">false</p>
-  <p data-c="nums" class="x ${1.5} ${10n} y">nums</p>
-  <p data-c="arr" class="x ${[1, "a"]} y">array</p>
-  <p data-c="obj" class="x ${obj} y">object</p>
-  <p data-c="sq" data-x='q ${"s"}' title="it's ${"fine"}">single-quote</p>
-  <p data-c="unq" id=pre-${"v"}-post>unquoted</p>
-  <p data-c="mixed" class="btn ${"s"} mid ${"e"}">mixed</p>
-  <p data-c="multi" class="a${"1"}b${"2"}c">multi</p>
-  <p data-c="empty" class="${""}x${""}">empty-static</p>
-  <p data-c="spaces" class = "sp ${"1"}">spaces-around-eq</p>
-  <div data-c="nested"><span class="s-${"n"}">${"text"}</span></div>
+  <p data-c="pre" class=${`btn ${"big"} size-${"x"} end`}>prefix-infix</p>
+  <p data-c="suf" id=${`suf-${"x"}`}>suffix</p>
+  <p data-c="inf" class=${`a ${"1"} b`}>infix</p>
+  <p data-c="adj" id=${`${1}${2}`}>adjacent</p>
+  <p data-c="null" class=${`x ${null} y`}>null</p>
+  <p data-c="undef" class=${`x ${undefined} y`}>undefined</p>
+  <p data-c="false" class=${`x ${false} y`}>false</p>
+  <p data-c="nums" class=${`x ${1.5} ${10n} y`}>nums</p>
+  <p data-c="arr" class=${`x ${[1, "a"]} y`}>array</p>
+  <p data-c="obj" class=${`x ${obj} y`}>object</p>
+  <p data-c="sq" data-x=${`q ${"s"}`} title=${`it's ${"fine"}`}>single-quote</p>
+  <p data-c="unq" id=${`pre-${"v"}-post`}>unquoted</p>
+  <p data-c="mixed" class=${`btn ${"s"} mid ${"e"}`}>mixed</p>
+  <p data-c="multi" class=${`a${"1"}b${"2"}c`}>multi</p>
+  <p data-c="empty" class=${`${""}x${""}`}>empty-static</p>
+  <p data-c="spaces" class=${`sp ${"1"}`}>spaces-around-eq</p>
+  <div data-c="nested"><span class=${`s-${"n"}`}>${"text"}</span></div>
 `;
 
 const staticZone = document.createElement("div");
@@ -135,18 +140,18 @@ staticZone.id = "static";
 out.appendChild(staticZone);
 staticTpl.mount(staticZone);
 
-// --- Reactive cases ----------------------------------------------------------
+// --- Reactive cases (full interpolation) --------------------------------------
 
 const size = signal("lg");
 const color = signal("red");
 const flag = signal(true);
 
 const reactiveTpl = html`
-  <p data-r="attr" class="btn btn-${() => size.value}">attr</p>
-  <p data-r="multiattr" class="${() => color.value}-${() => size.value}">multiattr</p>
-  <p data-r="switch" class="${() => (flag.value ? "on" : "off")}">switch</p>
-  <p data-r="mix" class="s-${() => size.value} c-${"static"}">mix</p>
-  <input data-r="prop" value="pre-${() => size.value}" />
+  <p data-r="attr" class=${() => `btn btn-${size.value}`}>attr</p>
+  <p data-r="multiattr" class=${() => `${color.value}-${size.value}`}>multiattr</p>
+  <p data-r="switch" class=${() => (flag.value ? "on" : "off")}>switch</p>
+  <p data-r="mix" class=${() => `s-${size.value} c-${"static"}`}>mix</p>
+  <input data-r="prop" value=${() => `pre-${size.value}`} />
   <input data-r="checked" type="checkbox" checked=${true} />
   <input data-r="disabled" disabled=${false} />
   <input data-r="disabledTrue" disabled=${() => flag.value} />
@@ -159,24 +164,24 @@ reactiveTpl.mount(reactiveZone);
 
 // --- Unmount target ----------------------------------------------------------
 
-const unmountTpl = html`<p data-u="tmp" class="t-${() => size.value}">tmp</p>`;
+const unmountTpl = html`<p data-u="tmp" class=${() => `t-${size.value}`}>tmp</p>`;
 const unmountZone = document.createElement("div");
 unmountZone.id = "unmount";
 out.appendChild(unmountZone);
 window.__umHandle = unmountTpl.mount(unmountZone).unmount;
 
-// --- Extra: eventos + parciales, show/hide, style, unicode, multi-mount ------
+// --- Extra: eventos, show/hide, style, unicode, multi-mount ------------------
 
 let clickCount = 0;
 
 const extraTpl = html`
-  <button data-x="evt" class="btn ${"b"}" id=${"i"} @click=${() => clickCount++}>go</button>
-  <div data-x="show" show=${() => flag.value} class="sh ${"1"}">visible</div>
-  <div data-x="hide" hide=${true} class="hd ${"2"}">hidden</div>
-  <div data-x="style" style="color: ${"red"}; font-size: ${"14"}px">styled</div>
-  <div data-x="unicode" title="héllo wörld 🎉 ${"ñ"}">unicode</div>
-  <div data-x="entities" title="a &amp; b ${"<c>"}">entities</div>
-  <div data-x="quotes" title="say ${'"hi"'} x">quotes</div>
+  <button data-x="evt" class=${`btn ${"b"}`} id=${"i"} @click=${() => clickCount++}>go</button>
+  <div data-x="show" show=${() => flag.value} class=${`sh ${"1"}`}>visible</div>
+  <div data-x="hide" hide=${true} class=${`hd ${"2"}`}>hidden</div>
+  <div data-x="style" style=${`color: ${"red"}; font-size: ${"14"}px`}>styled</div>
+  <div data-x="unicode" title=${`héllo wörld 🎉 ${"ñ"}`}>unicode</div>
+  <div data-x="entities" title=${`a &amp; b ${"<c>"}`}>entities</div>
+  <div data-x="quotes" title=${`say ${'"hi"'} x`}>quotes</div>
 `;
 
 const extraZone = document.createElement("div");
@@ -184,8 +189,8 @@ extraZone.id = "extra";
 out.appendChild(extraZone);
 extraTpl.mount(extraZone);
 
-// Múltiples mounts del mismo template con parciales
-const multiTpl = html`<span data-m="multi" class="m-${"v"}">${"c"}</span>`;
+// Múltiples mounts del mismo template
+const multiTpl = html`<span data-m="multi" class=${`m-${"v"}`}>${"c"}</span>`;
 const multiA = document.createElement("div");
 const multiB = document.createElement("div");
 out.appendChild(multiA);
@@ -193,16 +198,16 @@ out.appendChild(multiB);
 multiTpl.mount(multiA);
 multiTpl.mount(multiB);
 
-// --- URL sanitization --------------------------------------------------------
+// --- URL sanitization (full interpolation) -----------------------------------
 
 const secTpl = html`
-  <a data-u="js1" href="java${"script:"}alert(1)">js1</a>
-  <a data-u="js2" href="${"javascript:alert(1)"}x">js2</a>
-  <a data-u="js3" href="java${"\tscript:alert(1)"}">js3</a>
-  <a data-u="js4" href="javascript:${"alert(1)"}">js4</a>
-  <a data-u="data" href="data:${"text/html"},">data</a>
-  <a data-u="safe" href="https://x.dev/${"a"}/b?q=${"c"}">safe</a>
-  <img data-u="img" src="/img/${"cat"}.png" />
+  <a data-u="js1" href=${`java${"script:"}alert(1)`}>js1</a>
+  <a data-u="js2" href=${`${"javascript:alert(1)"}x`}>js2</a>
+  <a data-u="js3" href=${`java${"\tscript:alert(1)"}`}>js3</a>
+  <a data-u="js4" href=${`javascript:${"alert(1)"}`}>js4</a>
+  <a data-u="data" href=${`data:${"text/html"},`}>data</a>
+  <a data-u="safe" href=${`https://x.dev/${"a"}/b?q=${"c"}`}>safe</a>
+  <img data-u="img" src=${`/img/${"cat"}.png`} />
 `;
 
 const secZone = document.createElement("div");
@@ -213,9 +218,9 @@ secTpl.mount(secZone);
 // --- SVG / custom elements / ARIA / data -------------------------------------
 
 const miscTpl = html`
-  <svg><use data-s="use" xlink:href="#icon-${"home"}"></use></svg>
-  <my-widget data-s="custom" class="x ${"y"}"></my-widget>
-  <div data-s="aria" aria-checked="a ${"b"}" data-x="d ${"e"}"></div>
+  <svg><use data-s="use" xlink:href=${`#icon-${"home"}`}></use></svg>
+  <my-widget data-s="custom" class=${`x ${"y"}`}></my-widget>
+  <div data-s="aria" aria-checked=${`a ${"b"}`} data-x=${`d ${"e"}`}></div>
 `;
 
 const miscZone = document.createElement("div");

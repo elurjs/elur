@@ -140,7 +140,10 @@ function streamChunks(value: unknown, state: RenderState): AsyncIterable<RenderC
                 const chunk = queue.shift()!;
                 if (chunk) yield chunk;
             }
-            if (producerError) throw producerError;
+            if (producerError) {
+                yield { type: "error", value: producerError instanceof Error ? producerError.message : String(producerError), index: -1 };
+                throw producerError;
+            }
             yield { type: "done", value: "", index: -1 };
             await task;
         },
@@ -238,7 +241,7 @@ async function* renderValueChunks(value: unknown, state: RenderState): AsyncGene
             if (seen.has(serialized)) {
                 console.warn(
                     `[elur] repeat(): duplicate key "${key}" during server render. ` +
-                        "Keys must be unique; entries after the first will leak during hydration.",
+                    "Keys must be unique; entries after the first will leak during hydration.",
                 );
             }
             seen.add(serialized);

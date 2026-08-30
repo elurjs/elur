@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("partial attribute interpolation — reactivity (browser DOM)", () => {
+test.describe("reactive attributes — reactivity (browser DOM)", () => {
     test.beforeEach(async ({ page }) => {
         await page.goto("/mount");
     });
@@ -38,7 +38,7 @@ test.describe("partial attribute interpolation — reactivity (browser DOM)", ()
         await expect(page.locator('[data-r="mix"]')).toHaveClass("s-sm c-static");
     });
 
-    test("propiedad value con parcial", async ({ page }) => {
+    test("propiedad value reactivo", async ({ page }) => {
         await expect(page.locator('[data-r="prop"]')).toHaveValue("pre-lg");
         await page.evaluate(() => window.__elur.setSize("md"));
         await expect(page.locator('[data-r="prop"]')).toHaveValue("pre-md");
@@ -64,7 +64,7 @@ test.describe("partial attribute interpolation — reactivity (browser DOM)", ()
         await expect(page.locator('[data-r="disabledTrue"]')).not.toBeDisabled();
     });
 
-    test("evento @click en elemento con atributos parciales", async ({ page }) => {
+    test("evento @click en elemento con atributos compuestos", async ({ page }) => {
         await expect(page.locator('[data-x="evt"]')).toHaveClass("btn b");
         await expect(page.locator('[data-x="evt"]')).toHaveAttribute("id", "i");
         await page.locator('[data-x="evt"]').click();
@@ -73,7 +73,7 @@ test.describe("partial attribute interpolation — reactivity (browser DOM)", ()
         expect(await page.evaluate(() => window.__elur.getClickCount())).toBe(2);
     });
 
-    test("show/hide completos coexisten con parciales", async ({ page }) => {
+    test("show/hide completos coexisten con atributos compuestos", async ({ page }) => {
         await expect(page.locator('[data-x="show"]')).toBeVisible();
         await expect(page.locator('[data-x="hide"]')).toBeHidden();
         await page.evaluate(() => window.__elur.setFlag(false));
@@ -82,14 +82,14 @@ test.describe("partial attribute interpolation — reactivity (browser DOM)", ()
         await expect(page.locator('[data-x="show"]')).toBeVisible();
     });
 
-    test("style parcial con dos segmentos", async ({ page }) => {
+    test("style con dos segmentos", async ({ page }) => {
         await expect(page.locator('[data-x="style"]')).toHaveAttribute(
             "style",
             "color: red; font-size: 14px",
         );
     });
 
-    test("Unicode y entidades en valores parciales", async ({ page }) => {
+    test("Unicode y entidades en valores compuestos", async ({ page }) => {
         await expect(page.locator('[data-x="unicode"]')).toHaveAttribute(
             "title",
             "héllo wörld 🎉 ñ",
@@ -104,7 +104,7 @@ test.describe("partial attribute interpolation — reactivity (browser DOM)", ()
         await expect(page.locator('[data-x="quotes"]')).toHaveAttribute("title", 'say "hi" x');
     });
 
-    test("múltiples mounts del mismo template con parciales", async ({ page }) => {
+    test("múltiples mounts del mismo template", async ({ page }) => {
         await expect(page.locator('[data-m="multi"]')).toHaveCount(2);
         await expect(page.locator('[data-m="multi"]').nth(0)).toHaveClass("m-v");
         await expect(page.locator('[data-m="multi"]').nth(1)).toHaveClass("m-v");
