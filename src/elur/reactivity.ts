@@ -19,6 +19,23 @@ interface _ReactivityGlobalState {
     notifyBuf: ((() => void) | null)[];
     notifyBase: number;
     signalDebugHooks: _SignalDebugHooks | null;
+    /**
+     * @internal Multi-subscriber registry backing `signalDebugHooks`.
+     * The hot path always reads the single `signalDebugHooks` object; this
+     * set only exists so devtools-style consumers can coexist.
+     */
+    signalDebugHookSet?: Set<_SignalDebugHooks>;
+    /**
+     * @internal Component debug hooks live here (not module-local) so they
+     * work across duplicated module instances. Managed by lifecycle.ts.
+     */
+    componentDebugHooks?: {
+        onMountStart?: (inst: unknown) => void;
+        onMountEnd?: (inst: unknown) => void;
+        onUnmount?: (inst: unknown) => void;
+    } | null;
+    /** @internal Multi-subscriber registry backing `componentDebugHooks`. */
+    componentDebugHookSet?: Set<NonNullable<_ReactivityGlobalState["componentDebugHooks"]>>;
 }
 
 function _createReactivityState(): _ReactivityGlobalState {
@@ -43,7 +60,17 @@ const _reactivityStateKey = Symbol.for("@elurjs/core/reactivity-state");
 const _globalObj = globalThis as Record<PropertyKey, unknown>;
 const _state = (() => {
     const existing = _globalObj[_reactivityStateKey] as _ReactivityGlobalState | undefined;
-    if (existing) return existing;
+    if (existing) {
+        // Another module may have pre-created the state object with only a
+        // subset of fields (e.g. lifecycle.ts registering component hooks
+        // before this module evaluated). Fill in any missing defaults.
+        const defaults = _createReactivityState() as unknown as Record<string, unknown>;
+        const target = existing as unknown as Record<string, unknown>;
+        for (const key of Object.keys(defaults)) {
+            if (!(key in target)) target[key] = defaults[key];
+        }
+        return existing;
+    }
     const created = _createReactivityState();
     _globalObj[_reactivityStateKey] = created;
     return created;
@@ -105,8 +132,56 @@ export interface _SignalDebugHooks {
     onWrite?: (signal: Signal<any>, value: unknown) => void;
 }
 
+/**
+ * Keeps `signalDebugHooks` as a single object on the hot path. Only when
+ * more than one subscriber is registered do we install a dispatcher.
+ */
+function _syncSignalDebugHooks(): void {
+    const set = _state.signalDebugHookSet;
+    if (!set || set.size === 0) {
+        _state.signalDebugHooks = null;
+        return;
+    }
+    if (set.size === 1) {
+        _state.signalDebugHooks = set.values().next().value ?? null;
+        return;
+    }
+    _state.signalDebugHooks = {
+        onCreate(signal, initialValue) {
+            for (const hooks of set) hooks.onCreate?.(signal, initialValue);
+        },
+        onWrite(signal, value) {
+            for (const hooks of set) hooks.onWrite?.(signal, value);
+        },
+    };
+}
+
 export function _setSignalDebugHooks(hooks: _SignalDebugHooks | null): void {
-    _state.signalDebugHooks = hooks;
+    const set = new Set<_SignalDebugHooks>();
+    if (hooks) set.add(hooks);
+    _state.signalDebugHookSet = set;
+    _syncSignalDebugHooks();
+}
+
+/**
+ * @internal — Adds a debug hook subscriber WITHOUT replacing existing ones
+ * (unlike `_setSignalDebugHooks`). Returns an unsubscribe function.
+ * Zero cost when no subscribers are registered: the setter keeps reading a
+ * single `signalDebugHooks` object.
+ */
+export function _addSignalDebugHooks(hooks: _SignalDebugHooks): () => void {
+    let set = _state.signalDebugHookSet;
+    if (!set) {
+        set = new Set<_SignalDebugHooks>();
+        if (_state.signalDebugHooks) set.add(_state.signalDebugHooks);
+        _state.signalDebugHookSet = set;
+    }
+    set.add(hooks);
+    _syncSignalDebugHooks();
+    return () => {
+        set.delete(hooks);
+        _syncSignalDebugHooks();
+    };
 }
 
 /** @internal — notify buffer capacity, exposed for tests. */

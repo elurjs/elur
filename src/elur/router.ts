@@ -3,7 +3,8 @@ import type { Signal } from "./reactivity.js";
 import { ElurComponent } from "./lifecycle.js";
 import type { ElurTemplate } from "./template/index.js";
 import { html } from "./template/index.js";
-import { createInjectionKey, inject } from "./context.js";
+import { inject } from "./context.js";
+import { RouterKey, _mountedRouters, _debugRegisterRouter, _debugUnregisterRouter } from "./router-registry.js";
 
 // =============================================================================
 //  Public types
@@ -131,7 +132,10 @@ export interface Router {
     afterEach(hook: AfterEachHook): () => void;
 }
 
-export const RouterKey = createInjectionKey<Router>("elur:router");
+// RouterKey and the mounted-router debug registry live in router-registry.ts
+// so that component.ts (mount) can use them without importing this module —
+// keeping the router out of bundles that never call createRouter().
+export { RouterKey, _debugRegisterRouter, _debugUnregisterRouter };
 
 // =============================================================================
 //  Internals
@@ -161,10 +165,6 @@ interface RouterInternal extends Router {
 
 let _currentRouter: RouterInternal | null = null;
 let _currentPopstateCleanup: (() => void) | null = null;
-
-// Routers injected via mount({ router }) are not the global singleton. DevTools
-// tracks them separately so it can inspect the router actually active in the UI.
-const _mountedRouters: Router[] = [];
 
 const SCROLL_STATE_KEY = "__elur_scroll";
 const POSITION_STATE_KEY = "__elur_pos";
@@ -1002,19 +1002,6 @@ export interface _RouterDebugInternal {
     query: Record<string, string>;
     matchedPath: string | null;
     activeGuards: { globalCount: number; hasRouteGuard: boolean; names: string[] };
-}
-
-/** @internal Register a router that was injected via mount({ router }). */
-export function _debugRegisterRouter(router: Router): void {
-    const idx = _mountedRouters.indexOf(router);
-    if (idx >= 0) _mountedRouters.splice(idx, 1);
-    _mountedRouters.push(router);
-}
-
-/** @internal Unregister a router when its mount point is unmounted. */
-export function _debugUnregisterRouter(router: Router): void {
-    const idx = _mountedRouters.indexOf(router);
-    if (idx >= 0) _mountedRouters.splice(idx, 1);
 }
 
 export function _debugGetRouterInternal(): _RouterDebugInternal | null {

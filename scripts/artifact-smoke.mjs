@@ -4,7 +4,7 @@
 //
 // Run after `npm run build:lib`:
 //   npm run test:artifact
-import { readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
@@ -72,6 +72,17 @@ try {
     check("CJS SSR renders", cjsOut.includes("a") && cjsOut.includes("b") && !cjsOut.includes("[object Object]"));
 } catch (error) {
     check("CJS artifact load", false, `-> ${error.message}`);
+}
+
+// 6. Tree-shaking guard: mount() must not pull the router into consumer bundles.
+//    component.js may only reference the tiny router-registry module, never
+//    the full router module.
+for (const ext of ["js", "cjs"]) {
+    const componentSrc = readFileSync(`${libDir}/component.${ext}`, "utf8");
+    check(
+        `component.${ext} does not import the router module`,
+        !/["']\.\/(elur\/)?router\.[jt]s["']|require\(["']\.\/(elur\/)?router\.(js|cjs)["']\)/.test(componentSrc),
+    );
 }
 
 if (failures.length > 0) {

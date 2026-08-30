@@ -87,20 +87,90 @@ export interface _ComponentDebugHooks {
     onUnmount?: (inst: ElurComponent) => void;
 }
 
-let _componentDebugHooks: _ComponentDebugHooks | null = null;
+/**
+ * The registry lives in the shared reactivity global state
+ * (`Symbol.for("@elurjs/core/reactivity-state")`) rather than in module-local
+ * state, so hooks work even when the package ends up duplicated in a bundle.
+ */
+interface _ComponentHookState {
+    componentDebugHooks?: _ComponentDebugHooks | null;
+    componentDebugHookSet?: Set<_ComponentDebugHooks>;
+}
+
+const _reactivityStateKey = Symbol.for("@elurjs/core/reactivity-state");
+
+function _hookState(): _ComponentHookState {
+    const g = globalThis as Record<PropertyKey, unknown>;
+    let state = g[_reactivityStateKey] as _ComponentHookState | undefined;
+    if (!state) {
+        // reactivity.ts merges its defaults into this object when it loads.
+        state = {};
+        g[_reactivityStateKey] = state;
+    }
+    return state;
+}
+
+/** Single dispatcher on the hot path; the set is only for bookkeeping. */
+function _syncComponentDebugHooks(state: _ComponentHookState): void {
+    const set = state.componentDebugHookSet;
+    if (!set || set.size === 0) {
+        state.componentDebugHooks = null;
+        return;
+    }
+    if (set.size === 1) {
+        state.componentDebugHooks = set.values().next().value ?? null;
+        return;
+    }
+    state.componentDebugHooks = {
+        onMountStart(inst) {
+            for (const hooks of set) hooks.onMountStart?.(inst);
+        },
+        onMountEnd(inst) {
+            for (const hooks of set) hooks.onMountEnd?.(inst);
+        },
+        onUnmount(inst) {
+            for (const hooks of set) hooks.onUnmount?.(inst);
+        },
+    };
+}
 
 export function _setComponentDebugHooks(hooks: _ComponentDebugHooks | null): void {
-    _componentDebugHooks = hooks;
+    const state = _hookState();
+    const set = new Set<_ComponentDebugHooks>();
+    if (hooks) set.add(hooks);
+    state.componentDebugHookSet = set;
+    _syncComponentDebugHooks(state);
+}
+
+/**
+ * @internal — Adds a component debug hook subscriber WITHOUT replacing
+ * existing ones (unlike `_setComponentDebugHooks`). Returns an unsubscribe
+ * function. Zero cost when no subscribers are registered.
+ */
+export function _addComponentDebugHooks(hooks: _ComponentDebugHooks): () => void {
+    const state = _hookState();
+    let set = state.componentDebugHookSet;
+    if (!set) {
+        set = new Set<_ComponentDebugHooks>();
+        if (state.componentDebugHooks) set.add(state.componentDebugHooks);
+        state.componentDebugHookSet = set;
+    }
+    set.add(hooks);
+    _syncComponentDebugHooks(state);
+    return () => {
+        set.delete(hooks);
+        _syncComponentDebugHooks(state);
+    };
 }
 
 export function _debugComponentMountStart(inst: ElurComponent): void {
-    _componentDebugHooks?.onMountStart?.(inst);
+    _hookState().componentDebugHooks?.onMountStart?.(inst);
 }
 
 export function _debugComponentMountEnd(inst: ElurComponent): void {
-    _componentDebugHooks?.onMountEnd?.(inst);
+    _hookState().componentDebugHooks?.onMountEnd?.(inst);
 }
 
 export function _debugComponentUnmount(inst: ElurComponent): void {
-    _componentDebugHooks?.onUnmount?.(inst);
+    _hookState().componentDebugHooks?.onUnmount?.(inst);
 }

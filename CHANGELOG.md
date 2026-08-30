@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.6.0
+
+### Added
+
+- **Multi-subscriber debug hooks** — new `_addSignalDebugHooks()` (signals)
+  and `_addComponentDebugHooks()` (lifecycle) register a debug hook subscriber
+  without replacing existing ones and return an unsubscribe function. The
+  existing `_setSignalDebugHooks()` / `_setComponentDebugHooks()` keep their
+  replace semantics. This lets multiple devtools-style consumers (the in-page
+  overlay, the `@elurjs/devtools-backend` browser-extension backend, tests)
+  coexist. Zero cost when no subscribers are registered: the reactive setter
+  keeps reading a single `signalDebugHooks` object; a dispatcher is only
+  installed when more than one subscriber exists.
+- **Component debug hooks now live in the shared global reactivity state**
+  (`Symbol.for("@elurjs/core/reactivity-state")`) instead of module-local
+  state, so they keep working when the package is duplicated in a bundle.
+
 ## v3.5.1
 
 ### Changed

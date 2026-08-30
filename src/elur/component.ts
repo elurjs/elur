@@ -7,7 +7,8 @@ import {
     type ElurComponent,
 } from "./lifecycle.js";
 import { _pushComponentContext, _popComponentContext, provide } from "./context.js";
-import { RouterKey, type Router, _debugRegisterRouter, _debugUnregisterRouter } from "./router.js";
+import { RouterKey, _debugRegisterRouter, _debugUnregisterRouter } from "./router-registry.js";
+import type { Router } from "./router.js";
 
 export interface MountOptions {
     router?: Router;
