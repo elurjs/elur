@@ -1,6 +1,6 @@
 {
   "name": "@elurjs/core",
-  "version": "3.6.0",
+  "version": "3.6.1",
   "description": "A lightweight, fully reactive framework — no virtual DOM, no compiler, just signals and tagged templates.",
   "license": "MIT",
   "author": "Deiver Vasquez",
@@ -60,6 +60,14 @@
       },
       "import": "./dist/lib/store.js",
       "require": "./dist/lib/store.cjs"
+    },
+    "./plugins": {
+      "types": {
+        "import": "./dist/lib/elur/plugins.d.ts",
+        "require": "./dist/lib/elur/plugins.d.cts"
+      },
+      "import": "./dist/lib/plugins.js",
+      "require": "./dist/lib/plugins.cjs"
     },
     "./async": {
       "types": {
@@ -139,6 +147,9 @@
       ],
       "store": [
         "./dist/lib/elur/store.d.ts"
+      ],
+      "plugins": [
+        "./dist/lib/elur/plugins.d.ts"
       ],
       "async": [
         "./dist/lib/elur/async.d.ts"
