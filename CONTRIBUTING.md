@@ -98,12 +98,7 @@ bun install
 # or
 npm install
 
-# 4. Start the development server
-bun run dev
-# or
-npm run dev
-
-# 5. Run the tests to make sure everything works
+# 4. Run the tests to make sure everything works
 bun run test
 # or
 npm run test
@@ -113,12 +108,13 @@ npm run test
 
 | Script | Description |
 |---|---|
-| `dev` | Start the Vite development server |
-| `build` | Build the project (TypeScript compilation + Vite build) |
-| `build:lib` | Build the library for publishing |
-| `preview` | Preview the production build locally |
+| `build` | Build the library for publishing (alias of `build:lib`) |
+| `build:lib` | Build the library (Vite lib build + TypeScript declarations + `.d.cts` copy) |
 | `test` | Run tests with Vitest |
+| `test:e2e` | Run Playwright end-to-end tests |
 | `typecheck` | Run TypeScript type checking without emitting files |
+| `check:types` | Verify published package types with `@arethetypeswrong/cli` |
+| `test:artifact` | Smoke test on the built `dist/lib` artifact |
 
 ### Recommended Editor Extensions
 
@@ -195,7 +191,7 @@ git commit -m "WIP"
 
 Before submitting your Pull Request, please make sure:
 
-- [ ] Your code builds without errors (`npm run build` or `bun run build`)
+- [ ] Your code builds without errors (`npm run build:lib` or `bun run build:lib`)
 - [ ] All existing tests pass (`npm run test` or `bun run test`)
 - [ ] You've added tests for any new functionality
 - [ ] TypeScript type checking passes (`npm run typecheck` or `bun run typecheck`)

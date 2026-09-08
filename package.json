@@ -196,9 +196,7 @@
     "node": ">=20.19.0"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
+    "build": "bun run build:lib",
     "build:lib": "vite build --config vite.lib.config.ts && tsc --project tsconfig.lib.json && node scripts/copy-dcts.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
