@@ -33,12 +33,12 @@ export function normalizeRepeatKey(key: unknown, index: number): RepeatKey {
     if (typeof key === "string" || typeof key === "number") return key;
     console.warn(
         `[elur] repeat(): key at index ${index} is not a string or number (got ${typeof key}); ` +
-            `using positional fallback. Non-serializable keys cannot preserve identity across SSR/hydration.`,
+        `using positional fallback. Non-serializable keys cannot preserve identity across SSR/hydration.`,
     );
     return `__elur-key:${index}`;
 }
 
-export function utf8ToBase64(value: string): string {
+function utf8ToBase64(value: string): string {
     const bytes = new TextEncoder().encode(value);
     let binary = "";
     for (let i = 0; i < bytes.length; i += 0x8000) {
@@ -47,7 +47,7 @@ export function utf8ToBase64(value: string): string {
     return btoa(binary);
 }
 
-export function utf8FromBase64(value: string): string {
+function utf8FromBase64(value: string): string {
     const binary = atob(value);
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
