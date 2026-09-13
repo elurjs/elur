@@ -119,4 +119,30 @@ export function getSequence(arr: Int32Array | number[]): number[] {
     return result;
 }
 
+/**
+ * C.16.4: igualdad shallow de items de lista — misma key + objeto nuevo con
+ * campos idénticos → el row se conserva (DOM, estado, bindings). Cualquier
+ * campo distinto → re-mount in-place (los bindings capturaron el objeto
+ * viejo por valor y no hay accessors que actualizar). Identidad `===`
+ * primero (fast path para el caso común: mismos objetos reordenados).
+ *
+ * @internal — usado por keyed-diff (estable y next-2) y el runtime compilado.
+ */
+export function _keyedItemsEqual(a: unknown, b: unknown): boolean {
+    if (a === b) return true;
+    if (typeof a !== "object" || typeof b !== "object" || a === null || b === null) {
+        return false;
+    }
+    const ka = Object.keys(a as object);
+    const kb = Object.keys(b as object);
+    if (ka.length !== kb.length) return false;
+    for (let i = 0; i < ka.length; i++) {
+        const k = ka[i];
+        if ((a as Record<string, unknown>)[k] !== (b as Record<string, unknown>)[k]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 export type { KEntry };

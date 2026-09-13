@@ -4,7 +4,7 @@ import type { ElurComponent } from "../lifecycle.js";
 import { _pushComponentContext, _popComponentContext } from "../context.js";
 import type { ElurTemplate, ElurMountHandle, ErrorFallback } from "./types.js";
 import { COMMENT } from "./types.js";
-import { _mountComponentSilent } from "./mount-helpers.js";
+import { _deferOnMount, _mountComponentSilent, _postMountScopeSub } from "./mount-helpers.js";
 
 // =============================================================================
 // --- Error Boundary ---
@@ -35,6 +35,7 @@ export function createErrorBoundary(
             parent.insertBefore(marker, before);
 
             let activeCleanup: (() => void) | null = null;
+            const runActive = (): void => { activeCleanup?.(); };
             let errored = false;
             let initialRenderDone = false;
             let deferredError: unknown = undefined;
@@ -110,35 +111,42 @@ export function createErrorBoundary(
 
             _pushErrorHandler(handleReactiveError);
             try {
-                if (isElurComponent(content)) {
-                    _pushComponentContext();
-                    try {
-                        try { content.onInit?.(); } catch (e) {
-                            if (content.onError) content.onError(e); else throw e;
-                        }
-                        activeCleanup = content.render()._render(parent, before);
-                    } finally {
-                        _popComponentContext();
-                    }
-                    if (!errored) {
+                // Sub-cola de onMount: si el contenido lanza, sus hooks
+                // diferidos se descartan; si no, se fusionan a la cola del
+                // render externo y corren post-commit.
+                _postMountScopeSub(() => {
+                    if (isElurComponent(content)) {
+                        _pushComponentContext();
                         try {
-                            const ret = content.onMount?.();
-                            const prev = activeCleanup;
-                            activeCleanup = () => {
-                                try { content.onUnmount?.(); } catch { /* ignore */ }
-                                if (typeof ret === "function") try { ret(); } catch { /* ignore */ }
-                                prev?.();
-                            };
-                        } catch (e) {
-                            if (content.onError) content.onError(e); else throw e;
+                            try { content.onInit?.(); } catch (e) {
+                                if (content.onError) content.onError(e); else throw e;
+                            }
+                            activeCleanup = content.render()._render(parent, before);
+                        } finally {
+                            _popComponentContext();
                         }
+                        if (!errored) {
+                            _deferOnMount(() => {
+                                try {
+                                    const ret = content.onMount?.();
+                                    const prev = activeCleanup;
+                                    activeCleanup = () => {
+                                        try { content.onUnmount?.(); } catch { /* ignore */ }
+                                        if (typeof ret === "function") try { ret(); } catch { /* ignore */ }
+                                        prev?.();
+                                    };
+                                } catch (e) {
+                                    if (content.onError) content.onError(e); else throw e;
+                                }
+                            });
+                        }
+                    } else {
+                        activeCleanup = content._render(parent, before);
                     }
-                } else {
-                    activeCleanup = content._render(parent, before);
-                }
+                });
             } catch (err) {
                 errored = true;
-                activeCleanup?.();
+                runActive();
                 activeCleanup = null;
                 deferredError = err;
                 hasDeferredError = true;
@@ -148,7 +156,7 @@ export function createErrorBoundary(
             }
 
             if (hasDeferredError) {
-                activeCleanup?.();
+                runActive();
                 activeCleanup = null;
                 renderFallback(deferredError);
             }

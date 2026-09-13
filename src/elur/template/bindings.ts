@@ -1,5 +1,6 @@
-import { effect } from "../reactivity.js";
+import { effect, Signal, _bindSignal } from "../reactivity.js";
 import type { ElurRef, TemplateBindingContext } from "./types.js";
+import { isDerivedBinding } from "./types.js";
 import { activateNodeBinding } from "./node-binding.js";
 import { queueDOMWrite } from "./dom-write.js";
 import { isUrlAttrName, isExecutableAttrName, sanitizeUrl } from "./sanitize.js";
@@ -260,7 +261,11 @@ export function _activateBindingsWithNodes(
 
     for (let i = 0; i < contexts.length; i++) {
         const ctx = contexts[i];
-        const value = values[i];
+        let value = values[i];
+        // C.7 T2: desenvolver el pack derivado a getter — cubre todos los
+        // paths aguas abajo (attr, show/hide, prop, etc.) con tracking
+        // dinámico — semántica idéntica al getter genérico.
+        if (isDerivedBinding(value)) value = value.get;
         const info = pathMap[i];
         if (!info) continue;
 
@@ -359,6 +364,21 @@ export function _activateBindingsWithNodes(
             const isUrl = ctx.url ?? isUrlAttrName(attrName);
 
             const isDomProp = (attrName === "value" || attrName === "checked" || attrName === "selected") && attrName in element;
+
+            // C.6 T1: la señal viaja como valor — edge directa, sin getter.
+            if (value instanceof Signal) {
+                disposes.push(_bindSignal(value, (v) => {
+                    if (isDomProp) {
+                        (element as any)[attrName] = v ?? "";
+                    } else if (v == null || v === false) {
+                        element.removeAttribute(attrName);
+                    } else {
+                        const s = String(v);
+                        element.setAttribute(attrName, isUrl ? sanitizeUrl(s) : s);
+                    }
+                }));
+                continue;
+            }
 
             if (typeof value === "function") {
                 let queued = false;

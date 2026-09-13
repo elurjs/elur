@@ -1,29 +1,5 @@
-// =============================================================================
-// --- DOM Write Batching (Microtask Queue) ---
-// =============================================================================
+// Elur 3.7-beta: la cola DOM tipada vive en `../next-2/dom-write.ts`
+// (superset: `queueDOMWrite` + `queueDomWrite(id, kind, write)` con
+// dedup last-write-wins). Re-export para conservar la ruta canónica.
 
-const _domWriteQueue = new Set<() => void>();
-let _isDomWriteScheduled = false;
-
-/**
- * Queues a DOM mutation to run in the next microtask.
- * Avoids Layout Thrashing by grouping multiple writes into a single frame.
- */
-export function queueDOMWrite(task: () => void): void {
-    _domWriteQueue.add(task);
-    if (!_isDomWriteScheduled) {
-        _isDomWriteScheduled = true;
-        queueMicrotask(() => {
-            for (const t of _domWriteQueue) {
-                try {
-                    t();
-                } catch (e) {
-                    // Evitamos que un error rompa el hilo entero
-                    console.error("[Elur] Error in DOM write task:", e);
-                }
-            }
-            _domWriteQueue.clear();
-            _isDomWriteScheduled = false;
-        });
-    }
-}
+export * from "../next-2/dom-write.js";

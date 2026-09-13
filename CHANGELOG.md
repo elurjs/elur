@@ -2,6 +2,96 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.7.0-beta.0
+
+Prerelease del canal beta de Elur Next (ver
+`docs/planes/estrategia-beta-elur-next.md`). **El motor reactivo por
+defecto ES `next-2`** (push-pull versionado, computeds lazy, owners,
+glitch-free): las rutas canónicas (`./reactivity`, `./component`,
+`./hydrate`, `template/{keyed-diff,node-binding,mount-helpers,dom-write}`)
+re-exportan las implementaciones de `elur/next-2/`. La implementación
+clásica (≤3.6.x) queda en el historial de git.
+
+### Added
+
+- **Compiler descriptor metadata (C.12)** — `TemplateDescriptor` ahora
+  expone `ssr` (renderer especializado emitido por el plugin),
+  `blocks` (bloques reconocibles: `each`, `portal`) y `dev.id`
+  (identidad estable de template para tooling/errores). Los tres son
+  aditivos: descriptores viejos degradan limpio.
+- **`descriptor.hydrate` (C.13)** — hidratación compilada por posición;
+  el runtime del plugin localiza markers y delega en
+  `_hydrateNodeRange` con la misma semántica que el scan global.
+- **Bindings T1/T2** — `_bindSignal` (suscripción directa signal→DOM sin
+  effect), `_bindDerived`/`isDerivedBinding` (packs derivados con
+  tracking dinámico) en mount, hydrate y SSR.
+- **`elur-ki:` keyed adoption** — hidratación adopta entries keyed del
+  SSR por marker en vez de remontarlas.
+- **Post-mount lifecycle queue** — `_postMountScope`, `_deferOnMount`,
+  `_postMountScopeSub` (internal): los `onMount` de componentes
+  montados dentro de un render se difieren hasta que el DOM hace
+  commit. Aplica a transitions, error boundaries, portals, router y
+  keyed lists — hijos antes que padre, siempre post-commit.
+- **Experimental `next-2` engine** — ahora motor por defecto:
+  push-pull reactivity, linked nodes, lazy computeds, owners,
+  `defineComponent`, `repeatLive`, `liveList` con deltas (C.16.1/C.16.3).
+  Subpath `./signals` expone además `createRoot`, `getOwner`,
+  `runWithOwner`, `onCleanup`, `constSignal`, `Owner`, `Disposable`,
+  `ReactiveCycleError`.
+- **Link pooling (F3)** — freelist de `Link` del grafo: los edges se
+  reciclan tras salir de ambas listas intrusivas (sources del consumer +
+  consumers del producer); menos churn de alloc en create/clear masivos.
+- **Scheduler de 3 niveles (F5)** — `next-2/scheduler.ts`:
+  `inputPending()` (`navigator.scheduling.isInputPending`, lazy),
+  `yieldControl()` (`scheduler.yield` → MessageChannel → `setTimeout(0)`)
+  y `scheduleTask(task, priority)` (`scheduler.postTask` con prioridades
+  reales → microtask/macrotask de fallback). `flushEffects` cede el hilo
+  cuando quedan >256 user-effects y hay input pendiente — los render
+  writes nunca ceden (feedback visual en el mismo turno, INP). Sin
+  `navigator.scheduling` el flush es 100% síncrono.
+- **`repeat` preserva items no cambiados (F8)** — misma key + item
+  `Object.is`/shallow-equal → entry conservada sin re-trabajo (coste 0
+  por item estable); misma key + item distinto → remount in-place.
+  Aplica al keyed-diff estable, next-2 no-live y `liveList` (salta el
+  write de `itemSig` en igual).
+- **Owner cleanup O(1)** — los hijos de un owner forman lista enlazada
+  intrusiva (`childrenHead`/`nextOwned`/`prevOwned`/`childCount`):
+  disponer un binding es O(1) en vez de `indexOf`+`splice` O(n) — el
+  clear de N filas deja de ser cuadrático.
+- **`moveBefore` con feature-detect** — reorders preservan estado del
+  nodo (iframe/focus/animaciones) en Chrome 133+/Firefox 144+; fallback
+  a `insertBefore` idéntico en el resto.
+- **Single-root keyed entries sin markers** — una fila de un nodo usa el
+  propio nodo como `start`/`end` (−2 text nodes por fila).
+
+### Fixed
+
+- **`onMount` pre-commit en wrappers** — transition, error-boundary,
+  portal y router llamaban `onMount` síncrono con el subárbol aún en un
+  fragment detached. Ahora se difiere hasta el commit real.
+- **`unmount()` idempotente** — `mount()` y `Template.mount()` ya no
+  disparan `onUnmount`/cleanup dos veces en doble unmount.
+- **Hydrate `warn-remount` saltaba el lifecycle** — el remount tras
+  mismatch usaba `render()._render()` crudo (sin `onInit`/`onMount`/
+  `onUnmount`). Ahora monta por `_mountComponent` completo.
+- **Error boundary descarta hooks huérfanos** — si el contenido lanza
+  durante mount, sus `onMount` diferidos se descartan en una sub-cola
+  aislada en vez de filtrarse al padre.
+- **`Range.deleteContents` patológico** — reconcile de keyed lists y el
+  direct-repeat compilado usaban `Range` para borrados masivos;
+  happy-dom/jsdom lo ejecutan ~37.000× más lento que sibling-walk.
+  Sustituido por walk de siblings O(n) en estable, `next/` y `next-2/`
+  (neutro en browsers; mismo patrón que Solid). `compiled-list-remove`
+  de 7.4 s a 0.03 ms en benchmark.
+- **`__elurCompose`/`__elurAttr` desenvuelven signals** — un signal en
+  attr compuesto producía `[object Object]` en cliente y SSR.
+
+### Changed
+
+- **Matriz G** — nueva suite `matrix-g.test.ts` parametrizada (2 tipos
+  de componente × ~15 contextos × invariantes de lifecycle) que corre
+  bajo las 3 líneas de engine (estable, `next`, `next-2`).
+
 ## v3.6.2
 
 ### Fixed

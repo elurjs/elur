@@ -382,4 +382,84 @@ describe("Node binding: repeat() keyed list", () => {
 
         expect(onUnmount).toHaveBeenCalledOnce();
     });
+
+    // C.16.2 — fast paths prefix/suffix: insert/remove sin Map/LIS, con
+    // identidad de nodo preservada en los tramos comunes.
+    it("C.16 append puro preserva todos los nodos", async () => {
+        const items = signal([1, 2, 3]);
+        const el = document.createElement("div");
+        html`<ul>${() => repeat(items.value, (n) => n, (n) => html`<li>${n}</li>`)}</ul>`.mount(el);
+        const before = [...el.querySelectorAll("li")];
+
+        items.value = [1, 2, 3, 4, 5];
+        await nextTick();
+
+        const after = [...el.querySelectorAll("li")];
+        expect(after.map((l) => l.textContent)).toEqual(["1", "2", "3", "4", "5"]);
+        expect(after[0]).toBe(before[0]);
+        expect(after[1]).toBe(before[1]);
+        expect(after[2]).toBe(before[2]);
+    });
+
+    it("C.16 prepend puro preserva todos los nodos", async () => {
+        const items = signal([2, 3]);
+        const el = document.createElement("div");
+        html`<ul>${() => repeat(items.value, (n) => n, (n) => html`<li>${n}</li>`)}</ul>`.mount(el);
+        const before = [...el.querySelectorAll("li")];
+
+        items.value = [0, 1, 2, 3];
+        await nextTick();
+
+        const after = [...el.querySelectorAll("li")];
+        expect(after.map((l) => l.textContent)).toEqual(["0", "1", "2", "3"]);
+        expect(after[2]).toBe(before[0]);
+        expect(after[3]).toBe(before[1]);
+    });
+
+    it("C.16 insert en medio (prefix+suffix) preserva vecinos", async () => {
+        const items = signal([1, 2, 3]);
+        const el = document.createElement("div");
+        html`<ul>${() => repeat(items.value, (n) => n, (n) => html`<li>${n}</li>`)}</ul>`.mount(el);
+        const before = [...el.querySelectorAll("li")];
+
+        items.value = [1, 9, 2, 3]; // 9 entre 1 y 2
+        await nextTick();
+
+        const after = [...el.querySelectorAll("li")];
+        expect(after.map((l) => l.textContent)).toEqual(["1", "9", "2", "3"]);
+        expect(after[0]).toBe(before[0]);
+        expect(after[2]).toBe(before[1]);
+        expect(after[3]).toBe(before[2]);
+    });
+
+    it("C.16 remove en medio (ventana Range) preserva vecinos", async () => {
+        const items = signal([1, 2, 3, 4, 5]);
+        const el = document.createElement("div");
+        html`<ul>${() => repeat(items.value, (n) => n, (n) => html`<li>${n}</li>`)}</ul>`.mount(el);
+        const before = [...el.querySelectorAll("li")];
+
+        items.value = [1, 4, 5]; // borra 2,3
+        await nextTick();
+
+        const after = [...el.querySelectorAll("li")];
+        expect(after.map((l) => l.textContent)).toEqual(["1", "4", "5"]);
+        expect(after[0]).toBe(before[0]);
+        expect(after[1]).toBe(before[3]);
+        expect(after[2]).toBe(before[4]);
+    });
+
+    it("C.16 truncate de cola preserva la cabeza", async () => {
+        const items = signal([1, 2, 3, 4]);
+        const el = document.createElement("div");
+        html`<ul>${() => repeat(items.value, (n) => n, (n) => html`<li>${n}</li>`)}</ul>`.mount(el);
+        const before = [...el.querySelectorAll("li")];
+
+        items.value = [1, 2];
+        await nextTick();
+
+        const after = [...el.querySelectorAll("li")];
+        expect(after.map((l) => l.textContent)).toEqual(["1", "2"]);
+        expect(after[0]).toBe(before[0]);
+        expect(after[1]).toBe(before[1]);
+    });
 });

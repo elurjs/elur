@@ -12,6 +12,58 @@ export interface TemplateDescriptor {
     readonly strings: readonly string[];
     readonly values: readonly unknown[];
     readonly contexts: readonly TemplateBindingContext[];
+    /**
+     * C.13: hidratación compilada — el codegen emite una función que activa
+     * los bindings por posición (access paths) en vez de un scan global de
+     * markers. Sólo los boundaries de contenido dinámico (`<!--elur-N-->`)
+     * siguen marcados en el HTML; `data-elur-*` no se emiten.
+     * `bounds` se pasa cuando el descriptor es anidado dentro de otro
+     * binding. Devuelve cleanup.
+     */
+    readonly hydrate?: (
+        root: ParentNode,
+        values: readonly unknown[],
+        options?: unknown,
+        bounds?: { start: Comment; end: Comment } | null,
+    ) => (() => void) | void;
+    /**
+     * C.12 fase 2: renderer SSR especializado — el codegen emite una función
+     * generadora que secuencia los chunks con los strings ya cortados
+     * (`attr=`/comillas pre-resueltos en build). Toda la semántica
+     * (resolución de valores, sanitización, markers, abort) sigue en los
+     * helpers `emit.*` del core — el artefacto compilado y el descriptor
+     * genérico producen exactamente el mismo HTML.
+     */
+    readonly ssr?: (
+        emit: SsrEmit,
+        values: readonly unknown[],
+    ) => AsyncGenerator<SsrChunk, void, unknown>;
+}
+
+/** Chunk producido por el renderer SSR especializado (descriptor.ssr). */
+export interface SsrChunk {
+    readonly type: "markup" | "boundary-start" | "boundary-end" | "error" | "done";
+    readonly value: string;
+    readonly index: number;
+}
+
+/** Ops que el core expone al renderer SSR especializado. */
+export interface SsrEmit {
+    /** Static markup, ya cortado en build. */
+    m(value: string): SsrChunk;
+    /** Binding node: boundaries + resolución + renderValueChunks. */
+    node(index: number, value: unknown): AsyncGenerator<SsrChunk, void, unknown>;
+    /** Binding attr: prefix + `name="v"` serializada + marker opcional. */
+    attr(
+        prefix: string,
+        index: number,
+        attrName: string,
+        url: boolean,
+        executable: boolean,
+        value: unknown,
+    ): Promise<SsrChunk[]>;
+    /** Binding event: marker data-elur-e o prefix recortado. */
+    event(index: number, prefix: string, eventName: string): SsrChunk;
 }
 
 export interface ServerRenderProtocolContext {
@@ -95,6 +147,12 @@ export interface KEntry {
     start: Comment;
     end: Comment;
     cleanup: () => void;
+    /**
+     * C.16.4: item que originó la entry — permite detectar
+     * "misma key, objeto nuevo" y re-montarla in-place. Opcional porque
+     * algunos paths (adopción vieja, internals) no lo registran.
+     */
+    item?: unknown;
 }
 
 /** Opaque token for a named portal target. */
@@ -142,5 +200,25 @@ export function isKeyedList(v: unknown): v is KeyedList {
         v != null &&
         typeof v === "object" &&
         (v as Record<string, unknown>).__isKeyedList === true
+    );
+}
+
+/** Marca del pack de binding derivado T2 emitido por el compilador. */
+export const ELUR_DERIVED = Symbol.for("elur.derived");
+
+export interface ElurDerivedBinding {
+    deps: unknown[];
+    get: () => unknown;
+}
+
+/**
+ * Detecta el pack `__elurDerive(dep…, getter)` del compilador. Symbol.for
+ * permite detección cross-module (plugin runtime vs core hydrate/SSR).
+ */
+export function isDerivedBinding(v: unknown): v is ElurDerivedBinding {
+    return (
+        v != null &&
+        typeof v === "object" &&
+        (v as Record<symbol, unknown>)[ELUR_DERIVED] === true
     );
 }

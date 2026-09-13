@@ -17,11 +17,12 @@ export { queueDOMWrite as _queueDOMWrite } from "./dom-write.js";
 
 export { sanitizeUrl, isUrlAttrName, isExecutableAttrName } from "./sanitize.js";
 
-export { repeat, getSequence as _getKeyedSequence } from "./keyed.js";
+export { repeat, getSequence as _getKeyedSequence, _keyedItemsEqual } from "./keyed.js";
 export {
     createKeyedMount as _createKeyedMount,
     reconcileKeyedList as _reconcileKeyedList,
 } from "./keyed-diff.js";
+export { _postMountScope, _postMountScopeSub, _deferOnMount } from "./mount-helpers.js";
 
 export { transition } from "./transitions.js";
 export type { TransitionOptions } from "./transitions.js";

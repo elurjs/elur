@@ -1,5 +1,6 @@
 import { ELUR_TEMPLATE_DESCRIPTOR, type ElurTemplate, type ElurMountHandle, type TemplateDescriptor } from "./types.js";
 import { detectContext, activateBindings } from "./bindings.js";
+import { _postMountScope } from "./mount-helpers.js";
 import type { BindingContext } from "./bindings.js";
 
 // =============================================================================
@@ -143,62 +144,70 @@ export function html(
     }
 
     function _render(parent: Node, before: Node | null): () => void {
-        const { tpl, pathMap } = getTemplateCache();
-        const fragment = tpl.content.cloneNode(true) as DocumentFragment;
+        // _postMountScope: los onMount de componentes montados dentro del
+        // fragment se disparan al commit del render más externo — nunca
+        // con el subárbol todavía detached.
+        return _postMountScope(() => {
+            const { tpl, pathMap } = getTemplateCache();
+            const fragment = tpl.content.cloneNode(true) as DocumentFragment;
 
-        const { disposes, postMountHooks } = activateBindings(
-            fragment, contexts, values, pathMap
-        );
+            const { disposes, postMountHooks } = activateBindings(
+                fragment, contexts, values, pathMap
+            );
 
-        const startMarker = document.createTextNode("");
-        const endMarker = document.createTextNode("")
+            const startMarker = document.createTextNode("");
+            const endMarker = document.createTextNode("")
 
-        parent.insertBefore(startMarker, before);
-        parent.insertBefore(fragment, before);
-        parent.insertBefore(endMarker, before);
+            parent.insertBefore(startMarker, before);
+            parent.insertBefore(fragment, before);
+            parent.insertBefore(endMarker, before);
 
-        postMountHooks.forEach((cb) => cb());
+            postMountHooks.forEach((cb) => cb());
 
-        return () => {
-            for (let i = disposes.length - 1; i >= 0; i--) {
-                disposes[i]();
-            }
-            let node = startMarker.nextSibling;
-            while (node && node !== endMarker) {
-                const next = node.nextSibling;
-                node.parentNode?.removeChild(node);
-                node = next;
-            }
-            startMarker.parentNode?.removeChild(startMarker);
-            endMarker.parentNode?.removeChild(endMarker);
-        };
+            return () => {
+                for (let i = disposes.length - 1; i >= 0; i--) {
+                    disposes[i]();
+                }
+                let node = startMarker.nextSibling;
+                while (node && node !== endMarker) {
+                    const next = node.nextSibling;
+                    node.parentNode?.removeChild(node);
+                    node = next;
+                }
+                startMarker.parentNode?.removeChild(startMarker);
+                endMarker.parentNode?.removeChild(endMarker);
+            };
+        });
     }
 
     const elurTemplate: ElurTemplate = {
-        __isElurTemplate: true,
-        [ELUR_TEMPLATE_DESCRIPTOR]: descriptor,
+            __isElurTemplate: true,
+            [ELUR_TEMPLATE_DESCRIPTOR]: descriptor,
 
-        _render,
+            _render,
 
-        mount(container: Element | string): ElurMountHandle {
-            const el =
-                typeof container === "string"
-                    ? (document.querySelector(container) as Element)
-                    : container;
+            mount(container: Element | string): ElurMountHandle {
+                const el =
+                    typeof container === "string"
+                        ? (document.querySelector(container) as Element)
+                        : container;
 
-            if (!el) {
-                throw new Error(`[elur] mount: contenedor no encontrado: ${container}`);
-            }
+                if (!el) {
+                    throw new Error(`[elur] mount: contenedor no encontrado: ${container}`);
+                }
 
-            const cleanup = _render(el, null);
+                const cleanup = _render(el, null);
 
-            return {
-                unmount() {
-                    cleanup();
-                },
-            };
-        },
-    };
+                let done = false;
+                return {
+                    unmount() {
+                        if (done) return;
+                        done = true;
+                        cleanup();
+                    },
+                };
+            },
+        };
 
-    return elurTemplate;
-}
+        return elurTemplate;
+    }

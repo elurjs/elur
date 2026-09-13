@@ -7,11 +7,14 @@ import {
     ELUR_RENDER_PROTOCOL,
     ELUR_TEMPLATE_DESCRIPTOR,
     type ServerRenderProtocolContext,
+    type SsrEmit,
     type TemplateBindingContext,
     type TemplateDescriptor,
 } from "../template/types.js";
 import { sanitizeUrl } from "../template/sanitize.js";
 import { normalizeRepeatKey, serializeRepeatKey } from "../template/keyed.js";
+import { Signal, untrack } from "../reactivity.js";
+import { isDerivedBinding } from "../template/types.js";
 
 // Local guards avoid sharing the same minified import binding name with
 // callback parameters in the same module (esbuild bug with shared chunks).
@@ -293,7 +296,59 @@ async function* renderComponentChunks(component: ElurComponent, state: RenderSta
     }
 }
 
+// C.12 fase 2: emit ops para el renderer SSR especializado (descriptor.ssr).
+// Replican exactamente la semántica del intérprete genérico — los strings
+// llegan pre-cortados desde el codegen (bindingCut/skipLeading en build).
+function makeSsrEmit(state: RenderState, compiledHydrate: boolean): SsrEmit {
+    return {
+        m: (value) => ({ type: "markup", value, index: -1 }),
+        node: async function* (index, value) {
+            if (state.markers) yield { type: "boundary-start", value: `<!--elur-${index}-->`, index };
+            try {
+                const resolved = await resolveBindingValue(value);
+                checkAbort(state);
+                yield* renderValueChunks(resolved, state);
+            } catch (error) {
+                state.onError?.(error, { index, context: "node", cause: error });
+                throw error;
+            }
+            if (state.markers) yield { type: "boundary-end", value: `<!--elur-end-${index}-->`, index };
+        },
+        attr: async (prefix, index, attrName, url, _executable, value) => {
+            const chunks: RenderChunk[] = [{ type: "markup", value: prefix, index }];
+            const resolved = await resolveBindingValue(value);
+            checkAbort(state);
+            if (attrName !== "ref" && resolved !== null && resolved !== undefined && resolved !== false) {
+                const serialized = url ? sanitizeUrl(String(resolved)) : String(resolved);
+                const separator = /\s$/.test(prefix) ? "" : " ";
+                chunks.push({ type: "markup", value: `${separator}${attrName}="${escapeAttribute(serialized)}"`, index });
+            }
+            if (state.markers && !compiledHydrate) {
+                chunks.push({ type: "markup", value: ` data-elur-a-${index}="${escapeAttribute(attrName)}"`, index });
+            }
+            return chunks;
+        },
+        event: (index, prefix, eventName) => {
+            if (state.markers && !compiledHydrate) {
+                const separator = /\s$/.test(prefix) ? "" : " ";
+                return { type: "markup", value: `${prefix}${separator}data-elur-e-${index}="${escapeAttribute(eventName)}"`, index };
+            }
+            return { type: "markup", value: prefix.replace(/\s+$/, ""), index };
+        },
+    };
+}
+
 async function* renderDescriptorChunks(descriptor: TemplateDescriptor, state: RenderState): AsyncGenerator<RenderChunk> {
+    // C.13: templates con hidratación compilada no necesitan `data-elur-*`
+    // en el HTML — el cliente localiza los elementos por access paths.
+    // Los `<!--elur-N-->` siguen emitiéndose (boundaries dinámicas).
+    const compiledHydrate = descriptor.hydrate !== undefined;
+    // C.12 fase 2: el artefacto compilado trae su propio renderer SSR —
+    // mismo HTML, secuencia especializada en vez del loop intérprete.
+    if (descriptor.ssr) {
+        yield* descriptor.ssr(makeSsrEmit(state, compiledHydrate), descriptor.values);
+        return;
+    }
     const skipLeading = new Uint8Array(descriptor.strings.length);
 
     for (let index = 0; index < descriptor.strings.length; index++) {
@@ -328,7 +383,7 @@ async function* renderDescriptorChunks(descriptor: TemplateDescriptor, state: Re
         const prefix = staticPart.slice(0, -cut);
         if (context.hadOpenQuote) skipLeading[index + 1] = 1;
         if (context.type === "event") {
-            if (state.markers) {
+            if (state.markers && !compiledHydrate) {
                 const separator = /\s$/.test(prefix) ? "" : " ";
                 yield { type: "markup", value: `${prefix}${separator}data-elur-e-${index}="${escapeAttribute(context.eventName)}"`, index };
             } else {
@@ -345,7 +400,7 @@ async function* renderDescriptorChunks(descriptor: TemplateDescriptor, state: Re
             const separator = /\s$/.test(prefix) ? "" : " ";
             yield { type: "markup", value: `${separator}${context.attrName}="${escapeAttribute(serialized)}"`, index };
         }
-        if (state.markers) yield { type: "markup", value: ` data-elur-a-${index}="${escapeAttribute(context.attrName)}"`, index };
+        if (state.markers && !compiledHydrate) yield { type: "markup", value: ` data-elur-a-${index}="${escapeAttribute(context.attrName)}"`, index };
     }
 }
 
@@ -362,6 +417,11 @@ function checkAbort(state: RenderState): void {
 }
 
 async function resolveBindingValue(value: unknown): Promise<unknown> {
+    // C.6 T1: la señal viaja como valor — SSR la resuelve a su lectura actual.
+    if (value instanceof Signal) return value.peek();
+    // C.7 T2: el pack derivado se resuelve evaluando el getter untracked —
+    // SSR no crea suscripciones y no debe contaminar un consumidor activo.
+    if (isDerivedBinding(value)) return untrack(value.get);
     const resolved = typeof value === "function" ? (value as () => unknown)() : value;
     return resolved instanceof Promise ? await resolved : resolved;
 }

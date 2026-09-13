@@ -13,6 +13,24 @@ export type ElurChildren =
 // --- ElurComponent ---
 
 /** Base class for components with lifecycle hooks. */
+/**
+ * A.21: controller de ciclo de vida (patrón Lit) — lógica reutilizable
+ * enganchada a la instancia (ResizeObserver, focus, recursos, Ionic…).
+ * Los hooks corren dentro del owner del componente.
+ */
+export interface ComponentController {
+    /** Antes de render() — sin DOM. */
+    hostInit?(): void;
+    /** Tras el commit DOM. */
+    hostMounted?(): void;
+    /** attach() — la instancia vuelve al DOM. */
+    hostActivate?(): void;
+    /** detach() — la instancia sale del DOM sin disponerse. */
+    hostDeactivate?(): void;
+    /** Antes del disposal del owner. */
+    hostUnmount?(): void;
+}
+
 export abstract class ElurComponent {
     /** @internal */
     readonly __isElurComponent = true as const;
@@ -41,6 +59,20 @@ export abstract class ElurComponent {
     /** Returns content for a named slot. */
     slot(name: string): ElurChildren {
         return this._slots.get(name);
+    }
+
+    /**
+     * A.21: controllers registrados — consumidos por el kernel en mount.
+     * @internal
+     */
+    _controllers?: ComponentController[];
+
+    /**
+     * A.21: registra un controller (patrón Lit). Llamar en el constructor;
+     * los hooks corren dentro del owner de la instancia.
+     */
+    addController(c: ComponentController): void {
+        (this._controllers ??= []).push(c);
     }
 
     /** Sets an explicit devtools display name. Returns `this` for chaining. */

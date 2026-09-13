@@ -12,16 +12,41 @@ export function createInjectionKey<T>(description?: string): InjectionKey<T> {
 
 /** Stack of provide maps, one per active component in the render tree. */
 const _stack: Map<unknown, unknown>[] = [];
-let _scopeResolver: (() => Map<unknown, unknown>[] | undefined) | undefined;
+// Resolver primario (set) + secundarios (push): el primario se consulta
+// primero — p.ej. SSR por AsyncLocalStorage — y los secundarios sólo si
+// aquél devuelve undefined (p.ej. contexto por instancia en next/). Así el
+// resultado no depende del orden de importación de los módulos.
+let _primaryResolver: (() => Map<unknown, unknown>[] | undefined) | undefined;
+const _scopeResolvers: (() => Map<unknown, unknown>[] | undefined)[] = [];
 
 function currentStack(): Map<unknown, unknown>[] {
-    return _scopeResolver?.() ?? _stack;
+    const primary = _primaryResolver?.();
+    if (primary !== undefined) return primary;
+    for (const r of _scopeResolvers) {
+        const frames = r();
+        if (frames !== undefined) return frames;
+    }
+    return _stack;
 }
 
 export function _setContextScopeResolver(
     resolver: (() => Map<unknown, unknown>[] | undefined) | undefined,
 ): void {
-    _scopeResolver = resolver;
+    _primaryResolver = resolver;
+}
+
+/**
+ * @internal — añade un resolver secundario consultado sólo si el primario
+ * devuelve undefined. Devuelve una función para quitarlo.
+ */
+export function _pushContextScopeResolver(
+    resolver: () => Map<unknown, unknown>[] | undefined,
+): () => void {
+    _scopeResolvers.push(resolver);
+    return () => {
+        const i = _scopeResolvers.indexOf(resolver);
+        if (i >= 0) _scopeResolvers.splice(i, 1);
+    };
 }
 
 /** @internal — returns a copy of the stack for capturing in effect closures. */
