@@ -126,7 +126,7 @@ export function getSequence(arr: Int32Array | number[]): number[] {
  * viejo por valor y no hay accessors que actualizar). Identidad `===`
  * primero (fast path para el caso común: mismos objetos reordenados).
  *
- * @internal — usado por keyed-diff (estable y next-2) y el runtime compilado.
+ * @internal — usado por keyed-diff y el runtime compilado.
  */
 export function _keyedItemsEqual(a: unknown, b: unknown): boolean {
     if (a === b) return true;

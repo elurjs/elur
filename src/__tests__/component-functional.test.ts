@@ -15,7 +15,7 @@ import { provide, inject, createInjectionKey } from "../elur/context";
 import { repeat } from "../elur/template/keyed";
 import { repeatLive } from "../elur/template/keyed-diff";
 
-describe("next/defineComponent", () => {
+describe("defineComponent", () => {
     it("la invocación no ejecuta setup hasta montar", () => {
         const setup = vi.fn(() => html`<div>hola</div>`);
         const Counter = defineComponent(setup);
@@ -139,7 +139,7 @@ describe("next/defineComponent", () => {
     });
 });
 
-describe("next/contexto por instancia (A.12)", () => {
+describe("contexto por instancia (A.12)", () => {
     it("inject resuelve por la cadena de instancias — padre→hijo", () => {
         const KEY = createInjectionKey<string>("theme");
         let received: string | undefined;
@@ -176,7 +176,7 @@ describe("next/contexto por instancia (A.12)", () => {
     });
 });
 
-describe("next/slots (A.14)", () => {
+describe("slots (A.14)", () => {
     it("ctx.slot() renderiza el contenido declarado por el consumidor", () => {
         const Card = defineComponent((_p, ctx) => {
             return html`<section><h1>card</h1><div>${() => ctx.slot()}</div></section>`;
@@ -229,7 +229,7 @@ describe("next/slots (A.14)", () => {
     });
 });
 
-describe("next/SSR + hydrate de funciones (A.17/A.18)", () => {
+describe("SSR + hydrate de funciones (A.17/A.18)", () => {
     it("renderToString serializa un componente funcional (A.17)", async () => {
         const setup = vi.fn((props: any) => html`<b>fn:${props.v}</b>`);
         const C = defineComponent(setup);
@@ -274,7 +274,7 @@ describe("next/SSR + hydrate de funciones (A.17/A.18)", () => {
     });
 });
 
-describe("next/adaptador de clase", () => {
+describe("adaptador de clase", () => {
     it("monta un ElurComponent clásico via kernel", () => {
         const order: string[] = [];
         class C extends ElurComponent {

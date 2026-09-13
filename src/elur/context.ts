@@ -14,7 +14,7 @@ export function createInjectionKey<T>(description?: string): InjectionKey<T> {
 const _stack: Map<unknown, unknown>[] = [];
 // Resolver primario (set) + secundarios (push): el primario se consulta
 // primero — p.ej. SSR por AsyncLocalStorage — y los secundarios sólo si
-// aquél devuelve undefined (p.ej. contexto por instancia en next/). Así el
+// aquél devuelve undefined (p.ej. contexto por instancia). Así el
 // resultado no depende del orden de importación de los módulos.
 let _primaryResolver: (() => Map<unknown, unknown>[] | undefined) | undefined;
 const _scopeResolvers: (() => Map<unknown, unknown>[] | undefined)[] = [];

@@ -1,6 +1,6 @@
 {
     "name": "@elurjs/core",
-    "version": "4.0.0",
+    "version": "4.0.1",
     "description": "A lightweight, fully reactive framework — no virtual DOM, no compiler, just signals and tagged templates.",
     "license": "MIT",
     "author": "Deiver Vasquez",

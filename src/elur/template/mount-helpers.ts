@@ -8,13 +8,12 @@ import { type _captureContextSnapshot } from "../context.js";
 import { adaptClassComponent } from "../component-kernel.js";
 
 // =============================================================================
-// --- next/ — component mounting sobre el kernel unificado (A.6–A.9) ---
-// Fork de ../template/mount-helpers.ts: misma superficie, pero cada mount pasa
-// por ComponentInstance — owner propio, máquina de estados, mount transaccional
-// con rollback, onMount post-commit, unmount idempotente.
+// --- Component mounting sobre el kernel unificado (A.6–A.9) ---
+// Cada mount pasa por ComponentInstance — owner propio, máquina de estados,
+// mount transaccional con rollback, onMount post-commit, unmount idempotente.
 // =============================================================================
 
-// --- Post-commit onMount queue (misma superficie que el estable) -------------
+// --- Post-commit onMount queue -----------------------------------------------
 // El kernel ya difiere onMount por instancia via `deferOnMount`; esta cola
 // cubre los callers que NO pasan por el kernel (p.ej. error-boundary llama
 // `content.onMount` directamente sobre ElurComponent).

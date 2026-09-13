@@ -1,9 +1,5 @@
 /**
- * Elur "next" — grafo reactivo push-pull versionado (experimental).
- *
- * Módulo aislado de `../reactivity.ts` (PLAN_TECNICO_ELUR_NEXT §B.3–B.9):
- * nunca importar ambos en el mismo path de producción — mezclar signals de
- * dos grafos rompe la semántica.
+ * Grafo reactivo push-pull versionado — motor de Elur.
  *
  * Modelo:
  *  - PUSH: signal.set() → version++ → invalida consumidores (DIRTY directos,
@@ -26,7 +22,7 @@ import { inputPending, yieldControl } from "./scheduler.js";
 // El engine clásico creaba eager `globalThis[Symbol.for("@elurjs/core/
 // reactivity-state")]` y otros módulos (`lifecycle.ts` debug hooks) y paquetes
 // externos (elur-kit escribe `ssr` para `isSSR()`) cuelgan campos de ese
-// objeto. next-2 mantiene sus internals en module-local (cada copia del paquete
+// objeto. el motor mantiene sus internals en module-local (cada copia del paquete
 // es un motor independiente), pero el objeto compartido debe existir al cargar
 // el módulo — si falta, writes externos como `setSSR(true)` se pierden.
 
@@ -616,7 +612,7 @@ function refreshComputed(root: Computed<any>): void {
   const phase = root.state & (CHECK | DIRTY | RUNNING);
   if (root.state & DISPOSED) return;
   if (phase === RUNNING) {
-    throw new Error("[elur-next] Ciclo reactivo detectado en computed().");
+    throw new Error("[elur] Ciclo reactivo detectado en computed().");
   }
   if (phase === 0 && (root.flags & F_HAS_VALUE) && (root.live() || root.lastCleanEpoch === globalEpoch)) {
     return;
@@ -735,7 +731,7 @@ function failCycle(stack: Computed<any>[], cur: Computed<any>): never {
   }
   cur.state &= ~(PROBING | _P_MASK);
   stack.length = 0;
-  throw new Error("[elur-next] Ciclo reactivo detectado en computed().");
+  throw new Error("[elur] Ciclo reactivo detectado en computed().");
 }
 
 /** Asegura que un computed esté fresco: pull si dirty, sondeo si frío. */
@@ -906,7 +902,7 @@ export class Signal<T> implements ProducerNode {
 
   set value(newValue: T) {
     if (this.durable) {
-      console.warn("[elur-next2] constSignal: write ignorada — el producer es estático (B.12.4).");
+      console.warn("[elur] constSignal: write ignorada — el producer es estático (B.12.4).");
       return;
     }
     if (Object.is(this._v, newValue)) return;
@@ -1042,7 +1038,7 @@ class EffectNode implements ConsumerNode, OwnerLike {
   run(): void {
     if (this.flags & F_DEAD) return;
     if (this.state & RUNNING) {
-      throw new Error("[elur-next] Effect re-entrante detectado.");
+      throw new Error("[elur] Effect re-entrante detectado.");
     }
     if (typeof this._cleanup === "function") this._cleanup();
     // Los hijos (effects/computeds/cleanups creados en la pasada anterior)

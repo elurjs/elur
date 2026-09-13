@@ -13,7 +13,7 @@ const flushDom = () => Promise.resolve();
  *
  * El compilador emite `{ [ELUR_DERIVED]: true, deps, get }` como arg de un
  * binding; mount/hydrate/SSR deben resolverlo (nunca "[object Object]").
- * Corre bajo estable y next-2 (swap).
+ * Corre sobre el motor canónico.
  */
 const pack = (deps: unknown[], get: () => unknown) => ({
     [ELUR_DERIVED]: true,

@@ -1,8 +1,7 @@
 // =============================================================================
-// --- next/ — reactive node binding con render-queue + cola DOM tipada ---
-// Fork de ../template/node-binding.ts (B.8/B.11): el binding corre en la cola
-// de render effects (antes que user effects) y los writes de texto usan la cola
-// tipada con last-write-wins por binding id.
+// --- Reactive node binding con render-queue + cola DOM tipada (B.8/B.11) ---
+// El binding corre en la cola de render effects (antes que user effects) y
+// los writes de texto usan la cola tipada con last-write-wins por binding id.
 // =============================================================================
 
 import { _renderEffect, Signal, _bindSignal } from "../reactivity.js";

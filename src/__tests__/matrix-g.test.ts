@@ -2,15 +2,12 @@
  * Matriz G — tipos de componente × contextos de montaje × invariantes.
  * (PLAN_TECNICO_ELUR_NEXT.md §G — gate de la estrategia beta.)
  *
- * Este archivo corre bajo DOS configs:
- *   - `vitest.config.ts`        → motor estable (src/elur/*)
- *   - `vitest.next2.config.ts`  → motor next-2 (swap global de módulos)
- * El mismo archivo cubre ambos engines sin duplicar las celdas.
+ * Corre sobre el motor canónico (src/elur/*).
  *
  * Cobertura por tipo:
  *   - "tpl": template factory legacy (html``)
  *   - "cls": ElurComponent (clase con lifecycle)
- *   - defineComponent (funcional): matrix-g-next2.test.ts — sólo next-2.
+ *   - defineComponent (funcional): component-functional.test.ts.
  *   - IonPage / Ionic cached page: suite de elur-ionic (fuera de core).
  *
  * Invariantes verificados por celda (los que aplican al tipo):

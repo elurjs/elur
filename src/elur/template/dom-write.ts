@@ -1,11 +1,9 @@
 // =============================================================================
-// --- next/ — cola DOM tipada (B.11) ---
-// Fork de ../template/dom-write.ts: misma superficie (`queueDOMWrite`), pero la
-// cola es tipada y hace last-write-wins por binding id — varios writes al mismo
-// binding en un microtask sólo ejecutan el último. La API tipada
-// `queueDomWrite(id, kind, write)` es la que el compiler usará para writers
-// directos (C.17); `queueDOMWrite(task)` queda como compat (id = identidad del
-// closure, misma deduplicación que la impl actual).
+// --- Cola DOM tipada (B.11) ---
+// `queueDomWrite(id, kind, write)` hace last-write-wins por binding id —
+// varios writes al mismo binding en un microtask sólo ejecutan el último.
+// Es la API que el compiler usa para writers directos (C.17);
+// `queueDOMWrite(task)` queda como compat (id = identidad del closure).
 // =============================================================================
 
 export type DomWriteKind = "text" | "attr" | "prop" | "class" | "style" | "custom";

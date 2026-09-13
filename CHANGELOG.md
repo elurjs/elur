@@ -4,6 +4,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## v4.0.1
+
+Exporta la API de componentes funcionales que el kernel ya implementaba
+internamente — estaba cableada en mount/hydrate/SSR/listas pero sin salida
+pública.
+
+- **Nuevo en la API pública**: `defineComponent(setup)` — componentes
+  funcionales de primera clase con props vivas (signal-backed, se
+  actualizan sin re-correr setup), `ctx.onMount`/`onUnmount`/`onError`/
+  `onServerRender`, `ctx.slot()` lazy con owner léxico, reconciliación
+  por definición+key (`updateProps` in-place). `slot()` y
+  `mountComponent()` también exportados, junto a `isElurSlot` /
+  `isComponentInvocation` y los tipos (`ComponentDefinition`,
+  `ComponentInvocation`, `ComponentInstance`, `SetupCtx`, `Slot`,
+  `Renderable`, `ComponentState`, `ErrorPhase`, `ComponentErrorInfo`,
+  `ErrorResolution`).
+- **Ownership en la entrada raíz**: `createRoot`, `getOwner`,
+  `runWithOwner`, `onCleanup` ahora también salen de `@elurjs/core`
+  (antes sólo por el subpath `/signals`).
+- Limpieza interna: eliminados los banners de fork `next/`/`next-2` —
+  la implementación es la canónica desde 4.0.0; renombrados los tests
+  `next2-*`; removido `reactivity-notify-buffer.test.ts` (interno del
+  motor clásico, ya sin implementación real).
+
 ## v4.0.0
 
 Promoción a estable del canal beta `3.7.0-beta.x`. **Breaking change:**

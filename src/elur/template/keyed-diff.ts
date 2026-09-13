@@ -7,9 +7,8 @@ import { getSequence, _keyedItemsEqual, type RepeatKey } from "./keyed.js";
 import { _captureContextSnapshot } from "../context.js";
 
 // =============================================================================
-// --- next/ — keyed list reconciliation con ownership por item ---
-// Fork de ../template/keyed-diff.ts: igual que el actual, pero cada item monta
-// bajo su propio root owner (createRoot del grafo next). Sus effects internos
+// --- Keyed list reconciliation con ownership por item ---
+// Cada item monta bajo su propio root owner (createRoot). Sus effects internos
 // pertenecen al item y no al effect del repeat — así sobreviven a re-orders
 // y se destruyen con entry.cleanup() al removerse (A.11/B.10 del plan).
 // =============================================================================
@@ -483,7 +482,7 @@ export function liveList<T, K extends string | number>(opts: {
 
         insert(index: number, item: T): void {
             if (!parent || !zoneEnd || !mountFn) {
-                throw new Error("[elur-next2] liveList: la lista no está montada (úsala en un binding primero).");
+                throw new Error("[elur] liveList: la lista no está montada (úsala en un binding primero).");
             }
             const key = opts.key(item);
             if (byKey.has(key)) {

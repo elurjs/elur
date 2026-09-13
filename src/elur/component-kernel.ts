@@ -1,7 +1,7 @@
 /**
- * Elur "next" — kernel unificado de componentes (experimental).
+ * Kernel unificado de componentes.
  *
- * Implementa A.6–A.9 del PLAN_TECNICO_ELUR_NEXT sobre el ownership de
+ * Implementa A.6–A.9 del plan técnico sobre el ownership de
  * `./reactivity.ts`:
  *  - Una sola `ComponentInstance` para clases y funciones (adaptadores).
  *  - Máquina de estados (A.7): created → initializing → rendering →
@@ -251,7 +251,7 @@ export class ComponentInstance implements Disposable {
   ): void {
     if (this.state !== "created") {
       throw new Error(
-        `[elur-next] ComponentInstance.mount(): estado inválido "${this.state}" (una instancia montada no puede montarse otra vez).`,
+        `[elur] ComponentInstance.mount(): estado inválido "${this.state}" (una instancia montada no puede montarse otra vez).`,
       );
     }
     ownerToInstance.set(this.owner, this);
@@ -499,7 +499,7 @@ export class ComponentInstance implements Disposable {
   /** A.16: errores de teardown — se reportan a la cadena; si nadie los maneja quedan registrados. */
   private _reportSwallowed(err: unknown, phase: ErrorPhase): void {
     const res = reportError(this, { phase, component: this, cause: err });
-    if (!res.handled) console.error("[elur-next] error en " + phase + ":", err);
+    if (!res.handled) console.error("[elur] error en " + phase + ":", err);
   }
 
   /** A.16: renderiza el fallback de una boundary en la posición del componente. */
@@ -598,7 +598,7 @@ export class ComponentInstance implements Disposable {
     }
     if (!this.renderable) {
       throw new Error(
-        `[elur-next] El componente #${this.id} no produjo un template renderizable.`,
+        `[elur] El componente #${this.id} no produjo un template renderizable.`,
       );
     }
   }
@@ -634,7 +634,7 @@ export class ComponentInstance implements Disposable {
     mismatch?: "throw" | "warn-remount" | "remount";
   }): void {
     if (this.state !== "created") {
-      throw new Error(`[elur-next] _hydrate(): estado inválido "${this.state}".`);
+      throw new Error(`[elur] _hydrate(): estado inválido "${this.state}".`);
     }
     ownerToInstance.set(this.owner, this);
     ownerToContext.set(this.owner, this.context);

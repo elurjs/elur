@@ -13,6 +13,10 @@ export {
     watch,
     untrack,
     nextTick,
+    createRoot,
+    getOwner,
+    runWithOwner,
+    onCleanup,
     // Templates
     html,
     repeat,
@@ -32,6 +36,11 @@ export {
     // Components
     mount,
     ElurComponent,
+    defineComponent,
+    slot,
+    mountComponent,
+    isElurSlot,
+    isComponentInvocation,
     // Store
     createStore,
     persistPlugin,
@@ -72,6 +81,18 @@ export {
 export type {
     // Reactivity
     WatchOptions,
+    OwnerLike,
+    // Components
+    ComponentDefinition,
+    ComponentInvocation,
+    ComponentInstance,
+    SetupCtx,
+    Slot,
+    Renderable,
+    ComponentState,
+    ErrorPhase,
+    ComponentErrorInfo,
+    ErrorResolution,
     // Templates
     ElurTemplate,
     ElurMountHandle,

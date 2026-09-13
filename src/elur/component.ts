@@ -1,7 +1,6 @@
 /**
- * next/ — fork del mount() público (../component.ts) sobre el kernel.
+ * mount() público sobre el kernel de componentes.
  *
- * Diferencias vs el estable:
  *  - Componentes (clase o invocación funcional) montan via ComponentInstance:
  *    máquina de estados, owner propio, mount transaccional, onMount
  *    post-commit, unmount idempotente.
@@ -26,6 +25,27 @@ import {
     isComponentInvocation,
     _registerContextOwner,
     type ComponentInvocation,
+} from "./component-kernel.js";
+
+export {
+    defineComponent,
+    slot,
+    mountComponent,
+    isElurSlot,
+    isComponentInvocation,
+    ComponentInstance,
+} from "./component-kernel.js";
+export type {
+    ComponentDefinition,
+    ComponentInvocation,
+    SetupCtx,
+    Slot,
+    Renderable,
+    ComponentState,
+    ErrorPhase,
+    ComponentErrorInfo,
+    ErrorResolution,
+    ComponentHooks,
 } from "./component-kernel.js";
 
 export interface MountOptions {

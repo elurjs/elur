@@ -652,7 +652,7 @@ function adoptKeyedRange(
             continue;
         }
         const rendered = list.renderFn(item, clientIndex);
-        // next/: bindings del item bajo su propio owner — sobreviven a
+        // Bindings del item bajo su propio owner — sobreviven a
         // re-evals del effect de la lista y mueren con entry.cleanup().
         let inner: (() => void) | undefined;
         const disposeOwner = createRoot((dispose) => {

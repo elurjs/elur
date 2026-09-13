@@ -12,8 +12,7 @@ const flushDom = () => Promise.resolve();
  *
  * El compilador emite la SEÑAL como arg (no `() => sig.value`); el runtime
  * la suscribe con `_bindSignal` (edge permanente, sin effect ni tracking).
- * Estos tests corren bajo ambos configs: estable (vite.config.ts) y
- * next-2 (vitest.next2.config.ts via swap).
+ * Corre sobre el motor canónico.
  */
 describe("_bindSignal (T1 primitive)", () => {
     it("writes initial value and follows signal updates", () => {

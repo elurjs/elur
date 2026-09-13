@@ -1,11 +1,13 @@
-export { Signal, signal, effect, computed, batch, watch, untrack, nextTick } from "./reactivity.js";
-export type { WatchOptions } from "./reactivity.js";
+export { Signal, signal, effect, computed, batch, watch, untrack, nextTick, createRoot, getOwner, runWithOwner, onCleanup } from "./reactivity.js";
+export type { WatchOptions, OwnerLike } from "./reactivity.js";
 export { html, repeat, raw, ref, showWhen, portal, createPortalOutlet, portalOutlet, provideOutlet, injectOutlet, createErrorBoundary, transition, ELUR_TEMPLATE_DESCRIPTOR, ELUR_RENDER_PROTOCOL, templateFeatures } from "./template/index.js";
 export type { ElurTemplate, ElurMountHandle, KeyedList, ElurRef, PortalOutlet, ErrorFallback, TransitionOptions, TransitionContent, TemplateBindingContext, TemplateDescriptor, ElurRenderProtocol, ServerRenderProtocolContext, DomProtocolContext, HydrationProtocolContext } from "./template/index.js";
 export { mount } from "./component.js";
 export type { MountOptions } from "./component.js";
 export { ElurComponent } from "./lifecycle.js";
 export type { ElurChildren } from "./lifecycle.js";
+export { defineComponent, slot, mountComponent, isElurSlot, isComponentInvocation } from "./component-kernel.js";
+export type { ComponentDefinition, ComponentInvocation, ComponentInstance, SetupCtx, Slot, Renderable, ComponentState, ErrorPhase, ComponentErrorInfo, ErrorResolution } from "./component-kernel.js";
 export { createStore } from "./store.js";
 export type { Store, StoreSignals, ElurPlugin } from "./store.js";
 export { persistPlugin, loggerPlugin, guardPlugin, bridgePlugin } from "./plugins.js";
