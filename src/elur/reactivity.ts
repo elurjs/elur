@@ -22,7 +22,7 @@ import { inputPending, yieldControl } from "./scheduler.js";
 // El engine clásico creaba eager `globalThis[Symbol.for("@elurjs/core/
 // reactivity-state")]` y otros módulos (`lifecycle.ts` debug hooks) y paquetes
 // externos (elur-kit escribe `ssr` para `isSSR()`) cuelgan campos de ese
-// objeto. el motor mantiene sus internals en module-local (cada copia del paquete
+// objeto. El motor mantiene sus internals en module-local (cada copia del paquete
 // es un motor independiente), pero el objeto compartido debe existir al cargar
 // el módulo — si falta, writes externos como `setSSR(true)` se pierden.
 
