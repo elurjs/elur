@@ -21,6 +21,40 @@
 
 import { inputPending, yieldControl } from "./scheduler.js";
 
+// --- Estado reactivo compartido (contrato del engine estable) ----------------
+//
+// El engine clásico creaba eager `globalThis[Symbol.for("@elurjs/core/
+// reactivity-state")]` y otros módulos (`lifecycle.ts` debug hooks) y paquetes
+// externos (elur-kit escribe `ssr` para `isSSR()`) cuelgan campos de ese
+// objeto. next-2 mantiene sus internals en module-local (cada copia del paquete
+// es un motor independiente), pero el objeto compartido debe existir al cargar
+// el módulo — si falta, writes externos como `setSSR(true)` se pierden.
+
+const _reactivityStateKey = Symbol.for("@elurjs/core/reactivity-state");
+
+interface _SharedReactivityState {
+  /** Modo SSR — lo escribe el consumidor (kit `renderToString`), lo lee `isSSR()`. */
+  ssr?: boolean;
+  [key: string]: unknown;
+}
+
+function _sharedStateDefaults(): _SharedReactivityState {
+  return { ssr: false };
+}
+
+{
+  const g = globalThis as Record<PropertyKey, unknown>;
+  const existing = g[_reactivityStateKey] as _SharedReactivityState | undefined;
+  if (existing) {
+    const defaults = _sharedStateDefaults();
+    for (const k of Object.keys(defaults)) {
+      if (!(k in existing)) existing[k] = defaults[k];
+    }
+  } else {
+    g[_reactivityStateKey] = _sharedStateDefaults();
+  }
+}
+
 // --- Estados del grafo (B.4) ------------------------------------------------
 
 const CLEAN = 0;

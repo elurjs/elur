@@ -1,225 +1,225 @@
 {
-  "name": "@elurjs/core",
-  "version": "3.7.0-beta.0",
-  "description": "A lightweight, fully reactive framework — no virtual DOM, no compiler, just signals and tagged templates.",
-  "license": "MIT",
-  "author": "Deiver Vasquez",
-  "homepage": "https://elur.dev/",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/elurjs/elur.git"
-  },
-  "type": "module",
-  "keywords": [
-    "reactive",
-    "signals",
-    "framework",
-    "ui",
-    "dom",
-    "typescript",
-    "no-vdom",
-    "frontend"
-  ],
-  "exports": {
-    ".": {
-      "types": {
-        "import": "./dist/lib/index.d.ts",
-        "require": "./dist/lib/index.d.cts"
-      },
-      "import": "./dist/lib/elur.js",
-      "require": "./dist/lib/elur.cjs"
+    "name": "@elurjs/core",
+    "version": "3.7.0-beta.1",
+    "description": "A lightweight, fully reactive framework — no virtual DOM, no compiler, just signals and tagged templates.",
+    "license": "MIT",
+    "author": "Deiver Vasquez",
+    "homepage": "https://elur.dev/",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/elurjs/elur.git"
     },
-    "./signals": {
-      "types": {
-        "import": "./dist/lib/elur/reactivity.d.ts",
-        "require": "./dist/lib/elur/reactivity.d.cts"
-      },
-      "import": "./dist/lib/signals.js",
-      "require": "./dist/lib/signals.cjs"
+    "type": "module",
+    "keywords": [
+        "reactive",
+        "signals",
+        "framework",
+        "ui",
+        "dom",
+        "typescript",
+        "no-vdom",
+        "frontend"
+    ],
+    "exports": {
+        ".": {
+            "types": {
+                "import": "./dist/lib/index.d.ts",
+                "require": "./dist/lib/index.d.cts"
+            },
+            "import": "./dist/lib/elur.js",
+            "require": "./dist/lib/elur.cjs"
+        },
+        "./signals": {
+            "types": {
+                "import": "./dist/lib/elur/reactivity.d.ts",
+                "require": "./dist/lib/elur/reactivity.d.cts"
+            },
+            "import": "./dist/lib/signals.js",
+            "require": "./dist/lib/signals.cjs"
+        },
+        "./router": {
+            "types": {
+                "import": "./dist/lib/elur/router.d.ts",
+                "require": "./dist/lib/elur/router.d.cts"
+            },
+            "import": "./dist/lib/router.js",
+            "require": "./dist/lib/router.cjs"
+        },
+        "./form": {
+            "types": {
+                "import": "./dist/lib/elur/form.d.ts",
+                "require": "./dist/lib/elur/form.d.cts"
+            },
+            "import": "./dist/lib/form.js",
+            "require": "./dist/lib/form.cjs"
+        },
+        "./store": {
+            "types": {
+                "import": "./dist/lib/elur/store.d.ts",
+                "require": "./dist/lib/elur/store.d.cts"
+            },
+            "import": "./dist/lib/store.js",
+            "require": "./dist/lib/store.cjs"
+        },
+        "./plugins": {
+            "types": {
+                "import": "./dist/lib/elur/plugins.d.ts",
+                "require": "./dist/lib/elur/plugins.d.cts"
+            },
+            "import": "./dist/lib/plugins.js",
+            "require": "./dist/lib/plugins.cjs"
+        },
+        "./async": {
+            "types": {
+                "import": "./dist/lib/elur/async.d.ts",
+                "require": "./dist/lib/elur/async.d.cts"
+            },
+            "import": "./dist/lib/async.js",
+            "require": "./dist/lib/async.cjs"
+        },
+        "./template": {
+            "types": {
+                "import": "./dist/lib/elur/template/index.d.ts",
+                "require": "./dist/lib/elur/template/index.d.cts"
+            },
+            "import": "./dist/lib/template.js",
+            "require": "./dist/lib/template.cjs"
+        },
+        "./server": {
+            "types": {
+                "import": "./dist/lib/elur/server/index.d.ts",
+                "require": "./dist/lib/elur/server/index.d.cts"
+            },
+            "import": "./dist/lib/server.js",
+            "require": "./dist/lib/server.cjs"
+        },
+        "./hydrate": {
+            "types": {
+                "import": "./dist/lib/elur/hydrate/index.d.ts",
+                "require": "./dist/lib/elur/hydrate/index.d.cts"
+            },
+            "import": "./dist/lib/hydrate.js",
+            "require": "./dist/lib/hydrate.cjs"
+        },
+        "./component": {
+            "types": {
+                "import": "./dist/lib/elur/component.d.ts",
+                "require": "./dist/lib/elur/component.d.cts"
+            },
+            "import": "./dist/lib/component.js",
+            "require": "./dist/lib/component.cjs"
+        },
+        "./context": {
+            "types": {
+                "import": "./dist/lib/elur/context.d.ts",
+                "require": "./dist/lib/elur/context.d.cts"
+            },
+            "import": "./dist/lib/context.js",
+            "require": "./dist/lib/context.cjs"
+        },
+        "./lifecycle": {
+            "types": {
+                "import": "./dist/lib/elur/lifecycle.d.ts",
+                "require": "./dist/lib/elur/lifecycle.d.cts"
+            },
+            "import": "./dist/lib/lifecycle.js",
+            "require": "./dist/lib/lifecycle.cjs"
+        },
+        "./devtools": {
+            "types": {
+                "import": "./dist/lib/elur/devtools.d.ts",
+                "require": "./dist/lib/elur/devtools.d.cts"
+            },
+            "import": "./dist/lib/devtools.js",
+            "require": "./dist/lib/devtools.cjs"
+        }
     },
-    "./router": {
-      "types": {
-        "import": "./dist/lib/elur/router.d.ts",
-        "require": "./dist/lib/elur/router.d.cts"
-      },
-      "import": "./dist/lib/router.js",
-      "require": "./dist/lib/router.cjs"
+    "typesVersions": {
+        "*": {
+            "signals": [
+                "./dist/lib/elur/reactivity.d.ts"
+            ],
+            "router": [
+                "./dist/lib/elur/router.d.ts"
+            ],
+            "form": [
+                "./dist/lib/elur/form.d.ts"
+            ],
+            "store": [
+                "./dist/lib/elur/store.d.ts"
+            ],
+            "plugins": [
+                "./dist/lib/elur/plugins.d.ts"
+            ],
+            "async": [
+                "./dist/lib/elur/async.d.ts"
+            ],
+            "template": [
+                "./dist/lib/elur/template/index.d.ts"
+            ],
+            "server": [
+                "./dist/lib/elur/server/index.d.ts"
+            ],
+            "hydrate": [
+                "./dist/lib/elur/hydrate/index.d.ts"
+            ],
+            "component": [
+                "./dist/lib/elur/component.d.ts"
+            ],
+            "context": [
+                "./dist/lib/elur/context.d.ts"
+            ],
+            "lifecycle": [
+                "./dist/lib/elur/lifecycle.d.ts"
+            ],
+            "devtools": [
+                "./dist/lib/elur/devtools.d.ts"
+            ],
+            "*": [
+                "./dist/lib/index.d.ts"
+            ]
+        }
     },
-    "./form": {
-      "types": {
-        "import": "./dist/lib/elur/form.d.ts",
-        "require": "./dist/lib/elur/form.d.cts"
-      },
-      "import": "./dist/lib/form.js",
-      "require": "./dist/lib/form.cjs"
+    "main": "./dist/lib/elur.cjs",
+    "module": "./dist/lib/elur.js",
+    "types": "./dist/lib/index.d.ts",
+    "files": [
+        "dist/lib",
+        "!dist/lib/*.map",
+        "LICENSE"
+    ],
+    "publishConfig": {
+        "access": "public"
     },
-    "./store": {
-      "types": {
-        "import": "./dist/lib/elur/store.d.ts",
-        "require": "./dist/lib/elur/store.d.cts"
-      },
-      "import": "./dist/lib/store.js",
-      "require": "./dist/lib/store.cjs"
+    "sideEffects": false,
+    "engines": {
+        "node": ">=20.19.0"
     },
-    "./plugins": {
-      "types": {
-        "import": "./dist/lib/elur/plugins.d.ts",
-        "require": "./dist/lib/elur/plugins.d.cts"
-      },
-      "import": "./dist/lib/plugins.js",
-      "require": "./dist/lib/plugins.cjs"
+    "scripts": {
+        "build": "bun run build:lib",
+        "build:lib": "vite build --config vite.lib.config.ts && tsc --project tsconfig.lib.json && node scripts/copy-dcts.mjs",
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run",
+        "test:e2e": "playwright test --config e2e/playwright.config.ts",
+        "test:e2e:chromium": "playwright test --config e2e/playwright.config.ts --project=chromium",
+        "coverage": "vitest run --coverage",
+        "check:types": "attw --pack .",
+        "test:artifact": "node scripts/artifact-smoke.mjs",
+        "prepublishOnly": "bun run build:lib && cp README.md .readme-full.md && cp .readme-npm.md README.md",
+        "postpublish": "mv .readme-full.md README.md"
     },
-    "./async": {
-      "types": {
-        "import": "./dist/lib/elur/async.d.ts",
-        "require": "./dist/lib/elur/async.d.cts"
-      },
-      "import": "./dist/lib/async.js",
-      "require": "./dist/lib/async.cjs"
+    "devDependencies": {
+        "@arethetypeswrong/cli": "^0.18.5",
+        "@playwright/test": "^1.62.1",
+        "@types/node": "^26.5.0",
+        "@vitest/coverage-v8": "^5.0.0",
+        "happy-dom": "^20.8.3",
+        "terser": "^5.46.0",
+        "typescript": "~7.0.2",
+        "vite": "^8.0.0",
+        "vitest": "^5.0.0"
     },
-    "./template": {
-      "types": {
-        "import": "./dist/lib/elur/template/index.d.ts",
-        "require": "./dist/lib/elur/template/index.d.cts"
-      },
-      "import": "./dist/lib/template.js",
-      "require": "./dist/lib/template.cjs"
-    },
-    "./server": {
-      "types": {
-        "import": "./dist/lib/elur/server/index.d.ts",
-        "require": "./dist/lib/elur/server/index.d.cts"
-      },
-      "import": "./dist/lib/server.js",
-      "require": "./dist/lib/server.cjs"
-    },
-    "./hydrate": {
-      "types": {
-        "import": "./dist/lib/elur/hydrate/index.d.ts",
-        "require": "./dist/lib/elur/hydrate/index.d.cts"
-      },
-      "import": "./dist/lib/hydrate.js",
-      "require": "./dist/lib/hydrate.cjs"
-    },
-    "./component": {
-      "types": {
-        "import": "./dist/lib/elur/component.d.ts",
-        "require": "./dist/lib/elur/component.d.cts"
-      },
-      "import": "./dist/lib/component.js",
-      "require": "./dist/lib/component.cjs"
-    },
-    "./context": {
-      "types": {
-        "import": "./dist/lib/elur/context.d.ts",
-        "require": "./dist/lib/elur/context.d.cts"
-      },
-      "import": "./dist/lib/context.js",
-      "require": "./dist/lib/context.cjs"
-    },
-    "./lifecycle": {
-      "types": {
-        "import": "./dist/lib/elur/lifecycle.d.ts",
-        "require": "./dist/lib/elur/lifecycle.d.cts"
-      },
-      "import": "./dist/lib/lifecycle.js",
-      "require": "./dist/lib/lifecycle.cjs"
-    },
-    "./devtools": {
-      "types": {
-        "import": "./dist/lib/elur/devtools.d.ts",
-        "require": "./dist/lib/elur/devtools.d.cts"
-      },
-      "import": "./dist/lib/devtools.js",
-      "require": "./dist/lib/devtools.cjs"
+    "overrides": {
+        "vite": "^8.0.0"
     }
-  },
-  "typesVersions": {
-    "*": {
-      "signals": [
-        "./dist/lib/elur/reactivity.d.ts"
-      ],
-      "router": [
-        "./dist/lib/elur/router.d.ts"
-      ],
-      "form": [
-        "./dist/lib/elur/form.d.ts"
-      ],
-      "store": [
-        "./dist/lib/elur/store.d.ts"
-      ],
-      "plugins": [
-        "./dist/lib/elur/plugins.d.ts"
-      ],
-      "async": [
-        "./dist/lib/elur/async.d.ts"
-      ],
-      "template": [
-        "./dist/lib/elur/template/index.d.ts"
-      ],
-      "server": [
-        "./dist/lib/elur/server/index.d.ts"
-      ],
-      "hydrate": [
-        "./dist/lib/elur/hydrate/index.d.ts"
-      ],
-      "component": [
-        "./dist/lib/elur/component.d.ts"
-      ],
-      "context": [
-        "./dist/lib/elur/context.d.ts"
-      ],
-      "lifecycle": [
-        "./dist/lib/elur/lifecycle.d.ts"
-      ],
-      "devtools": [
-        "./dist/lib/elur/devtools.d.ts"
-      ],
-      "*": [
-        "./dist/lib/index.d.ts"
-      ]
-    }
-  },
-  "main": "./dist/lib/elur.cjs",
-  "module": "./dist/lib/elur.js",
-  "types": "./dist/lib/index.d.ts",
-  "files": [
-    "dist/lib",
-    "!dist/lib/*.map",
-    "LICENSE"
-  ],
-  "publishConfig": {
-    "access": "public"
-  },
-  "sideEffects": false,
-  "engines": {
-    "node": ">=20.19.0"
-  },
-  "scripts": {
-    "build": "bun run build:lib",
-    "build:lib": "vite build --config vite.lib.config.ts && tsc --project tsconfig.lib.json && node scripts/copy-dcts.mjs",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:e2e": "playwright test --config e2e/playwright.config.ts",
-    "test:e2e:chromium": "playwright test --config e2e/playwright.config.ts --project=chromium",
-    "coverage": "vitest run --coverage",
-    "check:types": "attw --pack .",
-    "test:artifact": "node scripts/artifact-smoke.mjs",
-    "prepublishOnly": "bun run build:lib && cp README.md .readme-full.md && cp .readme-npm.md README.md",
-    "postpublish": "mv .readme-full.md README.md"
-  },
-  "devDependencies": {
-    "@arethetypeswrong/cli": "^0.18.5",
-    "@playwright/test": "^1.62.1",
-    "@types/node": "^26.5.0",
-    "@vitest/coverage-v8": "^5.0.0",
-    "happy-dom": "^20.8.3",
-    "terser": "^5.46.0",
-    "typescript": "~7.0.2",
-    "vite": "^8.0.0",
-    "vitest": "^5.0.0"
-  },
-  "overrides": {
-    "vite": "^8.0.0"
-  }
 }

@@ -4,6 +4,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.7.0-beta.1
+
+### Fixed
+
+- **Estado reactivo compartido no existía en next-2** — el engine clásico
+  creaba eager `globalThis[Symbol.for("@elurjs/core/reactivity-state")]`
+  al cargar el módulo; el shim a next-2 lo perdió, así que escrituras
+  externas sobre ese objeto (elur-kit `setSSR`/`isSSR`, debug hooks de
+  `lifecycle.ts` antes del primer componente) eran no-ops. next-2 ahora
+  crea/mergea el objeto al importarse con el mismo contrato (`ssr: false`
+  por defecto); sus internals de engine siguen module-local.
+
 ## v3.7.0-beta.0
 
 Prerelease del canal beta de Elur Next (ver
