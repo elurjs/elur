@@ -4,6 +4,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## v4.0.0
+
+Promoción a estable del canal beta `3.7.0-beta.x`. **Breaking change:**
+el motor reactivo por defecto es `next-2` (push-pull versionado,
+computeds lazy, owners con cleanup O(1), scheduler de 3 niveles) — las
+rutas canónicas re-exportan esa implementación; el engine clásico queda
+en el historial de git.
+
+Novedades netas vs 3.6.2 (detalle en las secciones beta de abajo):
+
+- Motor next-2 por defecto: glitch-free verificado (el diamante clásico
+  produce estados rasgados en 3.6.2, no en 4.x), `createRoot`/`getOwner`/
+  `runWithOwner`/`onCleanup`/`constSignal`/`repeatLive`/`liveList`.
+- Link pooling (F3), scheduler con yield bajo input pendiente (F5),
+  `repeat` con preservación por shallow-equal (F8), owner cleanup O(1),
+  `moveBefore` con feature-detect, single-root keyed entries.
+- Runtime compilado T1/T2 (`_bindSignal`/`_bindDerived`), hidratación
+  compilada por posición (C.13), post-mount lifecycle queue, matriz G.
+- Soporte del ecosistema: `@elurjs/kit@2.6.0`, plugin `2.2.0`,
+  compiler `1.1.0`.
+
 ## v3.7.0-beta.1
 
 ### Fixed
