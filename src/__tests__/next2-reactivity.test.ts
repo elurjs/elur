@@ -14,7 +14,7 @@ import {
     _renderEffect,
     Owner,
     constSignal,
-} from "../elur/next-2/reactivity";
+} from "../elur/reactivity";
 
 // ── Signal ────────────────────────────────────────────────────────────────────
 

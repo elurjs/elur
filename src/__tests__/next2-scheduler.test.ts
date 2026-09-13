@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { signal, effect, batch } from "../elur/next-2/reactivity";
-import { inputPending, yieldControl, scheduleTask } from "../elur/next-2/scheduler";
+import { signal, effect, batch } from "../elur/reactivity";
+import { inputPending, yieldControl, scheduleTask } from "../elur/scheduler";
 
 // F5: el flush cede el hilo sólo cuando (a) quedan user effects pendientes,
 // (b) ya corrieron >256 pasos y (c) el navegador reporta input pendiente.

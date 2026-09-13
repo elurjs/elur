@@ -1,19 +1,19 @@
 import { describe, it, expect, vi } from "vitest";
-import { computed, signal, effect } from "../elur/next-2/reactivity";
+import { computed, signal, effect } from "../elur/reactivity";
 import {
     defineComponent,
     mountComponent,
     ComponentInstance,
     isComponentInvocation,
     slot,
-} from "../elur/next-2/component";
+} from "../elur/component-kernel";
 import { html } from "../elur/template/index";
 import { ElurComponent, _addComponentDebugHooks } from "../elur/lifecycle";
 import { renderToString } from "../elur/server/index";
-import { hydrate } from "../elur/next-2/hydrate";
+import { hydrate } from "../elur/hydrate/index";
 import { provide, inject, createInjectionKey } from "../elur/context";
 import { repeat } from "../elur/template/keyed";
-import { repeatLive } from "../elur/next-2/keyed-diff";
+import { repeatLive } from "../elur/template/keyed-diff";
 
 describe("next/defineComponent", () => {
     it("la invocación no ejecuta setup hasta montar", () => {
@@ -662,7 +662,7 @@ describe("A.21 — controllers (Lit-style)", () => {
 
 describe("B.12.7 — liveList (deltas)", () => {
     it("push/remove/set aplican deltas sin re-diff", async () => {
-        const { liveList } = await import("../elur/next-2/keyed-diff");
+        const { liveList } = await import("../elur/template/keyed-diff");
         const list = liveList<{ id: number; v: string }, number>({
             key: (i) => i.id,
             render: (getItem) => html`<li>${() => getItem().v}</li>`,
@@ -687,7 +687,7 @@ describe("B.12.7 — liveList (deltas)", () => {
     });
 
     it("move() reordena preservando nodos", async () => {
-        const { liveList } = await import("../elur/next-2/keyed-diff");
+        const { liveList } = await import("../elur/template/keyed-diff");
         const list = liveList<{ id: number; v: string }, number>({
             key: (i) => i.id,
             render: (getItem) => html`<li>${() => getItem().v}</li>`,
@@ -706,7 +706,7 @@ describe("B.12.7 — liveList (deltas)", () => {
     });
 
     it("clear() es bulk: borra la zona de una vez, no remove() por fila", async () => {
-        const { liveList } = await import("../elur/next-2/keyed-diff");
+        const { liveList } = await import("../elur/template/keyed-diff");
         const list = liveList<{ id: number; v: string }, number>({
             key: (i) => i.id,
             render: (getItem) => html`<li>${() => getItem().v}</li>`,
@@ -793,7 +793,7 @@ describe("cobertura — ciclos de memoria (ownership)", () => {
     it("componente funcional: dispose corta edges del render effect", async () => {
         const n = signal(0);
         const C = defineComponent(() => html`<i>${() => n.value}</i>`);
-        const inst = new (await import("../elur/next-2/component")).ComponentInstance(C({}));
+        const inst = new (await import("../elur/component-kernel")).ComponentInstance(C({}));
         const container = document.createElement("div");
         inst.mount(container, null);
         await Promise.resolve();
@@ -816,7 +816,7 @@ describe("cobertura — suspend bajo el kernel (A.16 + async)", () => {
             )}
             </section>`,
         );
-        const inst = new (await import("../elur/next-2/component")).ComponentInstance(C({}));
+        const inst = new (await import("../elur/component-kernel")).ComponentInstance(C({}));
         const container = document.createElement("div");
         inst.mount(container, null);
         expect(container.querySelector(".fb")).toBeTruthy(); // fallback visible

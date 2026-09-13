@@ -33,18 +33,18 @@ import {
   _debugComponentUnmount,
   type ElurComponent,
   type ComponentController,
-} from "../lifecycle.js";
+} from "./lifecycle.js";
 import {
   ELUR_RENDER_PROTOCOL,
   isElurTemplate,
   type DomProtocolContext,
-} from "../template/types.js";
+} from "./template/types.js";
 import {
   _pushComponentContext,
   _popComponentContext,
   _withComponentContext,
   _pushContextScopeResolver,
-} from "../context.js";
+} from "./context.js";
 
 // --- Máquina de estados (A.7) -------------------------------------------------
 
@@ -630,6 +630,8 @@ export class ComponentInstance implements Disposable {
     parent: Node;
     bounds: { start: Comment; end: Comment } | null;
     render(value: unknown): unknown;
+    /** "throw" propaga el mismatch en vez de remontar (HydrateOptions). */
+    mismatch?: "throw" | "warn-remount" | "remount";
   }): void {
     if (this.state !== "created") {
       throw new Error(`[elur-next] _hydrate(): estado inválido "${this.state}".`);
@@ -652,7 +654,11 @@ export class ComponentInstance implements Disposable {
         typeof hydrateCleanup === "function" ? (hydrateCleanup as () => void) : null;
       this.state = "mounted";
       this._runOnMount();
-    } catch {
+    } catch (error) {
+      if (ctx.mismatch === "throw") throw error;
+      if (ctx.mismatch !== "remount") {
+        console.warn("[elur] Hydration mismatch en componente; remounting:", error);
+      }
       // Mismatch SSR → rollback de la activación y remount por el kernel,
       // reutilizando this.renderable (onInit/setup ya corrieron — A.18).
       this.owner.dispose();
